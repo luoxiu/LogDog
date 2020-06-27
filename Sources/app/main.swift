@@ -53,19 +53,4 @@ func main() {
     run(logger: logger2)
 }
 
-//main()
-//
-//RunLoop.current.run()
-
-let m = FileManager.default
-
-func cleanup(_ path: String) {
-    let url = NSString(string: path).resolvingSymlinksInPath
-    print(url)
-//    while let e = m.enumerator(atPath: dir)?.nextObject() {
-//        print(e)
-//    }
-}
-
-cleanup("./Sources")
-
+main()
