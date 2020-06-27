@@ -59,8 +59,7 @@ extension OutputStreamLogHandler {
             backtrace: backtrace())
 
         do {
-            let formatted = try formatter.format(Log(rawLog, ()))
-            try outputStream.write(formatted)
+            try outputStream.write(try formatter.format(Log(rawLog, ())))
         } catch {
             print("LOGDOG: \(error)")
         }

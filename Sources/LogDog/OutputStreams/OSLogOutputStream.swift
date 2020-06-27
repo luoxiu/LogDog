@@ -13,9 +13,10 @@ public struct OSLogOutputStream: LogOutputStream {
         self.osLog = OSLog(subsystem: subsystem, category: category)
     }
     
-    public func write(_ log: Log<String>) {
+    public func write(_ log: @autoclosure () throws -> Log<String>) rethrows {
+        let l = try log()
         var type: OSLogType = .default
-        switch log.rawLog.level {
+        switch l.rawLog.level {
         case .critical:
             type = .fault
         case .error:
@@ -25,6 +26,6 @@ public struct OSLogOutputStream: LogOutputStream {
         case .debug, .trace:
             type = .debug
         }
-        os_log("%{public}s", log: osLog, type: type, log.output)
+        os_log("%{public}s", log: osLog, type: type, l.output)
     }
 }
