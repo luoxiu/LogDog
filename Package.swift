@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.1"),
     ],
     targets: [
-        .target(name: "app", dependencies: ["LogDog", "Backtrace"]),
+        .target(name: "app", dependencies: ["LogDog"]),
         .target(name: "LogDog", dependencies: [
             "Logging",
             "ProcessStartTime",
