@@ -8,6 +8,10 @@ import Darwin
 
 public final class RawLog: Codable {
     
+    public let id = UUID().uuidString
+    
+    public let schemaVersion = 1
+    
     public let label: String
     
     public let level: Logger.Level
