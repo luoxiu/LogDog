@@ -27,13 +27,13 @@ public struct ColorLogFormatter: LogFormatter {
 
 extension ColorLogFormatter {
     private static let colors = [
-        Color.grey,
+        Color(hex: 0x808080),
         Color(hex: 0x2196F3),
         Color(hex: 0x4CAF50),
-        Color.greenYellow,
+        Color(hex: 0xADFF2F),
         Color(hex: 0xFFC107),
         Color(hex: 0xF44336),
-        Color.red
+        Color(hex: 0xFF0000)
     ]
     
     public static func preferredColor(for level: Logger.Level) -> Color {
