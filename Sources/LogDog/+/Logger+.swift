@@ -13,7 +13,7 @@ extension Logger {
         Formatter.I == Void, Formatter.O == OutputStream.Output
     {
         var logger = Logger(label: label) { label -> LogHandler in
-            OutputStreamLogHandler(label: label, formatter: formatter, outputStream: outputStream)
+            LogDogLogHandler(label: label, formatter: formatter, outputStream: outputStream)
         }
         
         logger.logLevel = level

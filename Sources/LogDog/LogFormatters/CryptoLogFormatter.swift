@@ -12,7 +12,7 @@ public struct CryptoLogFormatter: LogFormatter {
         self.cipher = cipher
     }
     
-    public func format(_ log: Log<Data>) throws -> Log<Data> {
+    public func format(_ log: FormattedLogEntry<Data>) throws -> FormattedLogEntry<Data> {
         try log.map {
             let encrypted = try cipher.encrypt(Array($0))
             return Data(encrypted)

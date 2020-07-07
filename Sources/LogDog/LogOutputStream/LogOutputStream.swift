@@ -4,5 +4,5 @@ public protocol LogOutputStream {
     
     associatedtype Output
         
-    func write(_ log: @autoclosure () throws -> Log<Output>) rethrows
+    func write(_ logEntry: @autoclosure () throws -> FormattedLogEntry<Output>) rethrows
 }

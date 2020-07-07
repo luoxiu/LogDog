@@ -10,7 +10,7 @@ public final class StopwatchLogFormatter: LogFormatter {
     public init() {
     }
     
-    public func format(_ log: Log<Void>) throws -> Log<String> {
+    public func format(_ log: FormattedLogEntry<Void>) throws -> FormattedLogEntry<String> {
         let rawLog = log.rawLog
         
         var interval: TimeInterval = 0
@@ -20,6 +20,6 @@ public final class StopwatchLogFormatter: LogFormatter {
         self.last = Date()
         
         let message = "\(rawLog.label):\(rawLog.level.output(.initial)) \(rawLog.message) \(interval.formatted)"
-        return Log(rawLog, message)
+        return FormattedLogEntry(rawLog, message)
     }
 }

@@ -1,0 +1,5 @@
+import Logging
+
+extension Logger {
+
+}

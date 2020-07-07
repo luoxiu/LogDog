@@ -12,7 +12,7 @@ public struct ZipLogFormatter: LogFormatter {
         self.compressionLevel = compressionLevel
     }
     
-    public func format(_ log: Log<Data>) throws -> Log<Data> {
+    public func format(_ log: FormattedLogEntry<Data>) throws -> FormattedLogEntry<Data> {
         try log.map {
             try $0.gzipped(level: compressionLevel)
         }
