@@ -2,15 +2,7 @@ import Foundation
 import Logging
 import Backtrace
 
-#if canImport(Darwin)
-import Darwin
-#endif
-
-public final class RawLog: Codable {
-    
-    public let id = UUID().uuidString
-    
-    public let schemaVersion = 1
+public final class LogEntry: Encodable {
     
     public let label: String
     

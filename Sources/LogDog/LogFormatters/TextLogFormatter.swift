@@ -7,16 +7,16 @@ public struct TextLogFormatter: LogFormatter {
         "\(rawLog.level.output(.emoji3)) \(rawLog.date.timeString) - \(rawLog.label) -> \(rawLog.file.asPath.filenameWithoutExtension):\(rawLog.line) - \(rawLog.function) -> \(rawLog.message.description)\(rawLog.metadata.isEmpty ? "" : " 📦 \(rawLog.metadata)")"
     }
     
-    private let _format: (RawLog) -> String
+    private let _format: (LogEntry) -> String
     
-    public init(_ format: @escaping (RawLog) -> String) {
+    public init(_ format: @escaping (LogEntry) -> String) {
         _format = format
     }
     
-    public func format(_ log: Log<Void>) -> Log<String> {
+    public func format(_ log: FormattedLogEntry<Void>) -> FormattedLogEntry<String> {
         let rawLog = log.rawLog
         let formatted = _format(rawLog)
-        return Log(rawLog, formatted)
+        return FormattedLogEntry(rawLog, formatted)
     }
 }
 

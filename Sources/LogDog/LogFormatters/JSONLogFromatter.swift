@@ -7,7 +7,7 @@ public struct JSONLogFromatter: LogFormatter {
     
     public init() { }
     
-    public func format(_ log: Log<Void>) throws -> Log<Data> {
+    public func format(_ log: FormattedLogEntry<Void>) throws -> FormattedLogEntry<Data> {
         try log.map {
             try JSONEncoder().encode(log.rawLog)
         }

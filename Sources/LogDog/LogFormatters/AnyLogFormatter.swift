@@ -3,7 +3,7 @@ public struct AnyLogFormatter<I, O>: LogFormatter {
     
     private var box: Box<I, O>
     
-    public init(_ format: @escaping (Log<I>) throws -> Log<O>) {
+    public init(_ format: @escaping (FormattedLogEntry<I>) throws -> FormattedLogEntry<O>) {
         box = ClosureBox(format)
     }
     
@@ -11,7 +11,7 @@ public struct AnyLogFormatter<I, O>: LogFormatter {
         box = FormatterBox(formatter)
     }
     
-    public func format(_ log: Log<I>) throws -> Log<O> {
+    public func format(_ log: FormattedLogEntry<I>) throws -> FormattedLogEntry<O> {
         try box.format(log)
     }
 }
@@ -19,19 +19,19 @@ public struct AnyLogFormatter<I, O>: LogFormatter {
 extension AnyLogFormatter {
     
     private class Box<I, O>: LogFormatter {
-        func format(_ log: Log<I>) throws -> Log<O> {
+        func format(_ log: FormattedLogEntry<I>) throws -> FormattedLogEntry<O> {
             fatalError()
         }
     }
     
     private final class ClosureBox<I, O>: Box<I, O> {
-        private let closure: (Log<I>) throws -> Log<O>
+        private let closure: (FormattedLogEntry<I>) throws -> FormattedLogEntry<O>
         
-        init(_ closure: @escaping (Log<I>) throws -> Log<O>) {
+        init(_ closure: @escaping (FormattedLogEntry<I>) throws -> FormattedLogEntry<O>) {
             self.closure = closure
         }
         
-        override func format(_ log: Log<I>) throws -> Log<O> {
+        override func format(_ log: FormattedLogEntry<I>) throws -> FormattedLogEntry<O> {
             try closure(log)
         }
     }
@@ -44,7 +44,7 @@ extension AnyLogFormatter {
             self.formatter = formatter
         }
         
-        override func format(_ log: Log<I>) throws -> Log<O> {
+        override func format(_ log: FormattedLogEntry<I>) throws -> FormattedLogEntry<O> {
             try formatter.format(log)
         }
     }

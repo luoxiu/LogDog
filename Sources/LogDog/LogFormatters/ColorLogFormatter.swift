@@ -18,10 +18,10 @@ public struct ColorLogFormatter: LogFormatter {
         }
     }
     
-    public func format(_ log: Log<String>) -> Log<String> {
+    public func format(_ log: FormattedLogEntry<String>) -> FormattedLogEntry<String> {
         var style = ck
         style.fgColor = color(log.rawLog.level)
-        return Log(log.rawLog, style.on(log.output).description)
+        return FormattedLogEntry(log.rawLog, style.on(log.output).description)
     }
 }
 

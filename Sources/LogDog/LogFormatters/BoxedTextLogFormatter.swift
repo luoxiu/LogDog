@@ -112,7 +112,7 @@ public struct BoxedTextLogFormatter: LogFormatter {
         }
     }
     
-    public func format(_ log: Log<Void>) -> Log<String> {
+    public func format(_ log: FormattedLogEntry<Void>) -> FormattedLogEntry<String> {
         formatter.format(log)
     }
 }

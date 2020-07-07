@@ -4,7 +4,7 @@ import ProcessStartTime
 import UIKit
 #endif
 
-extension RawLog {
+extension LogEntry {
     
     public final class Context {
         public let clientId: String
