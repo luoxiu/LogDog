@@ -1,6 +1,6 @@
-import struct Foundation.Data
+import Foundation
 
-open class CryptoLogFormatter: LogFormatter<Data, Data> {
+open class CryptoLogProcessor: LogProcessor<Data, Data> {
     
     public let cipher: Cipher
 

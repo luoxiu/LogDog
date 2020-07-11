@@ -1,17 +1,13 @@
-import Rainbow
-import Chalk
-import Logging
-
-open class ColorLogFormatter: LogFormatter<String, String> {
+open class ColorLogProcessor: LogProcessor<String, String> {
     
     private let color: (Logger.Level) -> TerminalColor
     
     public init(_ color: @escaping (Logger.Level) -> TerminalColor) {
         self.color = color
         super.init {
-            let fgColor = color($0.origin.level)
+            let fgColor = color($0.raw.level)
             let style = Style(fgColor: fgColor)
-            return FormattedLogEntry($0.origin, style.on($0.output).description)
+            return ProcessedLogEntry($0.raw, style.on($0.output).description)
         }
     }
     
@@ -22,7 +18,7 @@ open class ColorLogFormatter: LogFormatter<String, String> {
     }
 }
 
-extension ColorLogFormatter {
+extension ColorLogProcessor {
     private static let colors = [
         Color(hex: 0x808080),
         Color(hex: 0x2196F3),

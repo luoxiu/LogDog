@@ -6,7 +6,7 @@ extension Logger {
         label: String,
         level: Logger.Level = .trace,
         metadata: Logger.Metadata = [:],
-        formatter: LogFormatter<Void, Output>,
+        formatter: LogProcessor<Void, Output>,
         outputStream: OutputStream
     )
         where OutputStream: LogOutputStream, OutputStream.Output == Output
@@ -24,7 +24,7 @@ extension Logger {
         label: String,
         level: Logger.Level = .trace,
         metadata: Logger.Metadata = [:],
-        formatter: LogFormatter<Void, String>
+        formatter: LogProcessor<Void, String>
     )
     {
         self.init(label: label, level: level, metadata: metadata, formatter: formatter, outputStream: StdoutLogOutputStream())

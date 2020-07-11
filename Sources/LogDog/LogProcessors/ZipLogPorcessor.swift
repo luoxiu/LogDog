@@ -1,6 +1,6 @@
-import struct Foundation.Data
+import Foundation
 
-open class ZipLogFormatter: LogFormatter<Data, Data> {
+open class ZipLogPorcessor: LogProcessor<Data, Data> {
     
     public let compressionLevel: CompressionLevel
     

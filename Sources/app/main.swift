@@ -9,7 +9,7 @@ let logger1: Logger = {
 //    )
 //    + ColorLogFormatter()
     
-    let formatter = TextLogFormatter.singleLine
+    let formatter = TextLogProcessor.singleLine
     
     let outputStream = StdoutLogOutputStream()
     
@@ -21,7 +21,7 @@ let logger1: Logger = {
 }()
 
 var logger2: Logger = {
-    let formatter = StopwatchLogFormatter() + ColorLogFormatter()
+    let formatter = StopwatchLogProcessor() + ColorLogProcessor()
     
     let outputStream = StdoutLogOutputStream()
     

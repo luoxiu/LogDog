@@ -21,10 +21,10 @@ public struct LogDogLogHandler<Output, OutputStream>: LogHandler where OutputStr
     
     public let label: String
     
-    public let formatter: LogFormatter<Void, Output>
+    public let formatter: LogProcessor<Void, Output>
     public let outputStream: OutputStream
     
-    public init(label: String, formatter: LogFormatter<Void, Output>, outputStream: OutputStream) {
+    public init(label: String, formatter: LogProcessor<Void, Output>, outputStream: OutputStream) {
         self.label = label
         self.formatter = formatter
         self.outputStream = outputStream
@@ -66,7 +66,7 @@ extension LogDogLogHandler {
                                 context: finalContext)
 
         do {
-            let formatted = try formatter.format(logEntry)
+            let formatted = try formatter.process(logEntry)
             outputStream.write(formatted)
         } catch {
             
