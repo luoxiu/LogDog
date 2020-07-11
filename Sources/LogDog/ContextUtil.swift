@@ -3,7 +3,7 @@ import Foundation
 import UIKit
 #endif
 
-public enum Utils {
+public enum ContextUtil {
     
     public static var currentThreadId: String {
         #if canImport(Darwin)
@@ -12,7 +12,6 @@ public enum Utils {
             return "\(id)"
         }
         #endif
-        
         return "\(Int(bitPattern: ObjectIdentifier(Thread.current)))"
     }
     

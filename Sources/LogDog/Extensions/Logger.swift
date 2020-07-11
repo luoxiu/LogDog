@@ -1,5 +1,0 @@
-import Logging
-
-extension Logger {
-
-}

@@ -1,15 +1,12 @@
 import Foundation
 
-public struct JSONLogFromatter: LogFormatter {
+open class JSONLogFromatter: LogFormatter<Void, Data> {
     
-    public typealias I = Void
-    public typealias O = Data
-    
-    public init() { }
-    
-    public func format(_ log: FormattedLogEntry<Void>) throws -> FormattedLogEntry<Data> {
-        try log.map {
-            try JSONEncoder().encode(log.rawLog)
+    public init() {
+        super.init { logEntry in
+            try logEntry.map {
+                try JSONEncoder().encode(logEntry.origin)
+            }
         }
     }
 }

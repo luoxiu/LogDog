@@ -1,27 +1,24 @@
 import Rainbow
+import Chalk
 import Logging
 
-public struct ColorLogFormatter: LogFormatter {
-    
-    public typealias I = String
-    public typealias O = String
+open class ColorLogFormatter: LogFormatter<String, String> {
     
     private let color: (Logger.Level) -> TerminalColor
     
     public init(_ color: @escaping (Logger.Level) -> TerminalColor) {
         self.color = color
-    }
-    
-    public init() {
-        self.color = {
-            Self.preferredColor(for: $0)
+        super.init {
+            let fgColor = color($0.origin.level)
+            let style = Style(fgColor: fgColor)
+            return FormattedLogEntry($0.origin, style.on($0.output).description)
         }
     }
     
-    public func format(_ log: FormattedLogEntry<String>) -> FormattedLogEntry<String> {
-        var style = ck
-        style.fgColor = color(log.rawLog.level)
-        return FormattedLogEntry(log.rawLog, style.on(log.output).description)
+    public convenience init() {
+        self.init {
+            Self.preferredColor(for: $0)
+        }
     }
 }
 

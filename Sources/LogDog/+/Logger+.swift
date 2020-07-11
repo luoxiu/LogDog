@@ -2,15 +2,14 @@ import Logging
 
 extension Logger {
     
-    public init<Formatter, OutputStream>(
+    public init<Output, OutputStream>(
         label: String,
         level: Logger.Level = .trace,
         metadata: Logger.Metadata = [:],
-        formatter: Formatter,
+        formatter: LogFormatter<Void, Output>,
         outputStream: OutputStream
     )
-        where Formatter: LogFormatter, OutputStream: LogOutputStream,
-        Formatter.I == Void, Formatter.O == OutputStream.Output
+        where OutputStream: LogOutputStream, OutputStream.Output == Output
     {
         var logger = Logger(label: label) { label -> LogHandler in
             LogDogLogHandler(label: label, formatter: formatter, outputStream: outputStream)
@@ -21,13 +20,12 @@ extension Logger {
         self = logger
     }
     
-    public init<Formatter>(
+    public init(
         label: String,
         level: Logger.Level = .trace,
         metadata: Logger.Metadata = [:],
-        formatter: Formatter
+        formatter: LogFormatter<Void, String>
     )
-        where Formatter: LogFormatter, Formatter.I == Void, Formatter.O == String
     {
         self.init(label: label, level: level, metadata: metadata, formatter: formatter, outputStream: StdoutLogOutputStream())
     }

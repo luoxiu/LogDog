@@ -12,6 +12,8 @@ public final class LogEntry: Encodable {
     
     public let metadata: Logger.Metadata
     
+    public let source: String
+    
     public let file: String
     
     public let function: String
@@ -19,39 +21,29 @@ public final class LogEntry: Encodable {
     public let line: UInt
     
     public let date: Date
-    
-    public let threadId: String
-    
-    public let threadName: String?
-    
-    public let dispatchQueueLabel: String?
-    
-    public let backtrace: [StackFrame]
+
+    public let context: Context
         
     public init(label: String,
                 level: Logger.Level,
                 message: Logger.Message,
                 metadata: Logger.Metadata,
+                source: String,
                 file: String,
                 function: String,
                 line: UInt,
                 date: Date,
-                threadId: String,
-                threadName: String?,
-                dispatchQueueLabel: String?,
-                backtrace: [StackFrame]
+                context: Context
     ) {
         self.label = label
         self.level = level
         self.message = message
         self.metadata = metadata
+        self.source = source
         self.file = file
         self.function = function
         self.line = line
         self.date = date
-        self.threadId = threadId
-        self.threadName = threadName
-        self.dispatchQueueLabel = dispatchQueueLabel
-        self.backtrace = backtrace
+        self.context = context
     }
 }
