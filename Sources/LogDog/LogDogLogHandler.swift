@@ -2,16 +2,13 @@ import struct Foundation.Date
 import Logging
 import Backtrace
 
-public struct LogDogLogHandler<Formatter, OutputStream>: LogHandler where Formatter: LogFormatter, OutputStream: LogOutputStream, Formatter.I == Void, Formatter.O == OutputStream.Output {
+public struct LogDogLogHandler<Output, OutputStream>: LogHandler where OutputStream: LogOutputStream, OutputStream.Output == Output {
     public var logLevel: Logger.Level = .info
-
-    public typealias DynamicMetadataValue = () -> Logger.MetadataValue
-    
-    public typealias DynamicMetadata = [String: DynamicMetadataValue]
     
     public var metadata: Logger.Metadata = [:]
     
-    public var dynamicMetadata: DynamicMetadata = [:]
+    /// Please note: dynamic metadata values override metadata values.
+    public var dynamicMetadata: [String: () -> Logger.MetadataValue] = [:]
 
     public subscript(metadataKey metadataKey: String) -> Logger.MetadataValue? {
         get {
@@ -22,22 +19,12 @@ public struct LogDogLogHandler<Formatter, OutputStream>: LogHandler where Format
         }
     }
     
-    /// Please note: dynamic metadata values override metadata values.
-    public subscript(metadataKey metadataKey: String) -> DynamicMetadataValue? {
-        get {
-            dynamicMetadata[metadataKey]
-        }
-        set(newValue) {
-            dynamicMetadata[metadataKey] = newValue
-        }
-    }
-    
     public let label: String
     
-    public let formatter: Formatter
+    public let formatter: LogFormatter<Void, Output>
     public let outputStream: OutputStream
     
-    public init(label: String, formatter: Formatter, outputStream: OutputStream) {
+    public init(label: String, formatter: LogFormatter<Void, Output>, outputStream: OutputStream) {
         self.label = label
         self.formatter = formatter
         self.outputStream = outputStream
@@ -68,21 +55,21 @@ extension LogDogLogHandler {
             finalMetadata.merge(metadata, uniquingKeysWith: { _, b in b })
         }
         
-        let rawLog = LogEntry(label: label,
-            level: level,
-            message: message,
-            metadata: finalMetadata,
-            file: file, function: function, line: line,
-            date: Date(),
-            threadId: Utils.currentThreadId,
-            threadName: Utils.currentThreadName,
-            dispatchQueueLabel: Utils.currentDispatchQueueLabel,
-            backtrace: backtrace())
+        let finalContext = formatter.dynamicContext.mapValues { $0().metadataValue }
+        
+        let logEntry = LogEntry(label: label,
+                                level: level,
+                                message: message,
+                                metadata: finalMetadata,
+                                source: source, file: file, function: function, line: line,
+                                date: Date(),
+                                context: finalContext)
 
         do {
-            try outputStream.write(try formatter.format(FormattedLogEntry(rawLog, ())))
+            let formatted = try formatter.format(logEntry)
+            outputStream.write(formatted)
         } catch {
-            print("LOGDOG: \(error)")
+            
         }
     }
 }

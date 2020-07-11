@@ -1,20 +1,15 @@
-import Foundation
-@_exported import Gzip
+import struct Foundation.Data
 
-public struct ZipLogFormatter: LogFormatter {
-    
-    public typealias I = Data
-    public typealias O = Data
+open class ZipLogFormatter: LogFormatter<Data, Data> {
     
     public let compressionLevel: CompressionLevel
     
     public init(_ compressionLevel: CompressionLevel) {
         self.compressionLevel = compressionLevel
-    }
-    
-    public func format(_ log: FormattedLogEntry<Data>) throws -> FormattedLogEntry<Data> {
-        try log.map {
-            try $0.gzipped(level: compressionLevel)
+        super.init {
+            try $0.map {
+                try $0.gzipped(level: compressionLevel)
+            }
         }
     }
 }

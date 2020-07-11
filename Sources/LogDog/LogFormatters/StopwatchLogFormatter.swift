@@ -1,25 +1,21 @@
 import Foundation
 
-public final class StopwatchLogFormatter: LogFormatter {
-    
-    public typealias I = Void
-    public typealias O = String
-    
-    private var last: Date?
-    
+open class StopwatchLogFormatter: LogFormatter<Void, String> {
+
     public init() {
-    }
-    
-    public func format(_ log: FormattedLogEntry<Void>) throws -> FormattedLogEntry<String> {
-        let rawLog = log.rawLog
+        var last: Date?
         
-        var interval: TimeInterval = 0
-        if let last = self.last {
-            interval = Date().timeIntervalSince(last)
+        super.init {
+            let rawLog = $0.origin
+            
+            var interval: TimeInterval = 0
+            if let last = last {
+                interval = Date().timeIntervalSince(last)
+            }
+            last = Date()
+            
+            let message = "\(rawLog.label):\(rawLog.level.output(.initial)) \(rawLog.message) \(interval.formatted)"
+            return FormattedLogEntry(rawLog, message)
         }
-        self.last = Date()
-        
-        let message = "\(rawLog.label):\(rawLog.level.output(.initial)) \(rawLog.message) \(interval.formatted)"
-        return FormattedLogEntry(rawLog, message)
     }
 }

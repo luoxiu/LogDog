@@ -1,14 +1,22 @@
-public protocol LogFormatter {
+open class LogFormatter<Input, Output> {
     
-    associatedtype I
-    associatedtype O
+    open var dynamicContext: [String: () -> MetadataValueConvertible]
     
-    func format(_ logEntry: FormattedLogEntry<I>) throws -> FormattedLogEntry<O>
+    private let transform: (FormattedLogEntry<Input>) throws -> FormattedLogEntry<Output>
+    
+    public init(_ transform: @escaping (FormattedLogEntry<Input>) throws -> FormattedLogEntry<Output>) {
+        self.dynamicContext = [:]
+        self.transform = transform
+    }
+    
+    open func format(_ logEntry: FormattedLogEntry<Input>) throws -> FormattedLogEntry<Output> {
+        try transform(logEntry)
+    }
 }
 
-extension LogFormatter where I == Void {
+extension LogFormatter where Input == Void {
     
-    func format(_ logEntry: LogEntry) throws -> FormattedLogEntry<O> {
+    open func format(_ logEntry: LogEntry) throws -> FormattedLogEntry<Output> {
         try format(FormattedLogEntry(logEntry, ()))
     }
 }
