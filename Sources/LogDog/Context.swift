@@ -18,15 +18,6 @@ public struct ContextCapture<T: LossLessMetadataValueConvertible> {
     }
 }
 
-extension LogProcessor {
-    
-    public func register<T: LossLessMetadataValueConvertible>(_ capture: ContextCapture<T>) {
-        dynamicContext[capture.name] = { () -> T in
-            capture.capture()!
-        }
-    }
-}
-
 extension LogEntry {
     
     public func get<T>(_ descriptor: ContextCapture<T>) -> T? {

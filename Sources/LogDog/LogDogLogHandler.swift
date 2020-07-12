@@ -21,12 +21,12 @@ public struct LogDogLogHandler<Output, OutputStream>: LogHandler where OutputStr
     
     public let label: String
     
-    public let formatter: LogProcessor<Void, Output>
+    public let processor: LogProcessor<Void, Output>
     public let outputStream: OutputStream
     
-    public init(label: String, formatter: LogProcessor<Void, Output>, outputStream: OutputStream) {
+    public init(label: String, processor: LogProcessor<Void, Output>, outputStream: OutputStream) {
         self.label = label
-        self.formatter = formatter
+        self.processor = processor
         self.outputStream = outputStream
     }
 }
@@ -55,7 +55,7 @@ extension LogDogLogHandler {
             finalMetadata.merge(metadata, uniquingKeysWith: { _, b in b })
         }
         
-        let finalContext = formatter.contextSnapshot
+        let finalContext = processor.contextSnapshot
         
         let logEntry = LogEntry(label: label,
                                 level: level,
@@ -66,7 +66,7 @@ extension LogDogLogHandler {
                                 context: finalContext)
 
         do {
-            let formatted = try formatter.process(logEntry)
+            let formatted = try processor.process(logEntry)
             outputStream.write(formatted)
         } catch {
             

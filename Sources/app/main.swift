@@ -2,7 +2,7 @@ import Foundation
 import LogDog
 
 let logger1: Logger = {
-    let formatter = BoxedTextLogProcessor(
+    let processor = BoxedTextLogProcessor(
         showDate: true,
         showThreadInfo: true,
         methodCount: 100
@@ -14,19 +14,19 @@ let logger1: Logger = {
     return Logger(label: "app",
                   level: .trace,
                   metadata: [:],
-                  formatter: formatter,
+                  processor: processor,
                   outputStream: outputStream)
 }()
 
 var logger2: Logger = {
-    let formatter = StopwatchLogProcessor() + ColorLogProcessor()
+    let processor = StopwatchLogProcessor() + ColorLogProcessor()
     
     let outputStream = StdoutLogOutputStream()
     
     return Logger(label: "app",
         level: .trace,
         metadata: [:],
-        formatter: formatter,
+        processor: processor,
         outputStream: outputStream)
 }()
 
