@@ -1,23 +1,17 @@
+/// Abstract class
 open class LogProcessor<Input, Output> {
     
-    public var dynamicContext: [String: () -> LossLessMetadataValueConvertible?]
+    public var contextCaptures: [String: () -> LossLessMetadataValueConvertible?]
     
-    private let transform: (ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>
+    public let transform: (ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>
     
     public init(_ transform: @escaping (ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>) {
         self.transform = transform
-        self.dynamicContext = [:]
+        self.contextCaptures = [:]
     }
     
     open func process(_ logEntry: ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output> {
         try transform(logEntry)
-    }
-}
-
-extension LogProcessor {
-    
-    public var contextSnapshot: [String: Logger.MetadataValue] {
-        dynamicContext.compactMapValues { $0()?.metadataValue }
     }
 }
 
@@ -28,22 +22,35 @@ extension LogProcessor where Input == Void {
     }
 }
 
+// MARK: - Context
+extension LogProcessor {
+    public func register<T: LossLessMetadataValueConvertible>(_ capture: ContextCapture<T>) {
+        contextCaptures[capture.name] = { () -> T in
+            capture.capture()!
+        }
+    }
+    
+    public var contextSnapshot: [String: Logger.MetadataValue] {
+        contextCaptures.compactMapValues { $0()?.metadataValue }
+    }
+}
+
+// MARK: - Concat
 extension LogProcessor {
     
-    public func concat<T>(_ processor: LogProcessor<Output, T>) -> LogProcessor<Input, T> {
-        let formatter = LogProcessor<Input, T> {
+    public func combine<T>(_ processor: LogProcessor<Output, T>) -> LogProcessor<Input, T> {
+        let newProcessor = LogProcessor<Input, T> {
             let logEntry = try self.process($0)
             return try processor.process(logEntry)
         }
         
-        formatter.dynamicContext.merge(dynamicContext, uniquingKeysWith: { _, b in b })
-        formatter.dynamicContext.merge(processor.dynamicContext, uniquingKeysWith: { _, b in b })
+        newProcessor.contextCaptures.merge(contextCaptures, uniquingKeysWith: { _, b in b })
+        newProcessor.contextCaptures.merge(processor.contextCaptures, uniquingKeysWith: { _, b in b })
         
-        return formatter
+        return newProcessor
     }
 }
 
 public func +<Input, Medium, Output>(_ processorA: LogProcessor<Input, Medium>, _ processorB: LogProcessor<Medium, Output>) -> LogProcessor<Input, Output> {
-    processorA.concat(processorB)
+    processorA.combine(processorB)
 }
-

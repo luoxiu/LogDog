@@ -6,13 +6,13 @@ extension Logger {
         label: String,
         level: Logger.Level = .trace,
         metadata: Logger.Metadata = [:],
-        formatter: LogProcessor<Void, Output>,
+        processor: LogProcessor<Void, Output>,
         outputStream: OutputStream
     )
         where OutputStream: LogOutputStream, OutputStream.Output == Output
     {
         var logger = Logger(label: label) { label -> LogHandler in
-            LogDogLogHandler(label: label, formatter: formatter, outputStream: outputStream)
+            LogDogLogHandler(label: label, processor: processor, outputStream: outputStream)
         }
         
         logger.logLevel = level
@@ -24,9 +24,9 @@ extension Logger {
         label: String,
         level: Logger.Level = .trace,
         metadata: Logger.Metadata = [:],
-        formatter: LogProcessor<Void, String>
+        processor: LogProcessor<Void, String>
     )
     {
-        self.init(label: label, level: level, metadata: metadata, formatter: formatter, outputStream: StdoutLogOutputStream())
+        self.init(label: label, level: level, metadata: metadata, processor: processor, outputStream: StdoutLogOutputStream())
     }
 }
