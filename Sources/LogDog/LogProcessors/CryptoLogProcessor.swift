@@ -1,17 +1,22 @@
 import Foundation
 
-open class CryptoLogProcessor: LogProcessor<Data, Data> {
+public struct CryptoLogProcessor: LogProcessor {
+
+    public typealias Input = Data
+    public typealias Output = Data
+    
+    public var contextCaptures: [String : () -> LossLessMetadataValueConvertible?] = [:]
     
     public let cipher: Cipher
 
     public init(cipher: Cipher) {
         self.cipher = cipher
-        
-        super.init {
-            try $0.map {
-                let encrypted = try cipher.encrypt(Array($0))
-                return Data(encrypted)
-            }
+    }
+    
+    public func process(_ logEntry: ProcessedLogEntry<Data>) throws -> ProcessedLogEntry<Data> {
+        try logEntry.map { data in
+            let encrypted = try cipher.encrypt(Array(data))
+            return Data(encrypted)
         }
     }
 }

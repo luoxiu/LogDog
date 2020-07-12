@@ -1,32 +1,25 @@
 /// Abstract class
-open class LogProcessor<Input, Output> {
+public protocol LogProcessor {
+    associatedtype Input
+    associatedtype Output
     
-    public var contextCaptures: [String: () -> LossLessMetadataValueConvertible?]
+    var contextCaptures: [String: () -> LossLessMetadataValueConvertible?] { get set }
     
-    public let transform: (ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>
-    
-    public init(_ transform: @escaping (ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>) {
-        self.transform = transform
-        self.contextCaptures = [:]
-    }
-    
-    open func process(_ logEntry: ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output> {
-        try transform(logEntry)
-    }
+    func process(_ logEntry: ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>
 }
 
 extension LogProcessor where Input == Void {
     
-    open func process(_ logEntry: LogEntry) throws -> ProcessedLogEntry<Output> {
-        try transform(ProcessedLogEntry(logEntry, ()))
+    func process(_ logEntry: LogEntry) throws -> ProcessedLogEntry<Output> {
+        try process(ProcessedLogEntry(logEntry, ()))
     }
 }
 
 // MARK: - Context
 extension LogProcessor {
-    public func register<T: LossLessMetadataValueConvertible>(_ capture: ContextCapture<T>) {
-        contextCaptures[capture.name] = { () -> T in
-            capture.capture()!
+    public mutating func register<T: LossLessMetadataValueConvertible>(_ capture: ContextCapture<T>) {
+        contextCaptures[capture.name] = { () -> T? in
+            capture.capture()
         }
     }
     
@@ -38,19 +31,11 @@ extension LogProcessor {
 // MARK: - Concat
 extension LogProcessor {
     
-    public func combine<T>(_ processor: LogProcessor<Output, T>) -> LogProcessor<Input, T> {
-        let newProcessor = LogProcessor<Input, T> {
-            let logEntry = try self.process($0)
-            return try processor.process(logEntry)
-        }
-        
-        newProcessor.contextCaptures.merge(contextCaptures, uniquingKeysWith: { _, b in b })
-        newProcessor.contextCaptures.merge(processor.contextCaptures, uniquingKeysWith: { _, b in b })
-        
-        return newProcessor
+    public func combine<P>(_ other: P) -> MultiplexLogProcessor<Input, P.Output> where P: LogProcessor, P.Input == Output {
+        .init(self, other)
     }
 }
 
-public func +<Input, Medium, Output>(_ processorA: LogProcessor<Input, Medium>, _ processorB: LogProcessor<Medium, Output>) -> LogProcessor<Input, Output> {
-    processorA.combine(processorB)
+public func +<A, B>(_ a: A, _ b: B) -> MultiplexLogProcessor<A.Input, B.Output> where A: LogProcessor, B: LogProcessor, A.Output == B.Input {
+    a.combine(b)
 }

@@ -2,7 +2,7 @@ import Foundation
 import Logging
 import Backtrace
 
-public final class LogEntry: Encodable {
+public final class LogEntry: Codable {
     
     public let label: String
     

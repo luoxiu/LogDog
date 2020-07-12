@@ -16,7 +16,7 @@ public struct OSLogOutputStream: LogOutputStream {
     public func write(_ logEntry: @autoclosure () throws -> ProcessedLogEntry<String>) rethrows {
         let logEntry = try logEntry()
         var type: OSLogType = .default
-        switch logEntry.raw.level {
+        switch logEntry.rawLogEntry.level {
         case .critical:
             type = .fault
         case .error:

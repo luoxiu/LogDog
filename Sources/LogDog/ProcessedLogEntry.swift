@@ -1,10 +1,10 @@
 public struct ProcessedLogEntry<Output> {
     
-    public let raw: LogEntry
+    public let rawLogEntry: LogEntry
     public let output: Output
     
-    public init(_ raw: LogEntry, _ output: Output) {
-        self.raw = raw
+    public init(_ rawLogEntry: LogEntry, _ output: Output) {
+        self.rawLogEntry = rawLogEntry
         self.output = output
     }
 }
@@ -12,6 +12,6 @@ public struct ProcessedLogEntry<Output> {
 extension ProcessedLogEntry {
     
     public func map<T>(_ transform: (Output) throws -> T) rethrows -> ProcessedLogEntry<T> {
-        try ProcessedLogEntry<T>(raw, transform(output))
+        try ProcessedLogEntry<T>(rawLogEntry, transform(output))
     }
 }

@@ -1,35 +1,56 @@
-open class ColorLogProcessor: LogProcessor<String, String> {
+public struct ColorLogProcessor: LogProcessor {
+    
+    public typealias Input = String
+    public typealias Output = String
     
     private let color: (Logger.Level) -> TerminalColor
     
+    public var contextCaptures: [String : () -> LossLessMetadataValueConvertible?] = [:]
+    
     public init(_ color: @escaping (Logger.Level) -> TerminalColor) {
         self.color = color
-        super.init {
-            let fgColor = color($0.raw.level)
-            let style = Style(fgColor: fgColor)
-            return ProcessedLogEntry($0.raw, style.on($0.output).description)
-        }
     }
     
-    public convenience init() {
+    public init() {
         self.init {
             Self.preferredColor(for: $0)
         }
+    }
+    
+    public func process(_ logEntry: ProcessedLogEntry<String>) throws -> ProcessedLogEntry<String> {
+        let fgColor = color(logEntry.rawLogEntry.level)
+        let style = Style(fgColor: fgColor)
+        return ProcessedLogEntry(logEntry.rawLogEntry, style.on(logEntry.output).description)
     }
 }
 
 extension ColorLogProcessor {
     private static let colors = [
-        Color(hex: 0x808080),
-        Color(hex: 0x2196F3),
-        Color(hex: 0x4CAF50),
-        Color(hex: 0xADFF2F),
-        Color(hex: 0xFFC107),
-        Color(hex: 0xF44336),
-        Color(hex: 0xFF0000)
+        Color.Material.blueGrey,
+        Color.Material.grey,
+        Color.Material.green,
+        Color.Material.lightGreen,
+        Color.Material.yellow,
+        Color.Material.orange,
+        Color.Material.red
     ]
     
     public static func preferredColor(for level: Logger.Level) -> Color {
-        return Self.colors[level.intValue]
+        switch level {
+        case .trace:
+            return Color.Material.blueGrey
+        case .debug:
+            return Color.Material.grey
+        case .notice:
+            return Color.Material.green
+        case .info:
+            return Color.Material.lightGreen
+        case .warning:
+            return Color.Material.yellow
+        case .error:
+            return Color.Material.orange
+        case .critical:
+            return Color.Material.red
+        }
     }
 }

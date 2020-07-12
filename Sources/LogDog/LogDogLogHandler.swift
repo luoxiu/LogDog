@@ -2,7 +2,7 @@ import struct Foundation.Date
 import Logging
 import Backtrace
 
-public struct LogDogLogHandler<Output, OutputStream>: LogHandler where OutputStream: LogOutputStream, OutputStream.Output == Output {
+public struct LogDogLogHandler<Processor, OutputStream>: LogHandler where Processor: LogProcessor, OutputStream: LogOutputStream, Processor.Input == Void, Processor.Output == OutputStream.Output {
     public var logLevel: Logger.Level = .info
     
     public var metadata: Logger.Metadata = [:]
@@ -21,10 +21,10 @@ public struct LogDogLogHandler<Output, OutputStream>: LogHandler where OutputStr
     
     public let label: String
     
-    public let processor: LogProcessor<Void, Output>
+    public let processor: Processor
     public let outputStream: OutputStream
     
-    public init(label: String, processor: LogProcessor<Void, Output>, outputStream: OutputStream) {
+    public init(label: String, processor: Processor, outputStream: OutputStream) {
         self.label = label
         self.processor = processor
         self.outputStream = outputStream

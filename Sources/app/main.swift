@@ -5,7 +5,7 @@ let logger1: Logger = {
     let processor = BoxedTextLogProcessor(
         showDate: true,
         showThreadInfo: true,
-        methodCount: 100
+        methodCount: 2
     )
     + ColorLogProcessor()
     
@@ -19,7 +19,7 @@ let logger1: Logger = {
 }()
 
 var logger2: Logger = {
-    let processor = StopwatchLogProcessor() + ColorLogProcessor()
+    let processor = TextLogProcessor.singleLine + ColorLogProcessor()
     
     let outputStream = StdoutLogOutputStream()
     
