@@ -1,5 +1,11 @@
 import Logging
 
+extension Logger.MetadataValue {
+    public static func any(_ any: Any) -> Logger.MetadataValue {
+        .string("\(any)")
+    }
+}
+
 extension Logger.MetadataValue: Encodable {
     public func encode(to encoder: Encoder) throws {
         switch self {

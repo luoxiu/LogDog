@@ -55,7 +55,7 @@ extension LogDogLogHandler {
             finalMetadata.merge(metadata, uniquingKeysWith: { _, b in b })
         }
         
-        let finalContext = formatter.dynamicContext.mapValues { $0().metadataValue }
+        let finalContext = formatter.contextSnapshot
         
         let logEntry = LogEntry(label: label,
                                 level: level,

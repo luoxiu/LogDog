@@ -15,5 +15,3 @@ open class CryptoLogProcessor: LogProcessor<Data, Data> {
         }
     }
 }
-
-
