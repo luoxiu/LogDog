@@ -1,29 +1,36 @@
 import Foundation
 
-open class TextLogProcessor: LogProcessor<Void, String> {
+public struct TextLogProcessor: LogProcessor {
     
-    public init(_ format: @escaping (LogEntry) -> String) {
-        super.init {
-            let rawLog = $0.raw
-            let formatted = format(rawLog)
-            return ProcessedLogEntry(rawLog, formatted)
-        }
+    public typealias Input = Void
+    public typealias Output = String
+    
+    public var contextCaptures: [String : () -> LossLessMetadataValueConvertible?] = [:]
+    
+    public let transform: (LogEntry) -> String
+    
+    public init(_ transform: @escaping (LogEntry) -> String) {
+        self.transform = transform
+    }
+    
+    public func process(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
+        return ProcessedLogEntry(logEntry.rawLogEntry, transform(logEntry.rawLogEntry))
     }
 }
 
 extension TextLogProcessor {
     
-    public static let singleLine = TextLogProcessor {
-        let level = $0.level.output(.emoji3)
-        let time = $0.date.timeString
-        let label = $0.label
-        let filename = $0.file.lastPathComponent.deletingPathExtension
-        let line = $0.line
-        let function = $0.function
-        let message = $0.message.description
-        let metadata = $0.metadata.isEmpty ? "" : " 📦 \($0.metadata)"
-        
-        return "\(level) \(time) - \(label) -> \(filename):\(line) - \(function) -> \(message)\(metadata)"
+    public static let singleLine = TextLogProcessor { logEntry in
+        let level = logEntry.level.output(.emoji3)
+        let time = logEntry.date.timeString
+        let label = logEntry.label
+        let filename = logEntry.file.lastPathComponent.deletingPathExtension
+        let line = logEntry.line
+        let function = logEntry.function
+        let message = logEntry.message.description
+        let metadata = logEntry.metadata.isEmpty ? "" : " 📦 \(logEntry.metadata)"
+
+        return "\(label):\(level) \(time) -> \(filename):\(line) - \(function) -> \(message)\(metadata)"
     }
 }
 

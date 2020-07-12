@@ -2,14 +2,14 @@ import Logging
 
 extension Logger {
     
-    public init<Output, OutputStream>(
+    public init<Processor, OutputStream>(
         label: String,
         level: Logger.Level = .trace,
         metadata: Logger.Metadata = [:],
-        processor: LogProcessor<Void, Output>,
+        processor: Processor,
         outputStream: OutputStream
     )
-        where OutputStream: LogOutputStream, OutputStream.Output == Output
+    where Processor: LogProcessor, OutputStream: LogOutputStream, Processor.Input == Void, Processor.Output == OutputStream.Output
     {
         var logger = Logger(label: label) { label -> LogHandler in
             LogDogLogHandler(label: label, processor: processor, outputStream: outputStream)
@@ -18,15 +18,5 @@ extension Logger {
         logger.logLevel = level
         
         self = logger
-    }
-    
-    public init(
-        label: String,
-        level: Logger.Level = .trace,
-        metadata: Logger.Metadata = [:],
-        processor: LogProcessor<Void, String>
-    )
-    {
-        self.init(label: label, level: level, metadata: metadata, processor: processor, outputStream: StdoutLogOutputStream())
     }
 }
