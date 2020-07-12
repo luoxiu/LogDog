@@ -2,14 +2,12 @@ import Foundation
 import LogDog
 
 let logger1: Logger = {
-//    let formatter = BoxedTextLogFormatter(
-//        showDate: true,
-//        showThreadInfo: true,
-//        methodCount: 2
-//    )
-//    + ColorLogFormatter()
-    
-    let formatter = TextLogProcessor.singleLine
+    let formatter = BoxedTextLogProcessor(
+        showDate: true,
+        showThreadInfo: true,
+        methodCount: 100
+    )
+    + ColorLogProcessor()
     
     let outputStream = StdoutLogOutputStream()
     

@@ -1,16 +1,23 @@
 open class LogProcessor<Input, Output> {
     
-    open var dynamicContext: [String: () -> MetadataValueConvertible]
+    public var dynamicContext: [String: () -> LossLessMetadataValueConvertible?]
     
     private let transform: (ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>
     
     public init(_ transform: @escaping (ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>) {
-        self.dynamicContext = [:]
         self.transform = transform
+        self.dynamicContext = [:]
     }
     
     open func process(_ logEntry: ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output> {
         try transform(logEntry)
+    }
+}
+
+extension LogProcessor {
+    
+    public var contextSnapshot: [String: Logger.MetadataValue] {
+        dynamicContext.compactMapValues { $0()?.metadataValue }
     }
 }
 
@@ -24,10 +31,15 @@ extension LogProcessor where Input == Void {
 extension LogProcessor {
     
     public func concat<T>(_ processor: LogProcessor<Output, T>) -> LogProcessor<Input, T> {
-        return .init {
+        let formatter = LogProcessor<Input, T> {
             let logEntry = try self.process($0)
             return try processor.process(logEntry)
         }
+        
+        formatter.dynamicContext.merge(dynamicContext, uniquingKeysWith: { _, b in b })
+        formatter.dynamicContext.merge(processor.dynamicContext, uniquingKeysWith: { _, b in b })
+        
+        return formatter
     }
 }
 
