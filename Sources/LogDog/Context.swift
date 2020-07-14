@@ -119,8 +119,9 @@ extension ContextCapture {
             return "Linux"
             #elseif os(FreeBSD)
             return "FreeBSD"
-            #elseif swift(>=5.3) && os(OpenBSD)
-            return "OpenBSD"
+            // swift(>=5.3)
+//            #elseif os(OpenBSD)
+//            return "OpenBSD"
             #elseif os(Windows)
             return "Windows"
             #elseif os(Android)

@@ -11,7 +11,7 @@ public struct JSONLogProcessor: LogProcessor {
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<Data> {
-        try logEntry.map {
+        logEntry.map {
             try JSONEncoder().encode(logEntry.rawLogEntry)
         }
     }

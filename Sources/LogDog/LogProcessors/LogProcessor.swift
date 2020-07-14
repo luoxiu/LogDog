@@ -1,4 +1,3 @@
-/// Abstract class
 public protocol LogProcessor {
     associatedtype Input
     associatedtype Output
@@ -11,7 +10,7 @@ public protocol LogProcessor {
 extension LogProcessor where Input == Void {
     
     func process(_ logEntry: LogEntry) throws -> ProcessedLogEntry<Output> {
-        try process(ProcessedLogEntry(logEntry, ()))
+        try process(ProcessedLogEntry(logEntry, {}))
     }
 }
 

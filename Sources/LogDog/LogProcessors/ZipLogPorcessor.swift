@@ -14,8 +14,8 @@ public struct ZipLogPorcessor: LogProcessor {
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Data>) throws -> ProcessedLogEntry<Data> {
-        try logEntry.map { data in
-           try data.gzipped(level: compressionLevel)
+        logEntry.map { data in
+            try data.gzipped(level: self.compressionLevel)
         }
     }
 }
