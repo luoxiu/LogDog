@@ -1,4 +1,4 @@
-public struct StdoutLogOutputStream: LogOutputStream {
+public final class StdoutLogOutputStream: LogOutputStream {
     
     public init() { }
     

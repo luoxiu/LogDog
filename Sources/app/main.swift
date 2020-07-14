@@ -30,7 +30,6 @@ var logger2: Logger = {
         outputStream: outputStream)
 }()
 
-
 func run(logger: Logger) {
     logger.trace("POST /users", metadata: ["body": ["name": "秋"]])
 
@@ -53,3 +52,5 @@ func main() {
 }
 
 main()
+
+RunLoop.current.run()

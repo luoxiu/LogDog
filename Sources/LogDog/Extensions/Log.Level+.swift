@@ -18,8 +18,6 @@ extension Logger.Level {
     private static let emojis1 = ["🟤", "🔵", "🟢", "❗️", "‼️", "❌", "🆘"]
     private static let emojis2 = ["📓", "📘", "📗", "📔", "📒", "📙", "📕"]
     private static let emojis3 = ["😶", "😐", "😮", "😲", "😨", "😱", "💀"]
-    private static let initials = ["t", "d", "i", "n", "w", "e", "c"]
-    private static let uppercase = ["TRACE", "DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "CRITICAL"]
     
     public func output(_ style: OutputStyle) -> String {
         switch style {
@@ -30,19 +28,19 @@ extension Logger.Level {
         case .emoji3:
             return Self.emojis3[intValue]
         case .initial:
-            return Self.initials[intValue]
+            return String(rawValue.first!)
         case .uppercase:
-            return Self.uppercase[intValue]
+            return rawValue.uppercased()
         case .lowercase:
-            return Self.uppercase[intValue].lowercased()
-        case .custom(let toS):
-            return toS(self)
+            return rawValue.lowercased()
+        case .custom(let transform):
+            return transform(self)
         }
     }
 }
 
 extension Logger.Level {
-    public var intValue: Int {
+    private var intValue: Int {
         switch self {
         case .trace:
             return 0
