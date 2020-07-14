@@ -128,7 +128,7 @@ extension OperatingSystemVersion: LossLessMetadataValueConvertible {
 
 extension StackFrame: LossLessMetadataValueConvertible {
     public var metadataValue: Logger.MetadataValue {
-        .array([module, function].map { $0.metadataValue })
+        .array([moduleName, functionName].map { $0.metadataValue })
     }
     
     public init?(_ metadataValue: Logger.MetadataValue) {
@@ -141,7 +141,7 @@ extension StackFrame: LossLessMetadataValueConvertible {
                 }
             }
             guard components.count == 2 else { return nil }
-            self.init(module: components[0], function: components[1])
+            self.init(moduleName: components[0], functionName: components[1])
         default:
             return nil
         }

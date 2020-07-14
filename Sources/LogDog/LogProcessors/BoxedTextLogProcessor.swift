@@ -102,7 +102,7 @@ public struct BoxedTextLogProcessor: LogProcessor {
             let backtraceToLog = backtrace[safe: methodOffset ..< (methodOffset + methodCount)]
             backtraceToLog
                 .map {
-                    $0.resolvedFunction(options: .simplified)
+                    $0.resolvedFunctionName(using: .simplified)
                 }
                 .enumerated().forEach { i, line in
                     var s = String(repeating: " ", count: i * 4) + line
