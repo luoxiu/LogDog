@@ -38,6 +38,15 @@
         }
       },
       {
+        "package": "FileKit",
+        "repositoryURL": "https://github.com/nvzqz/FileKit.git",
+        "state": {
+          "branch": null,
+          "revision": "826d9161b184509f80d85c28cd612d630646de98",
+          "version": "6.0.0"
+        }
+      },
+      {
         "package": "Gzip",
         "repositoryURL": "https://github.com/1024jp/GzipSwift",
         "state": {

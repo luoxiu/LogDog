@@ -1,7 +1,7 @@
 import os
 
 @available(OSX 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
-public struct OSLogOutputStream: LogOutputStream {
+public final class OSLogOutputStream: LogOutputStream {
     
     public let osLog: OSLog
     
