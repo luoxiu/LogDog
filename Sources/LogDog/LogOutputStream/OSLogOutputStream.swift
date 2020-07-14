@@ -13,10 +13,14 @@ public final class OSLogOutputStream: LogOutputStream {
         self.osLog = OSLog(subsystem: subsystem, category: category)
     }
     
-    public func write(_ logEntry: @autoclosure () throws -> ProcessedLogEntry<String>) rethrows {
+    public func write(_ logEntry: @autoclosure () throws -> ProcessedLogEntry<String>) throws {
         let logEntry = try logEntry()
+        
+        let level = logEntry.rawLogEntry.level
+        let output = try logEntry.output()
+        
         var type: OSLogType = .default
-        switch logEntry.rawLogEntry.level {
+        switch level {
         case .critical:
             type = .fault
         case .error:
@@ -26,6 +30,6 @@ public final class OSLogOutputStream: LogOutputStream {
         case .debug, .trace:
             type = .debug
         }
-        os_log("%{public}s", log: osLog, type: type, logEntry.output)
+        os_log("%{public}s", log: osLog, type: type, output)
     }
 }

@@ -19,7 +19,6 @@ public struct BoxedTextLogProcessor: LogProcessor {
         methodCount: Int = 0,
         methodOffset: Int = 16
     ) {
-        
         self.rowWidth = rowWidth
         self.showDate = showDate
         self.showThreadInfo = showThreadInfo
@@ -38,104 +37,104 @@ public struct BoxedTextLogProcessor: LogProcessor {
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
-        let topBorder = "┌" + repeatElement("─", count: rowWidth)
-        let bottomBorder = "└" + repeatElement("─", count: rowWidth)
-        let horizontalDivider = "├" + repeatElement("┄", count: rowWidth)
-        
-        let rawLogEntry = logEntry.rawLogEntry
-        
-        let prefix = "\(rawLogEntry.label):\(rawLogEntry.level.output(.initial)) "
-        
-        var message = ""
-        
-        func output(_ line: String) {
-            message += prefix
-            message += "| "
-            message += line
-            message += "\n"
-        }
-        
-        func outputHorizontalDivider() {
-            message += prefix
-            message += horizontalDivider
-            message += "\n"
-        }
-        
-        func outputTopBorder() {
-            message += prefix
-            message += topBorder
-            message += "\n"
-        }
-        
-        func outputBottomBorder() {
-            message += prefix
-            message += bottomBorder
-        }
-        
-        outputTopBorder()
-        
-        if showDate {
-            output(rawLogEntry.date.iso8601String)
-            outputHorizontalDivider()
-        }
-        
-        if showThreadInfo {
-            let threadId = rawLogEntry.get(.currentThreadId)
-            let threadName = rawLogEntry.get(.currentThreadName)
-            let dispatchQueueLabel = rawLogEntry.get(.currentDispatchQueueLabel)
+        return .init(logEntry.rawLogEntry, {
+            let topBorder = "┌" + repeatElement("─", count: self.rowWidth)
+            let bottomBorder = "└" + repeatElement("─", count: self.rowWidth)
+            let horizontalDivider = "├" + repeatElement("┄", count: self.rowWidth)
             
-            var threadInfo = ""
-            if let threadName = threadName, threadName.count > 0 {
-                threadInfo = "Thread \(threadName)"
-            } else if let label = dispatchQueueLabel, label.count > 0 {
-                threadInfo = label
-            } else {
-                threadInfo = "Thread \(threadId as Any)"
+            let rawLogEntry = logEntry.rawLogEntry
+            
+            let prefix = "\(rawLogEntry.label):\(rawLogEntry.level.output(.initial)) "
+            
+            var message = ""
+            
+            func output(_ line: String) {
+                message += prefix
+                message += "| "
+                message += line
+                message += "\n"
             }
             
-            output(threadInfo)
-            outputHorizontalDivider()
-        }
-        
-        if methodCount > 0 {
-            let backtrace = rawLogEntry.get(.backtrace) ?? []
-            let backtraceToLog = backtrace[safe: methodOffset ..< (methodOffset + methodCount)]
-            backtraceToLog
-                .map {
-                    $0.resolvedFunctionName(using: .simplified)
+            func outputHorizontalDivider() {
+                message += prefix
+                message += horizontalDivider
+                message += "\n"
+            }
+            
+            func outputTopBorder() {
+                message += prefix
+                message += topBorder
+                message += "\n"
+            }
+            
+            func outputBottomBorder() {
+                message += prefix
+                message += bottomBorder
+            }
+            
+            outputTopBorder()
+            
+            if self.showDate {
+                output(rawLogEntry.date.iso8601String)
+                outputHorizontalDivider()
+            }
+            
+            if self.showThreadInfo {
+                let threadId = rawLogEntry.get(.currentThreadId)
+                let threadName = rawLogEntry.get(.currentThreadName)
+                let dispatchQueueLabel = rawLogEntry.get(.currentDispatchQueueLabel)
+                
+                var threadInfo = ""
+                if let threadName = threadName, threadName.count > 0 {
+                    threadInfo = "Thread \(threadName)"
+                } else if let label = dispatchQueueLabel, label.count > 0 {
+                    threadInfo = label
+                } else {
+                    threadInfo = "Thread \(threadId as Any)"
                 }
-                .enumerated().forEach { i, line in
-                    var s = String(repeating: " ", count: i * 4) + line
-                    if i == 0 {
-                        s += " - \(rawLogEntry.file.lastPathComponent.deletingPathExtension):\(rawLogEntry.line)"
+                
+                output(threadInfo)
+                outputHorizontalDivider()
+            }
+            
+            if self.methodCount > 0 {
+                let backtrace = rawLogEntry.get(.backtrace) ?? []
+                let backtraceToLog = backtrace[safe: self.methodOffset ..< (self.methodOffset + self.methodCount)]
+                backtraceToLog
+                    .map {
+                        $0.resolvedFunctionName(using: .simplified)
                     }
-                    output(s)
-                }
-            outputHorizontalDivider()
-        }
-        
-        rawLogEntry.message.description.enumerateLines { line, _ in
-            output(line)
-        }
-        
-        if rawLogEntry.metadata.isEmpty {
-            outputBottomBorder()
-        } else {
-            outputHorizontalDivider()
-            
-            output("{")
-            
-            for (k, v) in rawLogEntry.metadata {
-                output("    \"\(k)\": \(v)")
+                    .enumerated().forEach { i, line in
+                        var s = String(repeating: " ", count: i * 4) + line
+                        if i == 0 {
+                            s += " - \(rawLogEntry.file.lastPathComponent.deletingPathExtension):\(rawLogEntry.line)"
+                        }
+                        output(s)
+                    }
+                outputHorizontalDivider()
             }
             
-            output("}")
+            rawLogEntry.message.description.enumerateLines { line, _ in
+                output(line)
+            }
             
-            outputBottomBorder()
-        }
-        
-        return .init(rawLogEntry, message)
+            if rawLogEntry.metadata.isEmpty {
+                outputBottomBorder()
+            } else {
+                outputHorizontalDivider()
+                
+                output("{")
+                
+                for (k, v) in rawLogEntry.metadata {
+                    output("    \"\(k)\": \(v)")
+                }
+                
+                output("}")
+                
+                outputBottomBorder()
+            }
+            
+            return message
+        })
     }
 }
-
-

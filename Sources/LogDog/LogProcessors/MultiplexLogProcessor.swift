@@ -15,6 +15,8 @@ public struct MultiplexLogProcessor<Input, Output>: LogProcessor {
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output> {
-        try transform(logEntry)
+        logEntry.map { _ in
+            try self.transform(logEntry).output()
+        }
     }
 }

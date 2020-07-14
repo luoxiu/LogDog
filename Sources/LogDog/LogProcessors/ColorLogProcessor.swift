@@ -17,10 +17,13 @@ public struct ColorLogProcessor: LogProcessor {
         }
     }
     
-    public func process(_ logEntry: ProcessedLogEntry<String>) throws -> ProcessedLogEntry<String> {
-        let fgColor = transform(logEntry.rawLogEntry.level)
-        let style = Style(fgColor: fgColor)
-        return ProcessedLogEntry(logEntry.rawLogEntry, style.on(logEntry.output).description)
+    public func process(_ logEntry: ProcessedLogEntry<String>) -> ProcessedLogEntry<String> {
+        logEntry.map {
+            let fgColor = self.transform(logEntry.rawLogEntry.level)
+            let style = Style(fgColor: fgColor)
+            
+            return style.on($0).description
+        }
     }
 }
 

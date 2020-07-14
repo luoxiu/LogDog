@@ -1,6 +1,4 @@
-import struct Foundation.Date
-import Logging
-import Backtrace
+import Foundation
 
 public struct LogDogLogHandler<Processor, OutputStream>: LogHandler where Processor: LogProcessor, OutputStream: LogOutputStream, Processor.Input == Void, Processor.Output == OutputStream.Output {
     public var logLevel: Logger.Level = .info
@@ -67,7 +65,7 @@ extension LogDogLogHandler {
 
         do {
             let formatted = try processor.process(logEntry)
-            outputStream.write(formatted)
+            try outputStream.write(formatted)
         } catch {
             
         }

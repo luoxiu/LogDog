@@ -14,7 +14,9 @@ public struct TextLogProcessor: LogProcessor {
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
-        return ProcessedLogEntry(logEntry.rawLogEntry, transform(logEntry.rawLogEntry))
+        logEntry.map {
+            self.transform(logEntry.rawLogEntry)
+        }
     }
 }
 
