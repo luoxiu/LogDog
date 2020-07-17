@@ -17,7 +17,7 @@ public final class OSLogOutputStream: LogOutputStream {
         let logEntry = try logEntry()
         
         let level = logEntry.rawLogEntry.level
-        let output = try logEntry.output()
+        let output = try logEntry.lazyOutput()
         
         var type: OSLogType = .default
         switch level {

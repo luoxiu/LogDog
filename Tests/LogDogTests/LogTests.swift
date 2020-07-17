@@ -7,10 +7,6 @@ final class LogTests: XCTestCase {
         XCTAssertEqual(0, 0)
         
         // let logger = Logger(label: "log.test")
-        
-        Thread.callStackSymbols.forEach {
-            print($0)
-        }
     }
 
     static var allTests = [

@@ -5,7 +5,7 @@ public struct TextLogProcessor: LogProcessor {
     public typealias Input = Void
     public typealias Output = String
     
-    public var contextCaptures: [String : () -> LossLessMetadataValueConvertible?] = [:]
+    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
     
     public let transform: (LogEntry) -> String
     
