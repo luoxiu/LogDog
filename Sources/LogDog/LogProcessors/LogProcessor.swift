@@ -2,7 +2,7 @@ public protocol LogProcessor {
     associatedtype Input
     associatedtype Output
     
-    var contextCaptures: [String: () -> LossLessMetadataValueConvertible?] { get set }
+    var contextCaptures: [String: (LogEntry) -> LossLessMetadataValueConvertible?] { get set }
     
     func process(_ logEntry: ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>
 }
@@ -17,13 +17,9 @@ extension LogProcessor where Input == Void {
 // MARK: - Context
 extension LogProcessor {
     public mutating func register<T: LossLessMetadataValueConvertible>(_ capture: ContextCapture<T>) {
-        contextCaptures[capture.name] = { () -> T? in
-            capture.capture()
+        contextCaptures[capture.name] = { logEntry -> T? in
+            capture.capture(logEntry)
         }
-    }
-    
-    public var contextSnapshot: [String: Logger.MetadataValue] {
-        contextCaptures.compactMapValues { $0()?.metadataValue }
     }
 }
 

@@ -4,7 +4,7 @@ public struct BoxedTextLogProcessor: LogProcessor {
     public typealias Input = Void
     public typealias Output = String
     
-    public var contextCaptures: [String : () -> LossLessMetadataValueConvertible?] = [:]
+    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
     
     public let rowWidth: Int
     public let showDate: Bool
