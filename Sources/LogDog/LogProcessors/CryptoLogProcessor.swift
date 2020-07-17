@@ -5,7 +5,7 @@ public struct CryptoLogProcessor: LogProcessor {
     public typealias Input = Data
     public typealias Output = Data
     
-    public var contextCaptures: [String : () -> LossLessMetadataValueConvertible?] = [:]
+    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
     
     public let cipher: Cipher
 

@@ -31,7 +31,7 @@ public struct LogDogLogHandler<Processor, OutputStream>: LogHandler where Proces
 
 extension LogDogLogHandler {
     
-    public var metadataSnapshot: Logger.Metadata {
+    var metadataSnapshot: Logger.Metadata {
         dynamicMetadata
             .mapValues { $0() }
             .merging(metadata, uniquingKeysWith: { a, _ in a })
@@ -53,16 +53,22 @@ extension LogDogLogHandler {
             finalMetadata.merge(metadata, uniquingKeysWith: { _, b in b })
         }
         
-        let finalContext = processor.contextSnapshot
-        
         let logEntry = LogEntry(label: label,
                                 level: level,
                                 message: message,
                                 metadata: finalMetadata,
                                 source: source, file: file, function: function, line: line,
                                 date: Date(),
-                                context: finalContext)
-
+                                context: [:])
+        
+        let finalContext = processor
+            .contextCaptures
+            .compactMapValues {
+                $0(logEntry)?.metadataValue
+            }
+        
+        logEntry.context = finalContext
+        
         do {
             let formatted = try processor.process(logEntry)
             try outputStream.write(formatted)

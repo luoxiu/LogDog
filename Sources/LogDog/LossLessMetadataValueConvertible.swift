@@ -90,7 +90,6 @@ extension Dictionary: LossLessMetadataValueConvertible where Key == String, Valu
     }
 }
 
-
 extension Date: LossLessMetadataValueConvertible {
     public var metadataValue: Logger.MetadataValue {
         .string(timeIntervalSince1970.description)

@@ -5,7 +5,7 @@ public struct ColorLogProcessor: LogProcessor {
     
     public let transform: (Logger.Level) -> TerminalColor
     
-    public var contextCaptures: [String : () -> LossLessMetadataValueConvertible?] = [:]
+    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
     
     public init(_ transform: @escaping (Logger.Level) -> TerminalColor) {
         self.transform = transform
