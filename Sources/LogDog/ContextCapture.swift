@@ -4,15 +4,13 @@ import ProcessStartTime
 import UIKit
 #endif
 
-public typealias Context = Logger.Metadata
-
 public struct ContextCapture<T: LossLessMetadataValueConvertible> {
     
     public let name: String
     
-    public let capture: () -> T?
+    public let capture: (LogEntry) -> T?
     
-    public init(_ name: String, _ capture: @escaping () -> T?) {
+    public init(_ name: String, _ capture: @escaping (LogEntry) -> T?) {
         self.name = name
         self.capture = capture
     }
@@ -20,8 +18,8 @@ public struct ContextCapture<T: LossLessMetadataValueConvertible> {
 
 extension LogEntry {
     
-    public func get<T>(_ descriptor: ContextCapture<T>) -> T? {
-        guard let value = context[descriptor.name] else {
+    public func get<T>(_ capture: ContextCapture<T>) -> T? {
+        guard let value = context[capture.name] else {
             return nil
         }
         return T(value)
@@ -31,7 +29,7 @@ extension LogEntry {
 extension ContextCapture {
     
     public static var currentThreadId: ContextCapture<String> {
-        .init(#function) {
+        .init(#function) { _ in
             #if canImport(Darwin)
             var id: __uint64_t = 0
             if pthread_threadid_np(nil, &id) == 0 {
@@ -43,26 +41,26 @@ extension ContextCapture {
     }
     
     public static var currentThreadName: ContextCapture<String> {
-        .init(#function) {
+        .init(#function) { _ in
             Thread.current.name
         }
     }
     
     public static var isMainThread: ContextCapture<Bool> {
-        .init(#function) {
+        .init(#function) { _ in
             Thread.isMainThread
         }
     }
  
     public static var currentDispatchQueueLabel: ContextCapture<String> {
-        .init(#function) {
+        .init(#function) { _ in
             let label = __dispatch_queue_get_label(nil)
             return String(cString: label)
         }
     }
 
     public static var appName: ContextCapture<String> {
-        .init(#function) {
+        .init(#function) { _ in
             let info = Bundle.main.infoDictionary
             if let appName = info?["CFBundleDisplayName"] as? String {
                 return appName
@@ -75,25 +73,25 @@ extension ContextCapture {
     }
     
     public static var appVersion: ContextCapture<String> {
-        .init(#function) {
+        .init(#function) { _ in
             Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
         }
     }
     
     public static var appBuild: ContextCapture<String> {
-        .init(#function) {
+        .init(#function) { _ in
             Bundle.main.infoDictionary?["CFBundleVersion"] as? String
         }
     }
     
     public static var appStartTime: ContextCapture<Date> {
-        .init(#function) {
+        .init(#function) { _ in
             ProcessInfo.processInfo.startTime
         }
     }
     
     public static var deviceName: ContextCapture<String> {
-        .init(#function) {
+        .init(#function) { _ in
             #if canImport(UIKit)
             return UIDevice.current.name
             #else
@@ -104,7 +102,7 @@ extension ContextCapture {
     
     /// https://github.com/apple/swift/blob/master/lib/Basic/LangOptions.cpp
     public static var osName: ContextCapture<String> {
-        .init(#function) {
+        .init(#function) { _ in
             #if os(OSX)
             return "macOS"
             #elseif os(macOS)
@@ -141,13 +139,13 @@ extension ContextCapture {
     }
 
     public static var osVersion: ContextCapture<OperatingSystemVersion> {
-        .init(#function) {
+        .init(#function) { _ in
             ProcessInfo.processInfo.operatingSystemVersion
         }
     }
     
     public static var backtrace: ContextCapture<[StackFrame]> {
-        .init(#function) {
+        .init(#function) { _ in
             Backtrace.backtrace()
         }
     }

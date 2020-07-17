@@ -22,7 +22,7 @@ public final class LogEntry: Codable {
     
     public let date: Date
 
-    public let context: Context
+    var context: Logger.Metadata
         
     public init(label: String,
                 level: Logger.Level,
@@ -33,7 +33,7 @@ public final class LogEntry: Codable {
                 function: String,
                 line: UInt,
                 date: Date,
-                context: Context
+                context: Logger.Metadata
     ) {
         self.label = label
         self.level = level

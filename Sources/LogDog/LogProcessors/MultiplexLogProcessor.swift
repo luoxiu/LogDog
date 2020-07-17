@@ -1,7 +1,7 @@
 // MARK: - MultiplexLogProcessor
 public struct MultiplexLogProcessor<Input, Output>: LogProcessor {
     
-    public var contextCaptures: [String : () -> LossLessMetadataValueConvertible?]
+    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?]
     
     private let transform: (ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output>
     
@@ -16,7 +16,7 @@ public struct MultiplexLogProcessor<Input, Output>: LogProcessor {
     
     public func process(_ logEntry: ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output> {
         logEntry.map { _ in
-            try self.transform(logEntry).output()
+            try self.transform(logEntry).lazyOutput()
         }
     }
 }
