@@ -19,7 +19,7 @@ let logger1: Logger = {
 }()
 
 var logger2: Logger = {
-    let processor = TextLogProcessor.singleLine + ColorLogProcessor()
+    let processor = TextLogProcessor.preferredFormat(.emoji) + ColorLogProcessor()
     
     let outputStream = StdoutLogOutputStream()
     

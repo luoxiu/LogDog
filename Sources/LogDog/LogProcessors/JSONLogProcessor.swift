@@ -7,12 +7,15 @@ public struct JSONLogProcessor: LogProcessor {
     
     public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
     
-    public init() {
+    public let jsonEncoder: JSONEncoder
+    
+    public init(jsonEncoder: JSONEncoder = JSONEncoder()) {
+        self.jsonEncoder = jsonEncoder
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<Data> {
-        logEntry.map {
-            try JSONEncoder().encode(logEntry.rawLogEntry)
+        try logEntry.map {
+            try jsonEncoder.encode(logEntry.rawLogEntry)
         }
     }
 }
