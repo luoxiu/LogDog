@@ -8,31 +8,24 @@ public struct BoxedTextLogProcessor: LogProcessor {
     
     public let rowWidth: Int
     public let showDate: Bool
-    public let showThreadInfo: Bool
-    public let methodCount: Int
-    public let methodOffset: Int
+    public let showThread: Bool
+    public let showLocation: Bool
     
     public init(
-        rowWidth: Int = 70,
+        rowWidth: Int = 80,
         showDate: Bool = false,
-        showThreadInfo: Bool = false,
-        methodCount: Int = 0,
-        methodOffset: Int = 16
+        showThread: Bool = false,
+        showLocation: Bool = false
     ) {
         self.rowWidth = rowWidth
         self.showDate = showDate
-        self.showThreadInfo = showThreadInfo
-        self.methodCount = methodCount
-        self.methodOffset = methodOffset
+        self.showThread = showThread
+        self.showLocation = showLocation
         
-        if showThreadInfo {
+        if showThread {
             self.register(.currentThreadId)
             self.register(.currentThreadName)
             self.register(.currentDispatchQueueLabel)
-        }
-        
-        if methodCount > 0 {
-            self.register(.backtrace)
         }
     }
     
@@ -41,15 +34,15 @@ public struct BoxedTextLogProcessor: LogProcessor {
         let bottomBorder = "└" + repeatElement("─", count: self.rowWidth)
         let horizontalDivider = "├" + repeatElement("┄", count: self.rowWidth)
         
-        let rawLogEntry = logEntry.rawLogEntry
+        let entry = logEntry.rawLogEntry
         
-        let prefix = "\(rawLogEntry.label):\(rawLogEntry.level.output(.initial)) "
+        let prefix = "\(entry.label):\(entry.level.output(.initial)) "
         
         var message = ""
         
         func output(_ line: String) {
             message += prefix
-            message += "| "
+            message += "│ "
             message += line
             message += "\n"
         }
@@ -74,58 +67,46 @@ public struct BoxedTextLogProcessor: LogProcessor {
         outputTopBorder()
         
         if self.showDate {
-            output(rawLogEntry.date.iso8601String)
+            output(entry.date.iso8601String)
             outputHorizontalDivider()
         }
         
-        if self.showThreadInfo {
-            let threadId = rawLogEntry.get(.currentThreadId)
-            let threadName = rawLogEntry.get(.currentThreadName)
-            let dispatchQueueLabel = rawLogEntry.get(.currentDispatchQueueLabel)
+        if self.showThread {
+            let threadId = entry.get(.currentThreadId)
+            let threadName = entry.get(.currentThreadName)
+            let dispatchQueueLabel = entry.get(.currentDispatchQueueLabel)
             
-            var threadInfo = ""
+            var thread = ""
             if let threadName = threadName, threadName.count > 0 {
-                threadInfo = "Thread \(threadName)"
+                thread = "Thread \(threadName)"
             } else if let label = dispatchQueueLabel, label.count > 0 {
-                threadInfo = label
+                thread = label
             } else {
-                threadInfo = "Thread \(threadId as Any)"
+                thread = "Thread \(threadId as Any)"
             }
             
-            output(threadInfo)
+            output(thread)
             outputHorizontalDivider()
         }
         
-        if self.methodCount > 0 {
-            let backtrace = rawLogEntry.get(.backtrace) ?? []
-            let backtraceToLog = backtrace[safe: self.methodOffset ..< (self.methodOffset + self.methodCount)]
-            backtraceToLog
-                .map {
-                    $0.resolvedFunctionName(using: .simplified)
-                }
-                .enumerated().forEach { i, line in
-                    var s = String(repeating: " ", count: i * 4) + line
-                    if i == 0 {
-                        s += " - \(rawLogEntry.file.lastPathComponent.deletingPathExtension):\(rawLogEntry.line)"
-                    }
-                    output(s)
-                }
+        if self.showLocation {
+            output("\(entry.file.lastPathComponent):\(entry.line) \(entry.function)")
             outputHorizontalDivider()
         }
         
-        rawLogEntry.message.description.enumerateLines { line, _ in
+        entry.message.description.enumerateLines { line, _ in
             output(line)
         }
         
-        if rawLogEntry.metadata.isEmpty {
+        if entry.metadata.isEmpty {
             outputBottomBorder()
         } else {
             outputHorizontalDivider()
             
             output("{")
             
-            for (k, v) in rawLogEntry.metadata {
-                output("    \"\(k)\": \(v)")
+            for (k, v) in entry.metadata {
+                output("    \(k): \(v)")
             }
             
             output("}")
@@ -133,6 +114,6 @@ public struct BoxedTextLogProcessor: LogProcessor {
             outputBottomBorder()
         }
         
-        return .init(logEntry.rawLogEntry, message)
+        return .init(entry, message)
     }
 }
