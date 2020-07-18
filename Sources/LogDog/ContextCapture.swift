@@ -143,10 +143,4 @@ extension ContextCapture {
             ProcessInfo.processInfo.operatingSystemVersion
         }
     }
-    
-    public static var backtrace: ContextCapture<[StackFrame]> {
-        .init(#function) { _ in
-            Backtrace.backtrace()
-        }
-    }
 }

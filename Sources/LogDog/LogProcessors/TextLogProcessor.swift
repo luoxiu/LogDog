@@ -49,13 +49,13 @@ extension TextLogProcessor {
         let level = logEntry.level.output(.emoji)
         let time = logEntry.date.timeString
         let label = logEntry.label
-        let filename = logEntry.file.lastPathComponent.deletingPathExtension
+        let filename = logEntry.file.lastPathComponent
         let line = logEntry.line
         let function = logEntry.function
         let message = logEntry.message.description
         let metadata = logEntry.metadata.isEmpty ? "" : " 📦 \(logEntry.metadata)"
 
-        return "\(label):\(level) \(time) \(filename):\(line).\(function) -> \(message)\(metadata)"
+        return "\(label):\(level) \(time) \(filename):\(line) \(function) -> \(message)\(metadata)"
     }
 }
 

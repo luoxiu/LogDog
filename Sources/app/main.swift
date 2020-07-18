@@ -4,8 +4,8 @@ import LogDog
 let logger1: Logger = {
     let processor = BoxedTextLogProcessor(
         showDate: true,
-        showThreadInfo: true,
-        methodCount: 2
+        showThread: true,
+        showLocation: true
     )
     + ColorLogProcessor()
     

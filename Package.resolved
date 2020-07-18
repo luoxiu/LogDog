@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "Backtrace",
-        "repositoryURL": "https://github.com/luoxiu/Backtrace.git",
-        "state": {
-          "branch": null,
-          "revision": "9843f12a8ecc44ed209500a85bc4eaf146f4f267",
-          "version": "0.1.6"
-        }
-      },
-      {
         "package": "Chalk",
         "repositoryURL": "https://github.com/luoxiu/Chalk",
         "state": {
@@ -26,15 +17,6 @@
           "branch": null,
           "revision": "39f08ac5269361a50c08ce1e2f41989bfc4b1ec8",
           "version": "1.3.1"
-        }
-      },
-      {
-        "package": "CwlDemangle",
-        "repositoryURL": "https://github.com/mattgallagher/CwlDemangle",
-        "state": {
-          "branch": null,
-          "revision": "b268c08207d2990664605c49b2c71cbd0df3445b",
-          "version": "0.1.0"
         }
       },
       {
