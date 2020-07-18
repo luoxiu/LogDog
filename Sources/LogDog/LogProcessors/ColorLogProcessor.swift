@@ -3,23 +3,17 @@ public struct ColorLogProcessor: LogProcessor {
     public typealias Input = String
     public typealias Output = String
     
-    public let transform: (Logger.Level) -> TerminalColor
+    public let colorForLevel: (Logger.Level) -> TerminalColor
     
     public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
     
-    public init(_ transform: @escaping (Logger.Level) -> TerminalColor) {
-        self.transform = transform
-    }
-    
-    public init() {
-        self.init {
-            Self.preferredColor(for: $0)
-        }
+    public init(_ colorForLevel: @escaping (Logger.Level) -> TerminalColor = Self.preferredColor) {
+        self.colorForLevel = colorForLevel
     }
     
     public func process(_ logEntry: ProcessedLogEntry<String>) -> ProcessedLogEntry<String> {
         logEntry.map {
-            let fgColor = self.transform(logEntry.rawLogEntry.level)
+            let fgColor = colorForLevel(logEntry.rawLogEntry.level)
             let style = Style(fgColor: fgColor)
             
             return style.on($0).description

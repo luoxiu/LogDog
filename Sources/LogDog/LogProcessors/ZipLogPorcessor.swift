@@ -9,13 +9,13 @@ public struct ZipLogPorcessor: LogProcessor {
     
     public let compressionLevel: CompressionLevel
     
-    public init(_ compressionLevel: CompressionLevel) {
+    public init(compressionLevel: CompressionLevel) {
         self.compressionLevel = compressionLevel
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Data>) throws -> ProcessedLogEntry<Data> {
-        logEntry.map { data in
-            try data.gzipped(level: self.compressionLevel)
+        try logEntry.map { data in
+            try data.gzipped(level: compressionLevel)
         }
     }
 }

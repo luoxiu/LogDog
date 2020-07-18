@@ -13,11 +13,9 @@ public final class OSLogOutputStream: LogOutputStream {
         self.osLog = OSLog(subsystem: subsystem, category: category)
     }
     
-    public func write(_ logEntry: @autoclosure () throws -> ProcessedLogEntry<String>) throws {
-        let logEntry = try logEntry()
-        
+    public func write(_ logEntry: ProcessedLogEntry<String>) throws {
         let level = logEntry.rawLogEntry.level
-        let output = try logEntry.lazyOutput()
+        let output = logEntry.output
         
         var type: OSLogType = .default
         switch level {
