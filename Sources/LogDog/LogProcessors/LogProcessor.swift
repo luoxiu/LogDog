@@ -27,11 +27,11 @@ extension LogProcessor {
 // MARK: - Concat
 extension LogProcessor {
     
-    public func combine<P>(_ other: P) -> MultiplexLogProcessor<Input, P.Output> where P: LogProcessor, P.Input == Output {
+    public func combine<P>(_ other: P) -> CombineLogProcessor<Input, P.Output> where P: LogProcessor, P.Input == Output {
         .init(self, other)
     }
 }
 
-public func +<A, B>(_ a: A, _ b: B) -> MultiplexLogProcessor<A.Input, B.Output> where A: LogProcessor, B: LogProcessor, A.Output == B.Input {
+public func +<A, B>(_ a: A, _ b: B) -> CombineLogProcessor<A.Input, B.Output> where A: LogProcessor, B: LogProcessor, A.Output == B.Input {
     a.combine(b)
 }

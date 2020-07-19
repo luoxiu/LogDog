@@ -1,7 +1,7 @@
 import Foundation
 
 public struct LogDogLogHandler<Processor, OutputStream>: LogHandler where Processor: LogProcessor, OutputStream: LogOutputStream, Processor.Input == Void, Processor.Output == OutputStream.Output {
-    public var logLevel: Logger.Level = .info
+    public var logLevel: Logger.Level = .trace
     
     public var metadata: Logger.Metadata = [:]
     
@@ -22,10 +22,15 @@ public struct LogDogLogHandler<Processor, OutputStream>: LogHandler where Proces
     public let processor: Processor
     public let outputStream: OutputStream
     
+    public var queue: DispatchQueue?
+    public var errorHandler: ((Error) -> Void)?
+    
     public init(label: String, processor: Processor, outputStream: OutputStream) {
         self.label = label
         self.processor = processor
         self.outputStream = outputStream
+        
+        self.flushAtExit()
     }
 }
 
@@ -69,11 +74,50 @@ extension LogDogLogHandler {
         
         logEntry.context = finalContext
         
-        do {
-            let formatted = try processor.process(logEntry)
-            try outputStream.write(formatted)
-        } catch {
-            
+        let processAndOutput = {
+            do {
+                let processed = try self.processor.process(logEntry)
+                try self.outputStream.output(processed)
+            } catch {
+                self.errorHandler?(error)
+            }
+        }
+        
+        if let queue = self.queue {
+            queue.async(execute: processAndOutput)
+        } else {
+            processAndOutput()
+        }
+    }
+
+}
+
+private extension Notification.Name {
+    static let atExit = Notification.Name(rawValue: "com.v2ambition.LogDog.LogDogLogHandler.atExit")
+    
+    static let registerAtExit = {
+        atexit {
+            NotificationCenter.default.post(name: .atExit, object: nil)
+        }
+    }()
+}
+
+extension LogDogLogHandler {
+    
+    private func flushAtExit() {
+        let flush = {
+            self.queue?.sync {}
+        }
+        
+        var name = Notification.Name.appWillTerminate
+        
+        if name == nil {
+            _ = Notification.Name.registerAtExit
+            name = Notification.Name.atExit
+        }
+        
+        NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil) { _ in
+            flush()
         }
     }
 }

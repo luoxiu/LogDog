@@ -7,7 +7,7 @@ public struct ColorLogProcessor: LogProcessor {
     
     public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
     
-    public init(_ colorForLevel: @escaping (Logger.Level) -> TerminalColor = Self.preferredColor) {
+    public init(colorForLevel: @escaping (Logger.Level) -> TerminalColor = Self.preferredColor) {
         self.colorForLevel = colorForLevel
     }
     
@@ -20,6 +20,14 @@ public struct ColorLogProcessor: LogProcessor {
         }
     }
 }
+
+public extension LogProcessor where Self.Output == String {
+    
+    func color(using colorForLevel: @escaping (Logger.Level) -> TerminalColor = ColorLogProcessor.preferredColor) -> CombineLogProcessor<Self.Input, String> {
+        self + ColorLogProcessor(colorForLevel: colorForLevel)
+    }
+}
+
 
 extension ColorLogProcessor {
     private static let colors = [
