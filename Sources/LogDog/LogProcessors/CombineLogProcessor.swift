@@ -1,5 +1,4 @@
-// MARK: - MultiplexLogProcessor
-public struct MultiplexLogProcessor<Input, Output>: LogProcessor {
+public struct CombineLogProcessor<Input, Output>: LogProcessor {
     
     public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?]
     

@@ -20,3 +20,9 @@ public struct ZipLogPorcessor: LogProcessor {
     }
 }
 
+public extension LogProcessor where Self.Output == Data {
+    
+    func zip(using compressionLevel: CompressionLevel) -> CombineLogProcessor<Self.Input, Data> {
+        self + ZipLogPorcessor(compressionLevel: compressionLevel)
+    }
+}
