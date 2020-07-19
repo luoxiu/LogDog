@@ -14,9 +14,16 @@ public struct CryptoLogProcessor: LogProcessor {
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Data>) throws -> ProcessedLogEntry<Data> {
-        logEntry.map { data in
-            let encrypted = try self.cipher.encrypt(Array(data))
+        try logEntry.map { data in
+            let encrypted = try cipher.encrypt(Array(data))
             return Data(encrypted)
         }
+    }
+}
+
+public extension LogProcessor where Self.Output == Data {
+    
+    func encrypt(using cipher: Cipher) -> CombineLogProcessor<Self.Input, Data> {
+        self + CryptoLogProcessor(cipher: cipher)
     }
 }

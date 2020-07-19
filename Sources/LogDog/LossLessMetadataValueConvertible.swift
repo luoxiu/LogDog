@@ -124,25 +124,3 @@ extension OperatingSystemVersion: LossLessMetadataValueConvertible {
         }
     }
 }
-
-extension StackFrame: LossLessMetadataValueConvertible {
-    public var metadataValue: Logger.MetadataValue {
-        .array([moduleName, functionName].map { $0.metadataValue })
-    }
-    
-    public init?(_ metadataValue: Logger.MetadataValue) {
-        switch metadataValue {
-        case .array(let values):
-            let components = values.compactMap { value -> String? in
-                switch value {
-                case .string(let s):    return s
-                default:                return nil
-                }
-            }
-            guard components.count == 2 else { return nil }
-            self.init(moduleName: components[0], functionName: components[1])
-        default:
-            return nil
-        }
-    }
-}

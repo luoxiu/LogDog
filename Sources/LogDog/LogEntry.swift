@@ -1,6 +1,5 @@
 import Foundation
 import Logging
-import Backtrace
 
 public final class LogEntry: Codable {
     

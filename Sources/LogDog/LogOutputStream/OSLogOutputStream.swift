@@ -1,9 +1,11 @@
 import os
 
 @available(OSX 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
-public final class OSLogOutputStream: LogOutputStream {
+open class OSLogOutputStream: LogOutputStream {
     
     public let osLog: OSLog
+    
+    public let queue = DispatchQueue(label: "com.v2ambition.LogDog.StdoutLogOutputStream")
     
     public init(osLog: OSLog = .default) {
         self.osLog = osLog
@@ -13,11 +15,9 @@ public final class OSLogOutputStream: LogOutputStream {
         self.osLog = OSLog(subsystem: subsystem, category: category)
     }
     
-    public func write(_ logEntry: @autoclosure () throws -> ProcessedLogEntry<String>) throws {
-        let logEntry = try logEntry()
-        
+    open func output(_ logEntry: ProcessedLogEntry<String>) throws {
         let level = logEntry.rawLogEntry.level
-        let output = try logEntry.lazyOutput()
+        let output = logEntry.output
         
         var type: OSLogType = .default
         switch level {
@@ -30,6 +30,9 @@ public final class OSLogOutputStream: LogOutputStream {
         case .debug, .trace:
             type = .debug
         }
-        os_log("%{public}s", log: osLog, type: type, output)
+        
+        queue.sync {
+            os_log("%{public}s", log: osLog, type: type, output)
+        }
     }
 }

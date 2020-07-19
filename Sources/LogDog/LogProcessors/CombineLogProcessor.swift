@@ -1,5 +1,4 @@
-// MARK: - MultiplexLogProcessor
-public struct MultiplexLogProcessor<Input, Output>: LogProcessor {
+public struct CombineLogProcessor<Input, Output>: LogProcessor {
     
     public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?]
     
@@ -15,8 +14,6 @@ public struct MultiplexLogProcessor<Input, Output>: LogProcessor {
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Input>) throws -> ProcessedLogEntry<Output> {
-        logEntry.map { _ in
-            try self.transform(logEntry).lazyOutput()
-        }
+        try transform(logEntry)
     }
 }

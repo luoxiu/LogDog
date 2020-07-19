@@ -1,20 +1,18 @@
 public struct ProcessedLogEntry<Output> {
     
     public let rawLogEntry: LogEntry
-    public let lazyOutput: () throws -> Output
+    public let output: Output
     
-    public init(_ rawLogEntry: LogEntry, _ output: @escaping () throws -> Output) {
+    public init(_ rawLogEntry: LogEntry, _ output: Output) {
         self.rawLogEntry = rawLogEntry
-        self.lazyOutput = output
+        self.output = output
     }
 }
 
 extension ProcessedLogEntry {
     
-    public func map<T>(_ transform: @escaping (Output) throws -> T) -> ProcessedLogEntry<T> {
-        ProcessedLogEntry<T>(rawLogEntry) {
-            let output = try self.lazyOutput()
-            return try transform(output)
-        }
+    public func map<T>(_ transform: (Output) throws -> T) rethrows -> ProcessedLogEntry<T> {
+        let newOutput = try transform(output)
+        return ProcessedLogEntry<T>(rawLogEntry, newOutput)
     }
 }
