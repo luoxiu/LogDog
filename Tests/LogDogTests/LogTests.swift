@@ -8,8 +8,4 @@ final class LogTests: XCTestCase {
         
         // let logger = Logger(label: "log.test")
     }
-
-    static var allTests = [
-        ("testExample", testExample),
-    ]
 }

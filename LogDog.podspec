@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name                = 'LogDog'
-    s.version             = '0.1.3'
+    s.version             = '0.1.0'
     s.summary             = 'Logger with processor'
     s.homepage            = 'https://github.com/luoxiu/LogDog'
   
@@ -18,9 +18,9 @@ Pod::Spec.new do |s|
     s.source              = { git: s.homepage + '.git', tag: s.version }
     s.source_files        = 'Sources/LogDog/**/*.swift'
 
-    s.dependency 'Logging', '~> 0.1'
+    s.dependency 'Logging', '~> 1.0'
     s.dependency 'Chalk', '~> 0.1.0'
-    s.dependency 'ProcessStartTime', '~> 0.1.0'
+    s.dependency 'ProcessStartTime', '~> 0.0.1'
     s.dependency 'GzipSwift'
     s.dependency 'CryptoSwift', '~> 1.0'
     s.dependency 'FileKit', '~> 6.0.0'

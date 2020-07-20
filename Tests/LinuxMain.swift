@@ -3,5 +3,6 @@ import XCTest
 import LogDogTests
 
 var tests = [XCTestCaseEntry]()
-tests += LogDogTests.allTests()
+tests += LogDogTests.__allTests()
+
 XCTMain(tests)
