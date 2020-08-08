@@ -6,7 +6,7 @@
         "repositoryURL": "https://github.com/luoxiu/Chalk",
         "state": {
           "branch": null,
-          "revision": "1af59cb17f66bd6da2fd68f422432e4d9dcd680b",
+          "revision": "8c00068a7fbdbfe968246965f7719e04611b5731",
           "version": "0.1.0"
         }
       },
@@ -20,29 +20,11 @@
         }
       },
       {
-        "package": "FileKit",
-        "repositoryURL": "https://github.com/nvzqz/FileKit.git",
-        "state": {
-          "branch": null,
-          "revision": "826d9161b184509f80d85c28cd612d630646de98",
-          "version": "6.0.0"
-        }
-      },
-      {
-        "package": "Gzip",
-        "repositoryURL": "https://github.com/1024jp/GzipSwift",
-        "state": {
-          "branch": null,
-          "revision": "ba0b6cb51cc6202f896e469b87d2889a46b10d1b",
-          "version": "5.1.1"
-        }
-      },
-      {
         "package": "ProcessStartTime",
         "repositoryURL": "https://github.com/luoxiu/ProcessStartTime.git",
         "state": {
           "branch": null,
-          "revision": "a646602acdcb53287e9340520181e5d0165fe29c",
+          "revision": "25f2406e9f98e853f19b80f2dac4322bc9dce1ef",
           "version": "0.0.1"
         }
       },
@@ -51,7 +33,7 @@
         "repositoryURL": "https://github.com/luoxiu/Rainbow",
         "state": {
           "branch": null,
-          "revision": "9bc8fa136c8cec2f4a5c8ad1e8d37753e05db9d5",
+          "revision": "f3d6bc67bcedc015a5d490f1f86f6f02a3bbebc2",
           "version": "0.1.0"
         }
       },

@@ -1,8 +1,10 @@
 import Foundation
 
+private let fileManager = FileManager.default
+
 public protocol FileLogOutputStreamDelegate {
     
-    func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path?
+    func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: URL?) throws -> URL?
 }
 
 open class FileLogOutputStream: LogOutputStream {
@@ -13,7 +15,7 @@ open class FileLogOutputStream: LogOutputStream {
     
     public let queue = DispatchQueue(label: "com.v2ambition.LogDog.FileLogOutputStream")
     
-    private var currentFile: Path?
+    private var currentFile: URL?
     
     public init(delegate: FileLogOutputStreamDelegate) {
         self.delegate = delegate
@@ -35,7 +37,7 @@ open class FileLogOutputStream: LogOutputStream {
             
             self.currentFile = file
             
-            guard let outputStream = file.outputStream(append: true) else {
+            guard let outputStream = OutputStream(toFileAtPath: file.absoluteString, append: true) else {
                 return
             }
             
@@ -59,33 +61,42 @@ open class FileLogOutputStream: LogOutputStream {
 
 extension FileLogOutputStream {
     
-    public static let defaultDirectory: Path = {
+    public static let defaultDirectory: URL = {
         #if os(iOS) || os(tvOS) || os(watchOS)
-        return Path.userCaches + "Logs"
+        let cachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
+        let cacheURL = URL(fileURLWithPath: cachePath)
+        return cacheURL.appendingPathComponent("Logs", isDirectory: true)
         #else
         let processName = ProcessInfo.processInfo.processName
-        return Path.userLibrary + "Logs" + processName
+        let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
+        let libraryURL = URL(fileURLWithPath: libraryPath, isDirectory: true)
+        return libraryURL.appendingPathComponent("Logs", isDirectory: true).appendingPathComponent(processName)
         #endif
     }()
 }
 
 open class AbstractRotator: FileLogOutputStreamDelegate {
     
-    public let directory: Path
+    public let directory: URL
     public let directoryCountLimit: Int
     public let directorySizeLimit: UInt64
     
     public init?(
-        directory: Path = FileLogOutputStream.defaultDirectory,
+        directory: URL = FileLogOutputStream.defaultDirectory,
         directoryCountLimit: Int = 5,
         directorySizeLimit: UInt64 = 20 * 1024 * 1024
     ) {
-        let directory = directory.resolved
+        let directory = directory
         
-        if directory.exists {
-            guard directory.isDirectory else { return nil }
+        let (exists, isDirectory) = directory.exists
+        if exists {
+            guard isDirectory else {
+                return nil
+            }
         } else {
-            try? directory.createDirectory()
+            guard directory.createDirectory() else {
+                return nil
+            }
         }
         
         self.directory = directory
@@ -94,7 +105,7 @@ open class AbstractRotator: FileLogOutputStreamDelegate {
     }
     
     open func deleteOldFiles() {
-        let cmp = { (a: Path, b: Path) -> Bool in
+        let cmp = { (a: URL, b: URL) -> Bool in
             guard let a = a.modificationDate, let b = b.modificationDate else { return false }
             return a > b
         }
@@ -104,13 +115,16 @@ open class AbstractRotator: FileLogOutputStreamDelegate {
         let directorySizeLimit = self.directorySizeLimit
         
         let body = {
-            let files = directory.children().sorted(by: cmp)
+            guard let files = directory.contents?.sorted(by: cmp) else {
+                return
+            }
+            
             var firstIndexToDelete = -1
             
             if directorySizeLimit != .max {
                 var size: UInt64 = 0
                 for (index, file) in files.enumerated() {
-                    size += (file.fileSize ?? 0)
+                    size += (file.size ?? 0)
                     
                     if size > directorySizeLimit {
                         firstIndexToDelete = index
@@ -126,7 +140,7 @@ open class AbstractRotator: FileLogOutputStreamDelegate {
             }
             
             while firstIndexToDelete < files.count {
-                try? files[firstIndexToDelete].deleteFile()
+                _ = files[firstIndexToDelete].delete()
                 firstIndexToDelete += 1
             }
         }
@@ -134,7 +148,7 @@ open class AbstractRotator: FileLogOutputStreamDelegate {
         DispatchQueue.global(qos: .background).async(execute: body)
     }
     
-    open func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path? {
+    open func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: URL?) throws -> URL? {
         nil
     }
 }
@@ -150,17 +164,17 @@ open class DailyRotator: AbstractRotator {
         return formatter
     }()
     
-    open override func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path? {
+    open override func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: URL?) throws -> URL? {
         let date = logEntry.rawLogEntry.date
         let filename = Self.formatter.string(from: date) + ".log"
         
-        if let currentFile = currentFile, currentFile.fileName == filename {
+        if let currentFile = currentFile, currentFile.filename == filename {
             return currentFile
         }
         
-        let file = directory + filename
-        if !file.exists {
-            try file.createFile()
+        let file = directory.appendingPathComponent(filename)
+        if !file.exists.exists {
+            _ = file.create()
 
             deleteOldFiles()
             
@@ -168,5 +182,58 @@ open class DailyRotator: AbstractRotator {
         }
         
         return file
+    }
+}
+
+private extension URL {
+    
+    var attributes: [FileAttributeKey: Any]? {
+        try? fileManager.attributesOfItem(atPath: absoluteString)
+    }
+     
+    var modificationDate: Date? {
+        attributes?[.modificationDate] as? Date
+    }
+    
+    var size: UInt64? {
+        attributes?[.size] as? UInt64
+    }
+
+    var exists: (exists: Bool, isDirectory: Bool) {
+        var isDirectory: ObjCBool = false
+        let exist = fileManager.fileExists(atPath: absoluteString, isDirectory: &isDirectory)
+        return (exist, isDirectory.boolValue)
+    }
+    
+    func createDirectory() -> Bool {
+        do {
+            try fileManager.createDirectory(at: self, withIntermediateDirectories: true, attributes: nil)
+            return true
+        } catch {
+            return false
+        }
+    }
+    
+    var contents: [URL]? {
+        try? fileManager
+            .contentsOfDirectory(atPath: absoluteString)
+            .map { URL(fileURLWithPath: $0) }
+    }
+    
+    func delete() -> Bool {
+        do {
+            try fileManager.removeItem(at: self)
+            return true
+        } catch {
+            return false
+        }
+    }
+    
+    func create() -> Bool {
+        fileManager.createFile(atPath: absoluteString, contents: nil, attributes: nil)
+    }
+    
+    var filename: String {
+        lastPathComponent
     }
 }
