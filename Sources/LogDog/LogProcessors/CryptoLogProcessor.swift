@@ -23,7 +23,7 @@ public struct CryptoLogProcessor: LogProcessor {
 
 public extension LogProcessor where Self.Output == Data {
     
-    func encrypt(using cipher: Cipher) -> CombineLogProcessor<Self.Input, Data> {
+    func encrypt(using cipher: Cipher) -> MultiplexLogProcessor<Self, CryptoLogProcessor> {
         self + CryptoLogProcessor(cipher: cipher)
     }
 }

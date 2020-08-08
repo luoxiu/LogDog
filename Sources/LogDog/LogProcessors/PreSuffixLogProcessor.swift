@@ -23,11 +23,11 @@ public struct PreSuffixLogProcessor<C>: LogProcessor where C: RangeReplaceableCo
 
 public extension LogProcessor where Self.Output: RangeReplaceableCollection {
     
-    func prefix(_ prefix: Output) -> CombineLogProcessor<Self.Input, Self.Output> {
+    func prefix(_ prefix: Output) -> MultiplexLogProcessor<Self, PreSuffixLogProcessor<Output>> {
         self + PreSuffixLogProcessor<Output>(prefix: prefix)
     }
     
-    func suffix(_ suffix: Output) -> CombineLogProcessor<Self.Input, Self.Output> {
+    func suffix(_ suffix: Output) -> MultiplexLogProcessor<Self, PreSuffixLogProcessor<Output>> {
         self + PreSuffixLogProcessor<Output>(suffix: suffix)
     }
 }

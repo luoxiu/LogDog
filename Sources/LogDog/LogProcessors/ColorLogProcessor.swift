@@ -23,7 +23,7 @@ public struct ColorLogProcessor: LogProcessor {
 
 public extension LogProcessor where Self.Output == String {
     
-    func color(using colorForLevel: @escaping (Logger.Level) -> TerminalColor = ColorLogProcessor.preferredColor) -> CombineLogProcessor<Self.Input, String> {
+    func color(using colorForLevel: @escaping (Logger.Level) -> TerminalColor = ColorLogProcessor.preferredColor) -> MultiplexLogProcessor<Self, ColorLogProcessor> {
         self + ColorLogProcessor(colorForLevel: colorForLevel)
     }
 }

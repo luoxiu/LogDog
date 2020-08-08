@@ -26,7 +26,7 @@ public struct CompressLogProcessor: LogProcessor {
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public extension LogProcessor where Self.Output == Data {
     
-    func compress(using compressionAlgorithm: CompressLogProcessor.CompressionAlgorithm) -> CombineLogProcessor<Self.Input, Data> {
+    func compress(using compressionAlgorithm: CompressLogProcessor.CompressionAlgorithm) -> MultiplexLogProcessor<Self, CompressLogProcessor> {
         self + CompressLogProcessor(compressionAlgorithm: compressionAlgorithm)
     }
 }
