@@ -49,7 +49,7 @@ extension TextLogProcessor {
         let level = logEntry.level.output(.emoji)
         let time = logEntry.date.timeString
         let label = logEntry.label
-        let filename = logEntry.file.lastPathComponent
+        let filename = logEntry.file.ns.lastPathComponent
         let line = logEntry.line
         let function = logEntry.function
         let message = logEntry.message.description

@@ -3,15 +3,15 @@ import LogDog
 
 LoggingSystem.bootstrap { label -> LogHandler in
     
-    let processor1 = BoxedTextLogProcessor(showDate: true, showThread: true, showLocation: true)
+    let box = BoxedTextLogProcessor(showDate: true, showThread: true, showLocation: true)
         .color()
-    let outputStream1 = StdoutLogOutputStream()
-    let handler1 = LogDogLogHandler(label: label, processor: processor1, outputStream: outputStream1)
+    let std = StdoutLogOutputStream()
+    let handler1 = LogDogLogHandler(label: label, processor: box, outputStream: std)
     
-    let processor2 = JSONLogProcessor().suffix("\n".data(using: .utf8)!)
+    let json = JSONLogProcessor().suffix("\n".data(using: .utf8)!)
     let rotator = DailyRotator()!
-    let outputStream2 = FileLogOutputStream(delegate: rotator)
-    let handler2 = LogDogLogHandler(label: label, processor: processor2, outputStream: outputStream2)
+    let file = FileLogOutputStream(delegate: rotator)
+    let handler2 = LogDogLogHandler(label: label, processor: json, outputStream: file)
     
     return MultiplexLogHandler([handler1, handler2])
 }

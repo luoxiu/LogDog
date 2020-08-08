@@ -90,7 +90,7 @@ public struct BoxedTextLogProcessor: LogProcessor {
         }
         
         if self.showLocation {
-            output("\(entry.file.lastPathComponent):\(entry.line) \(entry.function)")
+            output("\(entry.file.ns.lastPathComponent):\(entry.line) \(entry.function)")
             outputHorizontalDivider()
         }
         
