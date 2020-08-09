@@ -21,8 +21,6 @@ Pod::Spec.new do |s|
     s.dependency 'Logging', '~> 1.0'
     s.dependency 'Chalk', '~> 0.1.0'
     s.dependency 'ProcessStartTime', '~> 0.0.1'
-    s.dependency 'GzipSwift'
     s.dependency 'CryptoSwift', '~> 1.0'
-    s.dependency 'FileKit', '~> 6.0.0'
 end
   
