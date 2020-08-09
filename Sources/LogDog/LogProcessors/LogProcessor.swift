@@ -9,7 +9,7 @@ public protocol LogProcessor {
 
 extension LogProcessor where Input == Void {
     
-    func process(_ rawLogEntry: LogEntry) throws -> ProcessedLogEntry<Output> {
+    public func process(_ rawLogEntry: LogEntry) throws -> ProcessedLogEntry<Output> {
         let void = ProcessedLogEntry<Void>(rawLogEntry, ())
         return try process(void)
     }
