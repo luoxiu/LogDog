@@ -1,5 +1,5 @@
 ///// inspired by https://github.com/orhanobut/logger
-public struct BoxedTextLogProcessor: LogProcessor {
+public struct BoxTextLogProcessor: LogProcessor {
     
     public typealias Input = Void
     public typealias Output = String

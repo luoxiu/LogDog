@@ -3,7 +3,7 @@ import LogDog
 
 LoggingSystem.bootstrap { label -> LogHandler in
     
-    let box = BoxedTextLogProcessor(showDate: true, showThread: true, showLocation: true)
+    let box = BoxTextLogProcessor(showDate: true, showThread: true, showLocation: true)
         .color()
     let std = StdoutLogOutputStream()
     let handler1 = LogDogLogHandler(label: label, processor: box, outputStream: std)
