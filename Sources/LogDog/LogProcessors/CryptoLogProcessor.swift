@@ -1,29 +1,37 @@
 import Foundation
+import CryptoKit
 
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public struct CryptoLogProcessor: LogProcessor {
-
+    
+    public enum Cipher {
+        case AES
+        case ChaChaPoly
+    }
+    
     public typealias Input = Data
     public typealias Output = Data
     
     public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
     
-    public let cipher: Cipher
+    public let key: SymmetricKey
 
-    public init(cipher: Cipher) {
-        self.cipher = cipher
+    public init(key: SymmetricKey) {
+        self.key = key
     }
     
     public func process(_ logEntry: ProcessedLogEntry<Data>) throws -> ProcessedLogEntry<Data> {
         try logEntry.map { data in
-            let encrypted = try cipher.encrypt(Array(data))
-            return Data(encrypted)
+            let box = try ChaChaPoly.seal(data, using: key)
+            return box.combined
         }
     }
 }
 
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public extension LogProcessor where Self.Output == Data {
     
-    func encrypt(using cipher: Cipher) -> MultiplexLogProcessor<Self, CryptoLogProcessor> {
-        self + CryptoLogProcessor(cipher: cipher)
+    func encrypt(using key: SymmetricKey) -> MultiplexLogProcessor<Self, CryptoLogProcessor> {
+        self + CryptoLogProcessor(key: key)
     }
 }

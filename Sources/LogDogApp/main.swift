@@ -41,4 +41,4 @@ timer.setEventHandler {
 timer.schedule(deadline: .now(), repeating: 5, leeway: .seconds(0))
 timer.resume()
 
-RunLoop.current.run()
+dispatchMain()
