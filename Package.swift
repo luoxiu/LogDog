@@ -10,15 +10,13 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
-        .package(url: "https://github.com/luoxiu/Chalk", from: "0.1.0"),
         .package(url: "https://github.com/luoxiu/ProcessStartTime.git", from: "0.0.1"),
     ],
     targets: [
         .target(name: "LogDogApp", dependencies: ["LogDog"]),
         .target(name: "LogDog", dependencies: [
             "Logging",
-            "ProcessStartTime",
-            "Chalk",
+            "ProcessStartTime"
         ]),
         .testTarget(name: "LogDogTests", dependencies: ["LogDog"]),
     ]

@@ -2,30 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "Chalk",
-        "repositoryURL": "https://github.com/luoxiu/Chalk",
-        "state": {
-          "branch": null,
-          "revision": "9896f3c1fa8337a9c0fb7950e322c4d5446a8d74",
-          "version": "0.1.4"
-        }
-      },
-      {
         "package": "ProcessStartTime",
         "repositoryURL": "https://github.com/luoxiu/ProcessStartTime.git",
         "state": {
           "branch": null,
           "revision": "68403a926cbc3b3deb51cc8b5598cd530aa2a43a",
           "version": "0.0.2"
-        }
-      },
-      {
-        "package": "Rainbow",
-        "repositoryURL": "https://github.com/luoxiu/Rainbow",
-        "state": {
-          "branch": null,
-          "revision": "9d8fcb4c64e816a135c31162a0c319e9f1f09c35",
-          "version": "0.1.1"
         }
       },
       {
