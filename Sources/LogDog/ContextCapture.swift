@@ -1,5 +1,4 @@
 import Foundation
-import ProcessStartTime
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -81,12 +80,6 @@ extension ContextCapture {
     public static var appBuild: ContextCapture<String> {
         .init(#function) { _ in
             Bundle.main.infoDictionary?["CFBundleVersion"] as? String
-        }
-    }
-    
-    public static var appStartTime: ContextCapture<Date> {
-        .init(#function) { _ in
-            ProcessInfo.processInfo.startTime
         }
     }
     

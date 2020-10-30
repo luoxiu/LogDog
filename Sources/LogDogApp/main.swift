@@ -5,12 +5,12 @@ LoggingSystem.bootstrap { label -> LogHandler in
     
     let box = BoxTextLogProcessor(showDate: true, showThread: true, showLocation: true)
         .color()
-    let std = StdoutLogOutputStream()
+    let std = StdoutLogAppender()
     let handler1 = LogDogLogHandler(label: label, processor: box, outputStream: std)
     
     let json = JSONLogProcessor().suffix("\n".data(using: .utf8)!)
-    let rotator = DailyRotator()!
-    let file = FileLogOutputStream(delegate: rotator)
+    let rotator = DailyRotator()
+    let file = FileLogAppender(delegate: rotator)
     let handler2 = LogDogLogHandler(label: label, processor: json, outputStream: file)
     
     return MultiplexLogHandler([handler1, handler2])

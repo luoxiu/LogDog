@@ -1,6 +1,6 @@
 import Foundation
 
-public struct LogDogLogHandler<Processor, OutputStream>: LogHandler where Processor: LogProcessor, OutputStream: LogOutputStream, Processor.Input == Void, Processor.Output == OutputStream.Output {
+public struct LogDogLogHandler<Processor, OutputStream>: LogHandler where Processor: LogProcessor, OutputStream: LogAppender, Processor.Input == Void, Processor.Output == OutputStream.Output {
     public var logLevel: Logger.Level = .trace
     
     public var metadata: Logger.Metadata = [:]

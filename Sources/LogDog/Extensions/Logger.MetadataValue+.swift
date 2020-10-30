@@ -1,4 +1,8 @@
 extension Logger.MetadataValue {
+    public static func x(_ x: Any) -> Logger.MetadataValue {
+        .string(String(describing: x))
+    }
+    
     public static func any(_ any: Any) -> Logger.MetadataValue {
         .string(String(describing: any))
     }

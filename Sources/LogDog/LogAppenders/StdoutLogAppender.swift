@@ -1,10 +1,10 @@
 import Dispatch
 
-open class StdoutLogOutputStream: LogOutputStream {
+open class StdoutLogAppender: LogAppender {
     
     public init() { }
     
-    public let queue = DispatchQueue(label: "com.v2ambition.LogDog.StdoutLogOutputStream")
+    public let queue = DispatchQueue(label: "com.v2ambition.LogDog.StdoutLogAppender")
     
     open func output(_ logEntry: ProcessedLogEntry<String>) throws {
         let output = logEntry.output

@@ -1,21 +1,23 @@
 import Foundation
 
-private let fileManager = FileManager.default
+private var fileManager: FileManager {
+    FileManager.default
+}
 
 public typealias Path = String
 
 public protocol FileLogOutputStreamDelegate {
     
-    func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path?
+    func stream(_ stream: FileLogAppender, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path?
 }
 
-open class FileLogOutputStream: LogOutputStream {
+open class FileLogAppender: LogAppender {
     
     public typealias Output = Data
     
     public let delegate: FileLogOutputStreamDelegate
     
-    public let queue = DispatchQueue(label: "com.v2ambition.LogDog.FileLogOutputStream")
+    public let queue = DispatchQueue(label: "com.v2ambition.LogDog.FileLogAppender")
     
     private var currentFile: Path?
     
@@ -61,7 +63,7 @@ open class FileLogOutputStream: LogOutputStream {
     }
 }
 
-extension FileLogOutputStream {
+extension FileLogAppender {
     
     public static let defaultLogsDirectory: String = {
         #if os(iOS) || os(tvOS) || os(watchOS)
@@ -81,29 +83,31 @@ open class AbstractRotator: FileLogOutputStreamDelegate {
     public let directoryCountLimit: Int
     public let directorySizeLimit: UInt64
     
-    public init?(
-        directory: String = FileLogOutputStream.defaultLogsDirectory,
-        directoryCountLimit: Int = 5,
+    public init(
+        directory: String = FileLogAppender.defaultLogsDirectory,
+        directoryCountLimit: Int = 7,
         directorySizeLimit: UInt64 = 20 * 1024 * 1024
     ) {
-        let directory = directory
-        
-        let (exists, isDirectory) = directory.exists
-        if exists {
-            guard isDirectory, directory.isWritableFile else {
-                return nil
-            }
-        } else {
-            guard directory.createDirectory() else {
-                return nil
-            }
-        }
-        
         self.directory = directory
         self.directoryCountLimit = directoryCountLimit
         self.directorySizeLimit = directorySizeLimit
+    }
+    
+    open func prepare() -> Bool {
+        let (exists, isDirectory) = directory.exists
+        if exists {
+            guard isDirectory, directory.isWritableFile else {
+                return false
+            }
+        } else {
+            guard directory.createDirectory() else {
+                return false
+            }
+        }
         
         deleteOldFiles()
+        
+        return true
     }
     
     open func deleteOldFiles() {
@@ -150,7 +154,7 @@ open class AbstractRotator: FileLogOutputStreamDelegate {
         body()
     }
     
-    open func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path? {
+    open func stream(_ stream: FileLogAppender, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path? {
         nil
     }
 }
@@ -166,7 +170,7 @@ open class DailyRotator: AbstractRotator {
         return formatter
     }()
     
-    open override func stream(_ stream: FileLogOutputStream, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path? {
+    open override func stream(_ stream: FileLogAppender, fileToOutput logEntry: ProcessedLogEntry<Data>, currentFile: Path?) throws -> Path? {
         let date = logEntry.rawLogEntry.date
         let filename = Self.formatter.string(from: date) + ".log"
         
@@ -196,8 +200,7 @@ private extension Path {
     }
     
     var contents: [Path]? {
-        try? fileManager
-            .contentsOfDirectory(atPath: self)
+        try? fileManager.contentsOfDirectory(atPath: self)
     }
     
     var attributes: [FileAttributeKey: Any]? {
@@ -243,5 +246,4 @@ private extension Path {
             return false
         }
     }
-    
 }

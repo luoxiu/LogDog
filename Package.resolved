@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "ProcessStartTime",
-        "repositoryURL": "https://github.com/luoxiu/ProcessStartTime.git",
-        "state": {
-          "branch": null,
-          "revision": "68403a926cbc3b3deb51cc8b5598cd530aa2a43a",
-          "version": "0.0.2"
-        }
-      },
-      {
         "package": "swift-log",
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {

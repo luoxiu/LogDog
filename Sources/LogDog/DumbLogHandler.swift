@@ -1,6 +1,6 @@
 import Logging
 
-public struct DummyLogHandler: LogHandler {
+public struct DumbLogHandler: LogHandler {
     public var metadata: Logger.Metadata
     public var logLevel: Logger.Level
     

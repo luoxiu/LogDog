@@ -1,6 +1,6 @@
 import Logging
 
-public protocol LogOutputStream {
+public protocol LogAppender {
     
     associatedtype Output
         

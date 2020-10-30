@@ -2,11 +2,11 @@ import os
 import Foundation
 
 @available(OSX 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
-open class OSLogOutputStream: LogOutputStream {
+open class OSLogAppender: LogAppender {
     
     public let osLog: OSLog
     
-    public let queue = DispatchQueue(label: "com.v2ambition.LogDog.StdoutLogOutputStream")
+    public let queue = DispatchQueue(label: "com.v2ambition.LogDog.OSLogAppender")
     
     public init(osLog: OSLog = .default) {
         self.osLog = osLog
