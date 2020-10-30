@@ -1,5 +1,3 @@
-import Foundation
-
 extension Logger.Message: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()

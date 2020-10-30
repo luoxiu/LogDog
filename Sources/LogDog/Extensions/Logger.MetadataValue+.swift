@@ -1,12 +1,11 @@
-import Logging
-
 extension Logger.MetadataValue {
     public static func any(_ any: Any) -> Logger.MetadataValue {
-        .string("\(any)")
+        .string(String(describing: any))
     }
 }
 
-extension Logger.MetadataValue: Encodable {
+// MARK: - Codable
+extension Logger.MetadataValue: Codable {
     public func encode(to encoder: Encoder) throws {
         switch self {
         case .string(let string):
@@ -15,27 +14,25 @@ extension Logger.MetadataValue: Encodable {
         case .stringConvertible(let string):
             var container = encoder.singleValueContainer()
             try container.encode(string.description)
-        case .dictionary(let metadata):
-            try metadata.encode(to: encoder)
-        case .array(let values):
-            try values.encode(to: encoder)
+        case .dictionary(let dict):
+            try dict.encode(to: encoder)
+        case .array(let list):
+            try list.encode(to: encoder)
         }
     }
-}
 
-extension Logger.MetadataValue: Decodable {
     public init(from decoder: Decoder) throws {
         do {
             let container = try decoder.singleValueContainer()
-            let value = try container.decode(String.self)
-            self = .string(value)
+            let string = try container.decode(String.self)
+            self = .string(string)
         } catch {
             do {
-                let metadata = try Logger.Metadata(from: decoder)
-                self = .dictionary(metadata)
+                let dict = try Logger.Metadata(from: decoder)
+                self = .dictionary(dict)
             } catch {
-                let values = try [Logger.MetadataValue](from: decoder)
-                self = .array(values)
+                let list = try [Logger.MetadataValue](from: decoder)
+                self = .array(list)
             }
         }
     }
