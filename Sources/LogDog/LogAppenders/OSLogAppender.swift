@@ -16,7 +16,7 @@ open class OSLogAppender: LogAppender {
         self.osLog = OSLog(subsystem: subsystem, category: category)
     }
     
-    open func output(_ logEntry: ProcessedLogEntry<String>) throws {
+    open func append(_ logEntry: ProcessedLogEntry<String>) throws {
         let level = logEntry.rawLogEntry.level
         let output = logEntry.output
         

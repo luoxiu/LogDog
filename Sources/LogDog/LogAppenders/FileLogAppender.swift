@@ -25,7 +25,7 @@ open class FileLogAppender: LogAppender {
         self.delegate = delegate
     }
     
-    open func output(_ logEntry: ProcessedLogEntry<Data>) throws {
+    open func append(_ logEntry: ProcessedLogEntry<Data>) throws {
         let data = logEntry.output
         
         if data.isEmpty { return }

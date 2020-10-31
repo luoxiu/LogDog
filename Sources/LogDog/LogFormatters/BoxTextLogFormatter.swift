@@ -1,10 +1,10 @@
 ///// inspired by https://github.com/orhanobut/logger
-public struct BoxTextLogProcessor: LogProcessor {
+public struct BoxTextLogFormatter: LogFormatter {
     
     public typealias Input = Void
     public typealias Output = String
     
-    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
+    public var context: [String : () -> Logger.MetadataValue?] = [:]
     
     public let rowWidth: Int
     public let showDate: Bool
@@ -23,13 +23,13 @@ public struct BoxTextLogProcessor: LogProcessor {
         self.showLocation = showLocation
         
         if showThread {
-            self.register(.currentThreadId)
-            self.register(.currentThreadName)
-            self.register(.currentDispatchQueueLabel)
+//            self.register(.currentThreadId)
+//            self.register(.currentThreadName)
+//            self.register(.currentDispatchQueueLabel)
         }
     }
     
-    public func process(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
+    public func format(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
         let topBorder = "┌" + repeatElement("─", count: self.rowWidth)
         let bottomBorder = "└" + repeatElement("─", count: self.rowWidth)
         let horizontalDivider = "├" + repeatElement("┄", count: self.rowWidth)
@@ -72,18 +72,18 @@ public struct BoxTextLogProcessor: LogProcessor {
         }
         
         if self.showThread {
-            let threadId = entry.get(.currentThreadId)
-            let threadName = entry.get(.currentThreadName)
-            let dispatchQueueLabel = entry.get(.currentDispatchQueueLabel)
+            let threadId = ""//entry.get(.currentThreadId)
+            let threadName = ""//entry.get(.currentThreadName)
+            let dispatchQueueLabel = ""//entry.get(.currentDispatchQueueLabel)
             
             var thread = ""
-            if let threadName = threadName, threadName.count > 0 {
-                thread = "Thread \(threadName)"
-            } else if let label = dispatchQueueLabel, label.count > 0 {
-                thread = label
-            } else {
-                thread = "Thread \(threadId as Any)"
-            }
+//            if let threadName = threadName, threadName.count > 0 {
+//                thread = "Thread \(threadName)"
+//            } else if let label = dispatchQueueLabel, label.count > 0 {
+//                thread = label
+//            } else {
+//                thread = "Thread \(threadId as Any)"
+//            }
             
             output(thread)
             outputHorizontalDivider()

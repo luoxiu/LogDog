@@ -1,11 +1,11 @@
 import Foundation
 
-public struct JSONLogProcessor: LogProcessor {
+public struct JSONLogFormatter: LogFormatter {
     
     public typealias Input = Void
     public typealias Output = Data
     
-    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
+    public var context: [String : () -> Logger.MetadataValue?] = [:]
     
     public let jsonEncoder: JSONEncoder
     
@@ -13,7 +13,7 @@ public struct JSONLogProcessor: LogProcessor {
         self.jsonEncoder = jsonEncoder
     }
     
-    public func process(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<Data> {
+    public func format(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<Data> {
         try logEntry.map {
             try jsonEncoder.encode(logEntry.rawLogEntry)
         }

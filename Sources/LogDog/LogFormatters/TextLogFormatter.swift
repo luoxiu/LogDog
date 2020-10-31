@@ -1,11 +1,11 @@
 import Foundation
 
-public struct TextLogProcessor: LogProcessor {
+public struct TextLogFormatter: LogFormatter {
     
     public typealias Input = Void
     public typealias Output = String
     
-    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
+    public var context: [String : () -> Logger.MetadataValue?] = [:]
     
     public let format: (LogEntry) -> String
     
@@ -13,28 +13,28 @@ public struct TextLogProcessor: LogProcessor {
         self.format = format
     }
     
-    public func process(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
+    public func format(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
         logEntry.map {
             format(logEntry.rawLogEntry)
         }
     }
 }
 
-extension TextLogProcessor {
+extension TextLogFormatter {
     
     public enum FormatStyle {
         case plain
         case emoji
     }
     
-    public static func preferredFormat(_ style: FormatStyle) -> TextLogProcessor {
+    public static func preferredFormat(_ style: FormatStyle) -> TextLogFormatter {
         switch style {
         case .plain:    return .plain
         case .emoji:    return .emoji
         }
     }
     
-    private static let plain = TextLogProcessor { logEntry in
+    private static let plain = TextLogFormatter { logEntry in
         let time = logEntry.date.datetimeString
         let level = logEntry.level.output(.initial).capitalized
         let label = logEntry.label
@@ -45,7 +45,7 @@ extension TextLogProcessor {
         return "\(time) \(level)/\(label): \(message)\(metadata)"
     }
 
-    private static let emoji = TextLogProcessor { logEntry in
+    private static let emoji = TextLogFormatter { logEntry in
         let level = logEntry.level.output(.emoji)
         let time = logEntry.date.timeString
         let label = logEntry.label

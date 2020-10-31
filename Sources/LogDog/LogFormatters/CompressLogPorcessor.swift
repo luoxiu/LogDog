@@ -1,14 +1,14 @@
 import Foundation
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct CompressLogProcessor: LogProcessor {
+public struct CompressLogFormatter: LogFormatter {
     
     public typealias CompressionAlgorithm = NSData.CompressionAlgorithm
     
     public typealias Input = Data
     public typealias Output = Data
     
-    public var contextCaptures: [String : (LogEntry) -> LossLessMetadataValueConvertible?] = [:]
+    public var context: [String : () -> Logger.MetadataValue?] = [:]
     
     public let compressionAlgorithm: CompressionAlgorithm
     
@@ -16,7 +16,7 @@ public struct CompressLogProcessor: LogProcessor {
         self.compressionAlgorithm = compressionAlgorithm
     }
     
-    public func process(_ logEntry: ProcessedLogEntry<Data>) throws -> ProcessedLogEntry<Data> {
+    public func format(_ logEntry: ProcessedLogEntry<Data>) throws -> ProcessedLogEntry<Data> {
         try logEntry.map { data in
             try NSMutableData(data: data).compressed(using: self.compressionAlgorithm) as Data
         }
@@ -24,9 +24,9 @@ public struct CompressLogProcessor: LogProcessor {
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public extension LogProcessor where Self.Output == Data {
+public extension LogFormatter where Self.Output == Data {
     
-    func compress(using compressionAlgorithm: CompressLogProcessor.CompressionAlgorithm) -> MultiplexLogProcessor<Self, CompressLogProcessor> {
-        self + CompressLogProcessor(compressionAlgorithm: compressionAlgorithm)
+    func compress(using compressionAlgorithm: CompressLogFormatter.CompressionAlgorithm) -> MultiplexLogFormatter<Self, CompressLogFormatter> {
+        self + CompressLogFormatter(compressionAlgorithm: compressionAlgorithm)
     }
 }
