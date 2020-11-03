@@ -1,13 +1,13 @@
 import Foundation
 
-public struct SugarLogHandler<Processor, Appender>: LogHandler where Processor: LogFormatter, Appender: LogAppender, Processor.Input == Void, Processor.Output == Appender.Output {
+public struct SugarLogHandler<Formatter, Appender>: LogHandler where Formatter: LogFormatter, Appender: LogAppender, Formatter.Input == Void, Formatter.Output == Appender.Output {
     public var logLevel: Logger.Level = .trace
     
     public var metadata: Logger.Metadata = [:]
     
     /// dynamic metadata values override metadata values.
     public var dynamicMetadata: [String: () -> Logger.MetadataValue] = [:]
-
+    
     public subscript(metadataKey metadataKey: String) -> Logger.MetadataValue? {
         get {
             metadata[metadataKey]
@@ -19,34 +19,59 @@ public struct SugarLogHandler<Processor, Appender>: LogHandler where Processor: 
     
     public let label: String
     
-    public let processor: Processor
+    public let formatter: Formatter
     public let appender: Appender
     
-    public var queue: DispatchQueue?
-    public var errorHandler: ((Error) -> Void)?
+    private let loggingQueue: DispatchQueue
+    private let isOnLoggingQueue: () -> Bool
+     
+    private let errorHandler: ((Error) -> Void)?
     
-    public init(label: String, processor: Processor, appender: Appender) {
+    private let lock = NSLock()
+    
+    private var _sync = false
+    
+    public var sync: Bool {
+        get {
+            lock.lock()
+            defer { lock.lock() }
+            return _sync
+        }
+        set {
+            lock.lock()
+            defer { lock.lock() }
+            _sync = newValue
+        }
+    }
+    
+    public init(label: String,
+                formatter: Formatter,
+                appender: Appender,
+                errorHandler: ((Error) -> Void)? = nil) {
         self.label = label
-        self.processor = processor
+        
+        let queue = DispatchQueue(label: "com.v2ambition.LogDog.SugarLogHandler.\(label)")
+        self.loggingQueue = queue
+        
+        let key = DispatchSpecificKey<Void>()
+        queue.setSpecific(key: key, value: ())
+        self.isOnLoggingQueue = {
+            DispatchQueue.getSpecific(key: key) != nil
+        }
+        
+        self.formatter = formatter
         self.appender = appender
-    }
-    
-    public func flush() {
-        queue?.sync { }
-    }
-}
-
-extension SugarLogHandler {
-    
-    var metadataSnapshot: Logger.Metadata {
-        dynamicMetadata
-            .mapValues { $0() }
-            .merging(metadata, uniquingKeysWith: { a, _ in a })
+        
+        self.errorHandler = errorHandler
+        
+        atExit {
+            queue.sync { }
+        }
     }
 }
 
 extension SugarLogHandler {
-
+    
     public func log(level: Logger.Level,
                     message: Logger.Message,
                     metadata: Logger.Metadata?,
@@ -56,39 +81,43 @@ extension SugarLogHandler {
                     line: UInt) {
         
         var finalMetadata = self.metadata
+        
+        for (key, value) in self.dynamicMetadata {
+            finalMetadata[key] = value()
+        }
+        
         if let metadata = metadata {
             finalMetadata.merge(metadata, uniquingKeysWith: { _, b in b })
         }
         
-        let logEntry = LogEntry(label: label,
-                                level: level,
-                                message: message,
-                                metadata: finalMetadata,
-                                source: source, file: file, function: function, line: line,
-                                date: Date(),
-                                context: [:])
+        let entry = LogEntry(label: label,
+                             level: level,
+                             message: message,
+                             metadata: finalMetadata,
+                             source: source,
+                             file: file,
+                             function: function,
+                             line: line)
         
-        let finalContext = processor
-            .context
-            .compactMapValues {
-                $0()
-            }
+        formatter.hooks?.hook(entry)
         
-        logEntry.context = finalContext
-        
-        let processAndOutput = {
+        let formatAndAppend = {
             do {
-                let processed = try self.processor.process(logEntry)
-                try self.appender.append(processed)
+                let record = LogRecord(entry, ())
+                if let newRecord = try record.formatted(by: formatter) {
+                    try appender.append(newRecord)
+                }
             } catch {
-                self.errorHandler?(error)
+                errorHandler?(error)
             }
         }
         
-        if let queue = self.queue {
-            queue.async(execute: processAndOutput)
+        if sync {
+            loggingQueue.sync(execute: formatAndAppend)
+        } else if isOnLoggingQueue() {
+            formatAndAppend()
         } else {
-            processAndOutput()
+            loggingQueue.async(execute: formatAndAppend)
         }
     }
 }

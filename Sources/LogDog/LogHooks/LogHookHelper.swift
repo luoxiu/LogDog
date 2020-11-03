@@ -3,9 +3,21 @@ import Foundation
 import UIKit
 #endif
 
-extension LogFormatter {
+public enum LogHookHelper {
     
-    public static var currentThreadId: String? {
+    public static var currentTimestamp: String {
+        var buffer = [Int8](repeating: 0, count: 255)
+        var timestamp = time(nil)
+        let localTime = localtime(&timestamp)
+        strftime(&buffer, buffer.count, "%Y-%m-%dT%H:%M:%S%z", localTime)
+        return buffer.withUnsafeBufferPointer {
+            $0.withMemoryRebound(to: CChar.self) {
+                String(cString: $0.baseAddress!)
+            }
+        }
+    }
+    
+    public static var currentThreadID: String? {
         #if canImport(Darwin)
         var id: __uint64_t = 0
         if pthread_threadid_np(nil, &id) == 0 {
@@ -13,14 +25,6 @@ extension LogFormatter {
         }
         #endif
         return nil
-    }
-    
-    public static var currentThreadName: String? {
-        Thread.current.name
-    }
-    
-    public static var isMainThread: Bool {
-        Thread.isMainThread
     }
  
     public static var currentDispatchQueueLabel: String {
@@ -71,9 +75,8 @@ extension LogFormatter {
         return "Linux"
         #elseif os(FreeBSD)
         return "FreeBSD"
-        // swift(>=5.3)
-//            #elseif os(OpenBSD)
-//            return "OpenBSD"
+        #elseif os(OpenBSD)
+        return "OpenBSD"
         #elseif os(Windows)
         return "Windows"
         #elseif os(Android)

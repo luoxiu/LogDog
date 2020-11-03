@@ -2,11 +2,9 @@ import os
 import Foundation
 
 @available(OSX 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
-open class OSLogAppender: LogAppender {
+public struct OSLogAppender: LogAppender {
     
     public let osLog: OSLog
-    
-    public let queue = DispatchQueue(label: "com.v2ambition.LogDog.OSLogAppender")
     
     public init(osLog: OSLog = .default) {
         self.osLog = osLog
@@ -16,12 +14,9 @@ open class OSLogAppender: LogAppender {
         self.osLog = OSLog(subsystem: subsystem, category: category)
     }
     
-    open func append(_ logEntry: ProcessedLogEntry<String>) throws {
-        let level = logEntry.rawLogEntry.level
-        let output = logEntry.output
-        
+    public func append(_ record: LogRecord<String>) throws {
         var type: OSLogType = .default
-        switch level {
+        switch record.entry.level {
         case .critical:
             type = .fault
         case .error:
@@ -32,8 +27,6 @@ open class OSLogAppender: LogAppender {
             type = .debug
         }
         
-        queue.sync {
-            os_log("%{public}s", log: osLog, type: type, output)
-        }
+        os_log("%{public}s", log: osLog, type: type, record.output)
     }
 }

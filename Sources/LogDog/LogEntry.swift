@@ -1,8 +1,4 @@
-import Foundation
-import Logging
-
-public final class LogEntry: Codable {
-    
+public final class LogEntry {
     public let label: String
     
     public let level: Logger.Level
@@ -19,10 +15,8 @@ public final class LogEntry: Codable {
     
     public let line: UInt
     
-    public let date: Date
-
-    var context: Logger.Metadata
-        
+    public var parameters: LogParameters
+    
     public init(label: String,
                 level: Logger.Level,
                 message: Logger.Message,
@@ -31,8 +25,7 @@ public final class LogEntry: Codable {
                 file: String,
                 function: String,
                 line: UInt,
-                date: Date,
-                context: Logger.Metadata
+                parameters: LogParameters = LogParameters()
     ) {
         self.label = label
         self.level = level
@@ -42,7 +35,6 @@ public final class LogEntry: Codable {
         self.file = file
         self.function = function
         self.line = line
-        self.date = date
-        self.context = context
+        self.parameters = parameters
     }
 }

@@ -1,6 +1,11 @@
 import Foundation
 import LogDog
+import Combine
+import AppKit
 
+let a = NSApplication.willTerminateNotification
+
+/*
 LoggingSystem.bootstrap { label -> LogHandler in
     
     let box = BoxTextLogFormatter(showDate: true, showThread: true, showLocation: true)
@@ -41,3 +46,4 @@ timer.schedule(deadline: .now(), repeating: 5, leeway: .seconds(0))
 timer.resume()
 
 dispatchMain()
+*/

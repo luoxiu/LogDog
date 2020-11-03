@@ -1,10 +1,11 @@
+/*
 ///// inspired by https://github.com/orhanobut/logger
 public struct BoxTextLogFormatter: LogFormatter {
     
     public typealias Input = Void
     public typealias Output = String
     
-    public var context: [String : () -> Logger.MetadataValue?] = [:]
+    public var hooks = LogHooks()
     
     public let rowWidth: Int
     public let showDate: Bool
@@ -29,7 +30,7 @@ public struct BoxTextLogFormatter: LogFormatter {
         }
     }
     
-    public func format(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
+    public func format(_ record: FormattedLogEntry<Void>) throws -> FormattedLogEntry<String> {
         let topBorder = "┌" + repeatElement("─", count: self.rowWidth)
         let bottomBorder = "└" + repeatElement("─", count: self.rowWidth)
         let horizontalDivider = "├" + repeatElement("┄", count: self.rowWidth)
@@ -66,10 +67,10 @@ public struct BoxTextLogFormatter: LogFormatter {
         
         outputTopBorder()
         
-        if self.showDate {
-            output(entry.date.iso8601String)
-            outputHorizontalDivider()
-        }
+//        if self.showDate {
+//            output(entry.date.iso8601String)
+//            outputHorizontalDivider()
+//        }
         
         if self.showThread {
             let threadId = ""//entry.get(.currentThreadId)
@@ -117,3 +118,4 @@ public struct BoxTextLogFormatter: LogFormatter {
         return .init(entry, message)
     }
 }
+*/

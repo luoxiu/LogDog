@@ -5,21 +5,18 @@ public struct TextLogFormatter: LogFormatter {
     public typealias Input = Void
     public typealias Output = String
     
-    public var context: [String : () -> Logger.MetadataValue?] = [:]
-    
     public let format: (LogEntry) -> String
     
     public init(format: @escaping (LogEntry) -> String) {
         self.format = format
     }
     
-    public func format(_ logEntry: ProcessedLogEntry<Void>) throws -> ProcessedLogEntry<String> {
-        logEntry.map {
-            format(logEntry.rawLogEntry)
-        }
+    public func format(_ record: LogRecord<Void>) throws -> String? {
+        format(record.entry)
     }
 }
 
+/*
 extension TextLogFormatter {
     
     public enum FormatStyle {
@@ -85,3 +82,5 @@ private extension Date {
         Self.datetimeFormatter.string(from: self)
     }
 }
+
+*/

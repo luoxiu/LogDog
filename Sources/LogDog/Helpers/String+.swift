@@ -3,6 +3,6 @@ import Foundation
 extension String {
     
     var ns: NSString {
-        NSString(string: self)
+        self as NSString
     }
 }
