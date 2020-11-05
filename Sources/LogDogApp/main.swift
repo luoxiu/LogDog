@@ -1,7 +1,6 @@
 import Foundation
 import LogDog
 
-
 let logger1 = Logger.sugar("com.aftership.App")
 
 let logger2 = Logger(label: "json") { label in
@@ -10,7 +9,7 @@ let logger2 = Logger(label: "json") { label in
     encoder.outputFormatting = [.prettyPrinted]
     let jsonFormtter = EncoderLogFormatter(encoder)
 
-    let text = AnyLogFormatter<Data, String>({ (record) -> String? in
+    let text = AnyLogSink<Data, String>({ (record) -> String? in
         String(bytes: record.output, encoding: .utf8)
     })
 
@@ -39,8 +38,8 @@ timer.setEventHandler {
 
     run(logger: logger2)
 }
+
 timer.schedule(deadline: .now(), repeating: 5, leeway: .seconds(0))
 timer.resume()
 
 dispatchMain()
-

@@ -1,6 +1,6 @@
 import Foundation
 
-public let atExit = Notification.Name("com.v2ambition.LogDog.atExit")
+let atExit = Notification.Name("com.v2ambition.LogDog.atExit")
 
 private enum Once {
     static let lazy: Void = {

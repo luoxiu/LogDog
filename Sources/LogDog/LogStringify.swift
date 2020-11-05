@@ -1,3 +1,1 @@
-public protocol LogStringify {
-    
-}
+public protocol LogStringify {}

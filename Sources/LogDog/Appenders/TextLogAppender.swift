@@ -1,25 +1,24 @@
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-import Darwin
+    import Darwin
 #elseif os(Windows)
-import MSVCRT
+    import MSVCRT
 #else
-import Glibc
+    import Glibc
 #endif
 import Foundation
 
 public struct TextLogAppender: LogAppender {
-    
     public let stream: TextOutputStream
-    
+
     public init(_ stream: TextOutputStream) {
         self.stream = stream
     }
-    
+
     public func append(_ record: LogRecord<String>) throws {
         var stream = self.stream
         stream.write(record.output)
     }
-    
+
     public static let stdout = TextLogAppender(StdOutputStream.out)
     public static let stderr = TextLogAppender(StdOutputStream.err)
 }
@@ -27,14 +26,14 @@ public struct TextLogAppender: LogAppender {
 // https://github.com/apple/swift-log/blob/main/Sources/Logging/Logging.swift
 
 #if os(macOS) || os(tvOS) || os(iOS) || os(watchOS)
-private let stderr = Darwin.stderr
-private let stdout = Darwin.stdout
+    private let stderr = Darwin.stderr
+    private let stdout = Darwin.stdout
 #elseif os(Windows)
-private let stderr = MSVCRT.stderr
-private let stdout = MSVCRT.stdout
+    private let stderr = MSVCRT.stderr
+    private let stdout = MSVCRT.stdout
 #else
-private let stderr = Glibc.stderr!
-private let stdout = Glibc.stdout!
+    private let stderr = Glibc.stderr!
+    private let stdout = Glibc.stdout!
 #endif
 
 private struct StdOutputStream: TextOutputStream {
@@ -42,24 +41,24 @@ private struct StdOutputStream: TextOutputStream {
 
     func write(_ string: String) {
         #if os(Windows)
-        _lock_file(self.file)
+            _lock_file(file)
         #else
-        flockfile(self.file)
+            flockfile(file)
         #endif
         defer {
             #if os(Windows)
-            _unlock_file(self.file)
+                _unlock_file(self.file)
             #else
-            funlockfile(self.file)
+                funlockfile(self.file)
             #endif
         }
-        
+
         string.withCString { ptr in
             _ = fputs(ptr, self.file)
             _ = fflush(self.file)
         }
     }
-    
+
     static let out = StdOutputStream(file: stdout)
     static let err = StdOutputStream(file: stderr)
 }
