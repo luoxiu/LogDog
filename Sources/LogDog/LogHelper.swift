@@ -3,35 +3,12 @@ import Foundation
 import UIKit
 #endif
 
-public enum LogHookHelper {
+public enum LogHelper {
     
-    public static var currentTimestamp: String {
-        var buffer = [Int8](repeating: 0, count: 255)
-        var timestamp = time(nil)
-        let localTime = localtime(&timestamp)
-        strftime(&buffer, buffer.count, "%Y-%m-%dT%H:%M:%S%z", localTime)
-        return buffer.withUnsafeBufferPointer {
-            $0.withMemoryRebound(to: CChar.self) {
-                String(cString: $0.baseAddress!)
-            }
-        }
+    public static var appBuild: String? {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String
     }
     
-    public static var currentThreadID: String? {
-        #if canImport(Darwin)
-        var id: __uint64_t = 0
-        if pthread_threadid_np(nil, &id) == 0 {
-            return "\(id)"
-        }
-        #endif
-        return nil
-    }
- 
-    public static var currentDispatchQueueLabel: String {
-        let label = __dispatch_queue_get_label(nil)
-        return String(cString: label)
-    }
-
     public static var appName: String {
         let info = Bundle.main.infoDictionary
         if let appName = info?["CFBundleDisplayName"] as? String {
@@ -47,8 +24,42 @@ public enum LogHookHelper {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     }
     
-    public static var appBuild: String? {
-        Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+    
+    public static var currentDispatchQueueLabel: String {
+        let label = __dispatch_queue_get_label(nil)
+        return String(cString: label)
+    }
+    
+    public static var currentThreadID: String? {
+        #if canImport(Darwin)
+        var id: __uint64_t = 0
+        if pthread_threadid_np(nil, &id) == 0 {
+            return "\(id)"
+        }
+        #endif
+        return nil
+    }
+    
+    private static func strftime(_ fmt: String) -> (String, Int32) {
+        var buffer = [Int8](repeating: 0, count: 255)
+
+        var time = timeval()
+        gettimeofday(&time, nil)
+        
+        let localTime = localtime(&time.tv_sec)
+        Foundation.strftime(&buffer, buffer.count, fmt, localTime)
+        
+        return (String(cString: &buffer), time.tv_usec)
+    }
+    
+    public static var currentTimestamp: String {
+        strftime("%Y-%m-%dT%H:%M:%S%z").0
+    }
+    
+    /// 00:00:00.123
+    public static var currentTime: String {
+        let (time, ms) = strftime("%H:%M:%S")
+        return String(format: "%@.%d", time, ms / 1000)
     }
     
     public static var deviceName: String? {

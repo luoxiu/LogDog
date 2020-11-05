@@ -1,6 +1,18 @@
 import Foundation
 
+extension Logger {
+    
+    public static func sugar(_ label: String) -> Logger {
+        Logger(label: label) {
+            SugarLogHandler(label: $0,
+                            formatter: TextLogFormatter.default,
+                            appender: TextLogAppender.stdout)
+        }
+    }
+}
+
 public struct SugarLogHandler<Formatter, Appender>: LogHandler where Formatter: LogFormatter, Appender: LogAppender, Formatter.Input == Void, Formatter.Output == Appender.Output {
+    
     public var logLevel: Logger.Level = .trace
     
     public var metadata: Logger.Metadata = [:]
@@ -8,20 +20,11 @@ public struct SugarLogHandler<Formatter, Appender>: LogHandler where Formatter: 
     /// dynamic metadata values override metadata values.
     public var dynamicMetadata: [String: () -> Logger.MetadataValue] = [:]
     
-    public subscript(metadataKey metadataKey: String) -> Logger.MetadataValue? {
-        get {
-            metadata[metadataKey]
-        }
-        set(newValue) {
-            metadata[metadataKey] = newValue
-        }
-    }
-    
     public let label: String
-    
+
     public let formatter: Formatter
     public let appender: Appender
-    
+
     private let errorHandler: ((Error) -> Void)?
     
     public init(label: String,
@@ -62,19 +65,27 @@ extension SugarLogHandler {
                              message: message,
                              metadata: finalMetadata,
                              source: source,
-                             file: file,
+                             file: file.basename,
                              function: function,
                              line: line)
         
-        formatter.hooks?.hook(entry)
-        
-        do {
-            let record = LogRecord(entry, ())
-            if let newRecord = try record.formatted(by: formatter) {
-                try appender.append(newRecord)
+        if let hooks = formatter.hooks {
+            for i in hooks.indices {
+                hooks[i].hook(entry)
             }
-        } catch {
-            errorHandler?(error)
         }
+        
+        let formatAndAppend = {
+            do {
+                let record = LogRecord(entry, ())
+                if let newRecord = try record.formatted(by: formatter) {
+                    try appender.append(newRecord)
+                }
+            } catch {
+                errorHandler?(error)
+            }
+        }
+        
+        formatAndAppend()
     }
 }

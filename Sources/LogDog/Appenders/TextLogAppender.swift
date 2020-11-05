@@ -5,7 +5,7 @@ import MSVCRT
 #else
 import Glibc
 #endif
-import Dispatch
+import Foundation
 
 public struct TextLogAppender: LogAppender {
     
@@ -59,7 +59,7 @@ private struct StdOutputStream: TextOutputStream {
             _ = fflush(self.file)
         }
     }
-
+    
     static let out = StdOutputStream(file: stdout)
     static let err = StdOutputStream(file: stderr)
 }

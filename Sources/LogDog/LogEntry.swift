@@ -1,4 +1,5 @@
 public final class LogEntry {
+    
     public let label: String
     
     public let level: Logger.Level
@@ -15,6 +16,7 @@ public final class LogEntry {
     
     public let line: UInt
     
+    /// When using json formatting, all key-value pairs in the dictionary whose key is string and value is codable will be selected and encoded.
     public var parameters: LogParameters
     
     public init(label: String,
@@ -26,7 +28,7 @@ public final class LogEntry {
                 function: String,
                 line: UInt,
                 parameters: LogParameters = LogParameters()
-    ) {
+    ) { 
         self.label = label
         self.level = level
         self.message = message

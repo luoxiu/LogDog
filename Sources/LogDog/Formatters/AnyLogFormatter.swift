@@ -1,6 +1,6 @@
 extension LogFormatter {
     
-    public func eraseToAnyPublisher() -> AnyLogFormatter<Input, Output> {
+    public func eraseToAnyLogFormatter() -> AnyLogFormatter<Input, Output> {
         .init(self)
     }
 }

@@ -1,26 +1,21 @@
 import Foundation
 import LogDog
-import Combine
-import AppKit
 
-let a = NSApplication.willTerminateNotification
 
-/*
-LoggingSystem.bootstrap { label -> LogHandler in
-    
-    let box = BoxTextLogFormatter(showDate: true, showThread: true, showLocation: true)
-    let std = StdoutLogAppender()
-    let handler1 = SugarLogHandler(label: label, processor: box, appender: std)
-    
-    let json = JSONLogFormatter().suffix("\n".data(using: .utf8)!)
-    let rotator = DailyRotator()
-    let file = FileLogAppender(delegate: rotator)
-    let handler2 = SugarLogHandler(label: label, processor: json, appender: file)
-    
-    return MultiplexLogHandler([handler1, handler2])
+let logger1 = Logger.sugar("com.aftership.App")
+
+let logger2 = Logger(label: "json") { label in
+
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted]
+    let jsonFormtter = EncoderLogFormatter(encoder)
+
+    let text = AnyLogFormatter<Data, String>({ (record) -> String? in
+        String(bytes: record.output, encoding: .utf8)
+    })
+
+    return SugarLogHandler(label: label, formatter: jsonFormtter + text, appender: TextLogAppender.stdout)
 }
-
-var logger = Logger(label: "app")
 
 func run(logger: Logger) {
     logger.trace("POST /users", metadata: ["body": ["name": "秋"]])
@@ -40,10 +35,12 @@ func run(logger: Logger) {
 
 let timer = DispatchSource.makeTimerSource()
 timer.setEventHandler {
-    run(logger: logger)
+    run(logger: logger1)
+
+    run(logger: logger2)
 }
 timer.schedule(deadline: .now(), repeating: 5, leeway: .seconds(0))
 timer.resume()
 
 dispatchMain()
-*/
+

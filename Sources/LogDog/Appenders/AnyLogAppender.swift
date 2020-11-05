@@ -43,6 +43,6 @@ private final class AppenderBox<Appender>: AbstractAppender<Appender.Output> whe
     }
     
     override func append(_ record: LogRecord<Output>) throws {
-        fatalError()
+        try appender.append(record)
     }
 }

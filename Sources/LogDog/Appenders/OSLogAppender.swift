@@ -22,7 +22,7 @@ public struct OSLogAppender: LogAppender {
         case .error:
             type = .error
         case .warning, .notice, .info:
-            type = .default
+            type = .info
         case .debug, .trace:
             type = .debug
         }

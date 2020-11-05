@@ -1,3 +1,5 @@
+import Foundation
+
 public protocol LogFormatter {
     associatedtype Input
     associatedtype Output

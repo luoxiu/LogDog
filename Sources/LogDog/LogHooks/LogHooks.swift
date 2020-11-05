@@ -2,94 +2,127 @@ import Foundation
 
 public enum LogHooks { }
 
+// MARK: appBuild
 extension LogHooks {
-    // MARK: currentTime
-    public struct CurrentTimeKey: LogParameterKey {
+    public enum AppBuild: LogParameterCodingKey {
+        public typealias Value = String
+    }
+    
+    public static let appBuild: LogHook = AnyLogHook {
+        $0.parameters[AppBuild.self] = LogHelper.appBuild
+    }
+}
+
+// MARK: appName
+extension LogHooks {
+    public enum AppName: LogParameterCodingKey {
+        public typealias Value = String
+    }
+    
+    public static let appName: LogHook = AnyLogHook {
+        $0.parameters[AppName.self] = LogHelper.appName
+    }
+}
+
+// MARK: appVersion
+extension LogHooks {
+    public enum AppVersion: LogParameterCodingKey {
+        public typealias Value = String
+    }
+    
+    public static let appVersion: LogHook = AnyLogHook {
+        $0.parameters[AppVersion.self] = LogHelper.appVersion
+    }
+}
+
+// MARK: currentDispatchQueueLabel
+extension LogHooks {
+    public struct CurrentDispatchQueueLabel: LogParameterCodingKey {
+        public typealias Value = String
+    }
+    
+    public static let currentDispatchQueueLabel: LogHook = AnyLogHook {
+        $0.parameters[CurrentDispatchQueueLabel.self] = LogHelper.currentDispatchQueueLabel
+    }
+}
+
+// MARK: currentThreadID
+extension LogHooks {
+    public enum CurrentThreadID: LogParameterCodingKey {
+        public typealias Value = String
+    }
+    
+    public static let currentThreadID: LogHook = AnyLogHook {
+        $0.parameters[CurrentThreadID.self] = LogHelper.currentThreadID
+    }
+}
+
+// MARK: currentThreadName
+extension LogHooks {
+    public enum CurrentThreadName: LogParameterCodingKey {
+        public typealias Value = String
+    }
+    
+    public static let currentThreadName: LogHook = AnyLogHook {
+        $0.parameters[CurrentThreadName.self] = Thread.current.name
+    }
+}
+
+// MARK: currentTime
+extension LogHooks {
+    public enum CurrentTime: LogParameterCodingKey {
         public typealias Value = Date
     }
     
-    public static let currentTime: LogHook = {
-        $0.parameters[CurrentTimeKey.self] = Date()
+    public static let currentTime: LogHook = AnyLogHook {
+        $0.parameters[CurrentTime.self] = Date()
     }
-    
-    // MARK: currentThreadID
-    public struct CurrentThreadIDKey: LogParameterKey {
-        public typealias Value = String
-    }
-    
-    public static let currentThreadID: LogHook = {
-        $0.parameters[CurrentThreadIDKey.self] = LogHookHelper.currentThreadID
-    }
-    
-    // MARK: currentThreadName
-    public struct CurrentThreadNameKey: LogParameterKey {
-        public typealias Value = String
-    }
+}
 
-    public static let currentThreadName: LogHook = {
-        $0.parameters[CurrentThreadNameKey.self] = Thread.current.name
+// MARK: currentTimestamp
+extension LogHooks {
+    public enum CurrentTimestamp: LogParameterCodingKey {
+        public typealias Value = String
     }
     
-    // MARK: isMainThread
-    public struct IsMainThreadKey: LogParameterKey {
+    public static let currentTimestamp: LogHook = AnyLogHook {
+        $0.parameters[CurrentTimestamp.self] = LogHelper.currentTimestamp
+    }
+}
+
+// MARK: isMainThread
+extension LogHooks {
+    public enum IsMainThread: LogParameterCodingKey {
         public typealias Value = Bool
     }
-
-    public static let isMainThread: LogHook = {
-        $0.parameters[IsMainThreadKey.self] = Thread.isMainThread
+    
+    public static let isMainThread: LogHook = AnyLogHook {
+        $0.parameters[IsMainThread.self] = Thread.isMainThread
     }
+}
 
-    // MARK: currentDispatchQueueLabel
-    public struct CurrentDispatchQueueLabel: LogParameterKey {
+// MARK: deviceName
+extension LogHooks {
+    public enum DeviceName: LogParameterCodingKey {
         public typealias Value = String
     }
     
-    public static let currentDispatchQueueLabel: LogHook = {
-        $0.parameters[CurrentDispatchQueueLabel.self] = LogHookHelper.currentDispatchQueueLabel
+    public static let deviceName: LogHook = AnyLogHook {
+        $0.parameters[DeviceName.self] = LogHelper.deviceName
     }
+}
 
-    // MARK: appName
-    public struct AppNameKey: LogParameterKey {
+// MARK: osName
+extension LogHooks {
+    public enum OSName: LogParameterCodingKey {
         public typealias Value = String
+        
+        public static var stringKey: String? {
+            return "osName"
+        }
     }
     
-    public static let appName: LogHook = {
-        $0.parameters[AppNameKey.self] = LogHookHelper.appName
-    }
-    
-    // MARK: appVersion
-    public struct AppVersionKey: LogParameterKey {
-        public typealias Value = String
-    }
-
-    public static let appVersion: LogHook = {
-        $0.parameters[AppVersionKey.self] = LogHookHelper.appVersion
-    }
-
-    // MARK: appBuild
-    public struct AppBuildKey: LogParameterKey {
-        public typealias Value = String
-    }
-    
-    public static let appBuild: LogHook = {
-        $0.parameters[AppBuildKey.self] = LogHookHelper.appBuild
-    }
-
-    // MARK: deviceName
-    public struct DeviceNameKey: LogParameterKey {
-        public typealias Value = String
-    }
-    
-    public static let deviceName: LogHook = {
-        $0.parameters[DeviceNameKey.self] = LogHookHelper.deviceName
-    }
-    
-    // MARK: osName
-    public struct OSNameKey: LogParameterKey {
-        public typealias Value = String
-    }
-    
-    public static let osName: LogHook = {
-        $0.parameters[OSNameKey.self] = LogHookHelper.osName
+    public static let osName: LogHook = AnyLogHook {
+        $0.parameters[OSName.self] = LogHelper.osName
     }
 }
