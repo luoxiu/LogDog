@@ -14,9 +14,9 @@ public struct TextLogFormatter: LogFormatter {
         self.format = format
     }
 
-    // TODO: Pattern layout: https://logging.apache.org/log4j/2.x/manual/layouts.html
-//    public init(pattern: String) {
-//
+    // TODO: A pattern layout? https://logging.apache.org/log4j/2.x/manual/layouts.html
+//    public init(/**/) {
+//        fatalError()
 //    }
 
     public func beforeSink(_ entry: LogEntry) {

@@ -47,6 +47,14 @@ public extension LogHelper {
     }
 }
 
+// MARK: Process
+
+public extension LogHelper {
+    static var currentProcessID: String {
+        "\(ProcessInfo.processInfo.processIdentifier)"
+    }
+}
+
 // MARK: Date
 
 public extension LogHelper {
