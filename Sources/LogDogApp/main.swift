@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import LogDog
 
 let logger1 = Logger.sugar("com.v2ambition.App")
@@ -7,14 +8,15 @@ let logger2 = Logger(label: "com.v2ambition.DB") { label in
 
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.prettyPrinted]
-    let jsonFormtter = LogFormatters.Encode(encoder)
+    let json = LogFormatters.Encode(encoder)
 
     let text = AnyLogFormatter<Data, String>({ (record) -> String? in
         String(bytes: record.output, encoding: .utf8)
     })
 
     let sink = DispatchQueue(label: "123")
-        .schedule(text)
+        .schedule(json)
+        .concat(text)
         .path.hasPrefix("12")
 
     return SugarLogHandler(label: label, sink: sink, appender: TextLogAppender.stdout)
@@ -38,17 +40,8 @@ func run(logger: Logger) {
 
 run(logger: logger1)
 
-// run(logger: logger2)
+let stringify = LogStringify.default
 
-var stringify = LogStringify.default
-
-print(Date())
-
-if #available(OSX 10.12, *) {
-    let fmt = ISO8601DateFormatter()
-    print(fmt.string(from: Date()))
-} else {
-    // Fallback on earlier versions
-}
+print(LogHelper.currentTimestamp)
 
 dispatchMain()
