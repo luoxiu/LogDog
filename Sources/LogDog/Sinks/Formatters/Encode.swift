@@ -2,7 +2,7 @@ import Foundation
 
 public extension LogSink where Output == Void {
     func encode<Encoder: LogEncoder>(with encoder: Encoder) -> LogSinks.Concat<Self, LogFormatters.Encode<Output, Encoder>> where Encoder.Output == Output {
-        concat(LogFormatters.Encode<Output, Encoder>(encoder))
+        self + LogFormatters.Encode<Output, Encoder>(encoder)
     }
 }
 

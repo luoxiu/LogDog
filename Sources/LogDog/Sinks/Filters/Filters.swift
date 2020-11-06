@@ -1,3 +1,1 @@
-public enum LogFilters {
-    // TODO: Sweet filters
-}
+public enum LogFilters {}

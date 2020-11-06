@@ -13,7 +13,11 @@ let logger2 = Logger(label: "com.v2ambition.DB") { label in
         String(bytes: record.output, encoding: .utf8)
     })
 
-    let sink = jsonFormtter.concat(text).schedule(on: DispatchQueue(label: "123"))
+    let sink = jsonFormtter
+        .concat(text)
+        .schedule(on: DispatchQueue(label: "123"))
+        .path.hasPrefix("12")
+
     return SugarLogHandler(label: label, sink: sink, appender: TextLogAppender.stdout)
 }
 

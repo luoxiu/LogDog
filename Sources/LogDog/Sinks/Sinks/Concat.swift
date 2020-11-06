@@ -4,6 +4,10 @@ public extension LogSink {
     }
 }
 
+public func + <A, B>(_ a: A, _ b: B) -> LogSinks.Concat<A, B> where A: LogSink, B: LogSink, B.Input == A.Output {
+    a.concat(b)
+}
+
 public extension LogSinks {
     struct Concat<A, B>: LogSink where A: LogSink, B: LogSink, A.Output == B.Input {
         public typealias Input = A.Input

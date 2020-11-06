@@ -1,6 +1,6 @@
 public extension LogSink where Self.Output: RangeReplaceableCollection {
     func prefix(_ prefix: Output) -> LogSinks.Concat<Self, LogFormatters.Prefix<Output>> {
-        concat(LogFormatters.Prefix<Output>(prefix: prefix))
+        self + LogFormatters.Prefix<Output>(prefix: prefix)
     }
 }
 

@@ -3,7 +3,7 @@ import Foundation
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public extension LogSink where Self.Output == Data {
     func compress(using compressionAlgorithm: LogFormatters.Compress.CompressionAlgorithm) -> LogSinks.Concat<Self, LogFormatters.Compress> {
-        concat(LogFormatters.Compress(compressionAlgorithm: compressionAlgorithm))
+        self + LogFormatters.Compress(compressionAlgorithm: compressionAlgorithm)
     }
 }
 

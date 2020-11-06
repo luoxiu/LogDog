@@ -65,7 +65,7 @@ public extension SugarLogHandler {
                              message: message,
                              metadata: finalMetadata,
                              source: source,
-                             file: LogHelper.basename(of: file),
+                             file: file,
                              function: function,
                              line: line)
 

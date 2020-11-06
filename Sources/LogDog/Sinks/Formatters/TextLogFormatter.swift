@@ -45,9 +45,9 @@ public extension TextLogFormatter {
 
         let currentTime = context.currentTime
 
-        let filename = record.entry.file
+        let filename = LogHelper.basename(of: record.entry.file)
 
-        var output = "\(currentTime) \(record.entry.label) \(level)/\(filename):\(record.entry.line) \(record.entry.message)"
+        var output = "\(currentTime) \(level)/\(record.entry.label): \(filename):\(record.entry.line).\(record.entry.function) \(record.entry.message)"
 
         if !record.entry.metadata.isEmpty {
             let metadata = record.entry.metadata
@@ -56,7 +56,7 @@ public extension TextLogFormatter {
                 }
                 .joined(separator: ", ")
 
-            output += " \(metadata)"
+            output += "\n    \(metadata)"
         }
 
         return output

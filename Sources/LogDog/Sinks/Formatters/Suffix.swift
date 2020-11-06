@@ -1,6 +1,6 @@
 public extension LogSink where Self.Output: RangeReplaceableCollection {
     func suffix(_ suffix: Output) -> LogSinks.Concat<Self, LogFormatters.Suffix<Output>> {
-        concat(LogFormatters.Suffix<Output>(suffix: suffix))
+        self + LogFormatters.Suffix<Output>(suffix: suffix)
     }
 }
 
