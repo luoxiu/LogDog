@@ -1,10 +1,12 @@
 import Foundation
 
+// TODO: Sweet builder
+
 public extension Logger {
     static func sugar(_ label: String) -> Logger {
         Logger(label: label) {
             SugarLogHandler(label: $0,
-                            sink: TextLogFormatter.default,
+                            sink: TextLogFormatter.default.suffix("\n"),
                             appender: TextLogAppender.stdout)
         }
     }

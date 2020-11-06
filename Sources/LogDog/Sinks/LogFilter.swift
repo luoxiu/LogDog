@@ -1,4 +1,4 @@
-public protocol LogFilter: LogSink where Input == Output {
+public protocol LogFilter: LogSink where Output == Input {
     func filter(_ record: LogRecord<Input>) -> Bool
 }
 

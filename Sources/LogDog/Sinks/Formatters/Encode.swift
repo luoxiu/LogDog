@@ -1,16 +1,24 @@
 import Foundation
 
-public struct EncoderLogFormatter<Output>: LogFormatter {
-    public typealias Input = Void
-
-    let encoder: AnyLogEncoder<Output>
-
-    public init<Encoder>(_ encoder: Encoder) where Encoder: LogEncoder, Encoder.Output == Output {
-        self.encoder = .init(encoder)
+public extension LogSink where Output == Void {
+    func encode<Encoder: LogEncoder>(with encoder: Encoder) -> LogSinks.Concat<Self, LogFormatters.Encode<Output, Encoder>> where Encoder.Output == Output {
+        concat(LogFormatters.Encode<Output, Encoder>(encoder))
     }
+}
 
-    public func format(_ record: LogRecord<Void>) throws -> Output? {
-        try encoder.encode(LogEntryWrapper(record.entry))
+public extension LogFormatters {
+    struct Encode<Output, Encoder>: LogFormatter where Encoder: LogEncoder, Encoder.Output == Output {
+        public typealias Input = Void
+
+        let encoder: Encoder
+
+        public init(_ encoder: Encoder) {
+            self.encoder = encoder
+        }
+
+        public func format(_ record: LogRecord<Void>) throws -> Output? {
+            try encoder.encode(LogEntryWrapper(record.entry))
+        }
     }
 }
 

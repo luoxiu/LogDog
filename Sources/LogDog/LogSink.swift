@@ -1,4 +1,4 @@
-/// The sink is responsible for keeping serial.
+/// The sink is responsible for maintaining fifo.
 public protocol LogSink {
     associatedtype Input
     associatedtype Output
@@ -6,7 +6,7 @@ public protocol LogSink {
     /// hooks
     func beforeSink(_ entry: LogEntry)
 
-    func sink(_ record: LogRecord<Input>, next: (Result<LogRecord<Output>?, Error>) -> Void)
+    func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void)
 }
 
 public extension LogSink {

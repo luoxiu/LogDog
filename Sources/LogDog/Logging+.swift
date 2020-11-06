@@ -10,16 +10,13 @@ public extension LogHandler {
 }
 
 public extension Logger.MetadataValue {
-    static func any(_ any: Any) -> Logger.MetadataValue {
-        return .string(String(describing: any))
+    static func any(_ any: Any, _ stringify: LogStringify = LogStringify.default) -> Logger.MetadataValue {
+        return .string(stringify.stringify(any))
     }
 }
 
-/// performance
 extension Logger.Level {
-    private static let uppercased = [
-        "TRACE", "DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "CRITICAL",
-    ]
+    private static let uppercased = Logger.Level.allCases.map { $0.uppercased }
 
     private static let initial = [
         "T", "D", "I", "N", "W", "E", "C",
@@ -43,5 +40,67 @@ extension Logger.Level {
 
     public var initial: String {
         Self.initial[intValue]
+    }
+
+    public var lowercased: String {
+        rawValue
+    }
+}
+
+public extension Logger {
+    func t(_ message: @autoclosure () -> Logger.Message,
+           metadata: @autoclosure () -> Logger.Metadata? = nil,
+           source: @autoclosure () -> String? = nil,
+           file: String = #file, function: String = #function, line: UInt = #line)
+    {
+        log(level: .trace, message(), metadata: metadata(), source: source(), file: file, function: function, line: line)
+    }
+
+    func d(_ message: @autoclosure () -> Logger.Message,
+           metadata: @autoclosure () -> Logger.Metadata? = nil,
+           source: @autoclosure () -> String? = nil,
+           file: String = #file, function: String = #function, line: UInt = #line)
+    {
+        log(level: .debug, message(), metadata: metadata(), source: source(), file: file, function: function, line: line)
+    }
+
+    func i(_ message: @autoclosure () -> Logger.Message,
+           metadata: @autoclosure () -> Logger.Metadata? = nil,
+           source: @autoclosure () -> String? = nil,
+           file: String = #file, function: String = #function, line: UInt = #line)
+    {
+        log(level: .info, message(), metadata: metadata(), source: source(), file: file, function: function, line: line)
+    }
+
+    func n(_ message: @autoclosure () -> Logger.Message,
+           metadata: @autoclosure () -> Logger.Metadata? = nil,
+           source: @autoclosure () -> String? = nil,
+           file: String = #file, function: String = #function, line: UInt = #line)
+    {
+        log(level: .notice, message(), metadata: metadata(), source: source(), file: file, function: function, line: line)
+    }
+
+    func w(_ message: @autoclosure () -> Logger.Message,
+           metadata: @autoclosure () -> Logger.Metadata? = nil,
+           source: @autoclosure () -> String? = nil,
+           file: String = #file, function: String = #function, line: UInt = #line)
+    {
+        log(level: .warning, message(), metadata: metadata(), source: source(), file: file, function: function, line: line)
+    }
+
+    func e(_ message: @autoclosure () -> Logger.Message,
+           metadata: @autoclosure () -> Logger.Metadata? = nil,
+           source: @autoclosure () -> String? = nil,
+           file: String = #file, function: String = #function, line: UInt = #line)
+    {
+        log(level: .error, message(), metadata: metadata(), source: source(), file: file, function: function, line: line)
+    }
+
+    func c(_ message: @autoclosure () -> Logger.Message,
+           metadata: @autoclosure () -> Logger.Metadata? = nil,
+           source: @autoclosure () -> String? = nil,
+           file: String = #file, function: String = #function, line: UInt = #line)
+    {
+        log(level: .critical, message(), metadata: metadata(), source: source(), file: file, function: function, line: line)
     }
 }

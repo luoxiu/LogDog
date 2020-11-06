@@ -3,12 +3,16 @@ import Foundation
     import UIKit
 #endif
 
-public enum LogHelper {
-    public static var appBuild: String? {
+public enum LogHelper {}
+
+// MARK: App
+
+public extension LogHelper {
+    static var appBuild: String? {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String
     }
 
-    public static var appName: String {
+    static var appName: String {
         let info = Bundle.main.infoDictionary
         if let appName = info?["CFBundleDisplayName"] as? String {
             return appName
@@ -19,16 +23,20 @@ public enum LogHelper {
         return ProcessInfo.processInfo.processName
     }
 
-    public static var appVersion: String? {
+    static var appVersion: String? {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     }
+}
 
-    public static var currentDispatchQueueLabel: String {
+// MARK: Thread
+
+public extension LogHelper {
+    static var currentDispatchQueueLabel: String {
         let label = __dispatch_queue_get_label(nil)
         return String(cString: label)
     }
 
-    public static var currentThreadID: String? {
+    static var currentThreadID: String? {
         #if canImport(Darwin)
             var id: __uint64_t = 0
             if pthread_threadid_np(nil, &id) == 0 {
@@ -37,7 +45,11 @@ public enum LogHelper {
         #endif
         return nil
     }
+}
 
+// MARK: Date
+
+public extension LogHelper {
     private static func strftime(_ fmt: String) -> (String, Int32) {
         var buffer = [Int8](repeating: 0, count: 255)
 
@@ -50,17 +62,35 @@ public enum LogHelper {
         return (String(cString: &buffer), time.tv_usec)
     }
 
-    public static var currentTimestamp: String {
+    static var currentTimestamp: String {
         strftime("%Y-%m-%dT%H:%M:%S%z").0
     }
 
     /// 00:00:00.123
-    public static var currentTime: String {
+    static var currentTime: String {
         let (time, ms) = strftime("%H:%M:%S")
         return String(format: "%@.%d", time, ms / 1000)
     }
 
-    public static var deviceName: String? {
+    static func stringify(_ date: Date, _ format: String) -> String {
+        enum Static {
+            static var lazy = AtomicLazy<DateFormatter>()
+        }
+
+        let formatter = Static.lazy.get(format) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = format
+            return formatter
+        }
+
+        return formatter.string(from: date)
+    }
+}
+
+// MARK: Device
+
+public extension LogHelper {
+    static var deviceName: String? {
         #if canImport(UIKit)
             return UIDevice.current.name
         #else
@@ -69,7 +99,7 @@ public enum LogHelper {
     }
 
     /// https://github.com/apple/swift/blob/master/lib/Basic/LangOptions.cpp
-    public static var osName: String? {
+    static var osName: String? {
         #if os(OSX)
             return "macOS"
         #elseif os(macOS)
@@ -101,5 +131,24 @@ public enum LogHelper {
         #else
             return nil
         #endif
+    }
+}
+
+// MARK: Data
+
+public extension LogHelper {
+    static func stringify(_ data: Data, _ style: ByteCountFormatter.CountStyle = .file) -> String {
+        enum Static {
+            // do we need AtomicLazy?
+            static var lazy = AtomicLazy<ByteCountFormatter>()
+        }
+
+        let formatter = Static.lazy.get(style) {
+            let formatter = ByteCountFormatter()
+            formatter.countStyle = style
+            return formatter
+        }
+
+        return formatter.string(fromByteCount: Int64(data.count))
     }
 }

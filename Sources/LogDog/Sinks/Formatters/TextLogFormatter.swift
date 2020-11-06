@@ -4,38 +4,61 @@ public struct TextLogFormatter: LogFormatter {
     public typealias Input = Void
     public typealias Output = String
 
-    private let format: (LogEntry) throws -> String
+    private let beforeSink: ((LogEntry) -> Void)?
+    private let format: (LogRecord<Void>) throws -> String?
 
-    public init(format: @escaping (LogEntry) throws -> String) {
+    public init(beforeSink: ((LogEntry) -> Void)? = nil,
+                format: @escaping (LogRecord<Void>) throws -> String?)
+    {
+        self.beforeSink = beforeSink
         self.format = format
     }
 
-    public static let `default` = TextLogFormatter { entry in
-        let level = entry.level.initial
+    // TODO: Pattern layout: https://logging.apache.org/log4j/2.x/manual/layouts.html
+//    public init(pattern: String) {
+//
+//    }
 
-        let time = LogHelper.currentTime
-        let ms = CFAbsoluteTimeGetCurrent()
+    public func beforeSink(_ entry: LogEntry) {
+        beforeSink?(entry)
+    }
 
-        let filename = entry.file
+    public func format(_ record: LogRecord<Void>) throws -> String? {
+        try format(record)
+    }
+}
 
-        var output = "\(time) \(entry.label) \(level)/\(filename):\(entry.line) \(entry.message)"
+public extension TextLogFormatter {
+    private struct DefaultContext: LogParameterKey {
+        typealias Value = DefaultContext
+        var currentTime: String
+    }
 
-        if entry.metadata.isEmpty {
-            output += "\n"
-        } else {
-            let metadata = entry.metadata
+    static let `default` = TextLogFormatter { entry in
+        entry.parameters[DefaultContext.self] = DefaultContext(currentTime: LogHelper.currentTime)
+    } format: { record -> String? in
+        guard let context = record.entry.parameters[DefaultContext.self] else {
+            return nil
+        }
+
+        let level = record.entry.level.initial
+
+        let currentTime = context.currentTime
+
+        let filename = record.entry.file
+
+        var output = "\(currentTime) \(record.entry.label) \(level)/\(filename):\(record.entry.line) \(record.entry.message)"
+
+        if !record.entry.metadata.isEmpty {
+            let metadata = record.entry.metadata
                 .map {
                     "\($0)=\($1)"
                 }
                 .joined(separator: ", ")
 
-            output += " \(metadata)\n"
+            output += " \(metadata)"
         }
 
         return output
-    }
-
-    public func format(_ record: LogRecord<Void>) throws -> String? {
-        try format(record.entry)
     }
 }

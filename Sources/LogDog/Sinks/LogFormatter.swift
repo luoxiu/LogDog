@@ -1,4 +1,5 @@
 public protocol LogFormatter: LogSink {
+    /// Be aware that this method may be called asynchronously.
     func format(_ record: LogRecord<Input>) throws -> Output?
 }
 
