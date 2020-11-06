@@ -65,13 +65,14 @@ public extension SugarLogHandler {
                              message: message,
                              metadata: finalMetadata,
                              source: source,
-                             file: file.basename,
+                             file: LogHelper.basename(of: file),
                              function: function,
                              line: line)
 
         sink.beforeSink(entry)
 
         let record = LogRecord(entry, ())
+
         sink.sink(record) { result in
 
             switch result {

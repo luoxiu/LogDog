@@ -152,3 +152,16 @@ public extension LogHelper {
         return formatter.string(fromByteCount: Int64(data.count))
     }
 }
+
+// MARK: String
+
+public extension LogHelper {
+    static func basename(of path: String) -> String {
+        guard let index = path.lastIndex(of: "/") else {
+            return path
+        }
+
+        let from = path.index(after: index)
+        return String(path[from...])
+    }
+}
