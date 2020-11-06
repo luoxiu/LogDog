@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 import LogDog
 
 let logger1 = Logger.sugar("com.v2ambition.App")
@@ -16,6 +16,10 @@ let logger2 = Logger(label: "com.v2ambition.DB") { label in
 
     let sink = DispatchQueue(label: "123")
         .schedule(json)
+        .hook {
+            $0.parameters[1] = 1
+        }
+        .hook(.appBuild)
         .concat(text)
         .path.hasPrefix("12")
 

@@ -28,30 +28,22 @@ public extension LogHelper {
     }
 }
 
-// MARK: Thread
+// MARK: Data
 
 public extension LogHelper {
-    static var currentDispatchQueueLabel: String {
-        let label = __dispatch_queue_get_label(nil)
-        return String(cString: label)
-    }
+    static func stringify(_ data: Data, _ style: ByteCountFormatter.CountStyle = .file) -> String {
+        enum Static {
+            // do we need AtomicLazy?
+            static var lazy = AtomicLazy<ByteCountFormatter>()
+        }
 
-    static var currentThreadID: String? {
-        #if canImport(Darwin)
-            var id: __uint64_t = 0
-            if pthread_threadid_np(nil, &id) == 0 {
-                return "\(id)"
-            }
-        #endif
-        return nil
-    }
-}
+        let formatter = Static.lazy.get(style) {
+            let formatter = ByteCountFormatter()
+            formatter.countStyle = style
+            return formatter
+        }
 
-// MARK: Process
-
-public extension LogHelper {
-    static var currentProcessID: String {
-        "\(ProcessInfo.processInfo.processIdentifier)"
+        return formatter.string(fromByteCount: Int64(data.count))
     }
 }
 
@@ -142,22 +134,11 @@ public extension LogHelper {
     }
 }
 
-// MARK: Data
+// MARK: Process
 
 public extension LogHelper {
-    static func stringify(_ data: Data, _ style: ByteCountFormatter.CountStyle = .file) -> String {
-        enum Static {
-            // do we need AtomicLazy?
-            static var lazy = AtomicLazy<ByteCountFormatter>()
-        }
-
-        let formatter = Static.lazy.get(style) {
-            let formatter = ByteCountFormatter()
-            formatter.countStyle = style
-            return formatter
-        }
-
-        return formatter.string(fromByteCount: Int64(data.count))
+    static var currentProcessID: String {
+        "\(ProcessInfo.processInfo.processIdentifier)"
     }
 }
 
@@ -171,5 +152,24 @@ public extension LogHelper {
 
         let from = path.index(after: index)
         return String(path[from...])
+    }
+}
+
+// MARK: Thread
+
+public extension LogHelper {
+    static var currentDispatchQueueLabel: String {
+        let label = __dispatch_queue_get_label(nil)
+        return String(cString: label)
+    }
+
+    static var currentThreadID: String? {
+        #if canImport(Darwin)
+            var id: __uint64_t = 0
+            if pthread_threadid_np(nil, &id) == 0 {
+                return "\(id)"
+            }
+        #endif
+        return nil
     }
 }
