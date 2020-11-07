@@ -13,32 +13,32 @@ public struct AnyLogFilter<Input>: LogFilter {
         self.filter = FilterBox(filter)
     }
 
-    public init(_ filter: @escaping (LogRecord<Input>) -> Bool) {
-        self.filter = ClosureBox(filter)
+    public init(filter: @escaping (LogRecord<Input>) throws -> Bool) {
+        self.filter = FilterBodyBox(filter: filter)
     }
 
-    public func filter(_ record: LogRecord<Input>) -> Bool {
-        filter.filter(record)
+    public func filter(_ record: LogRecord<Input>) throws -> Bool {
+        try filter.filter(record)
     }
 }
 
 private class AbstractFilter<Input>: LogFilter {
     typealias Output = Input
 
-    func filter(_: LogRecord<Input>) -> Bool {
+    func filter(_: LogRecord<Input>) throws -> Bool {
         fatalError()
     }
 }
 
-private final class ClosureBox<Input>: AbstractFilter<Input> {
-    private let filter: (LogRecord<Input>) -> Bool
+private final class FilterBodyBox<Input>: AbstractFilter<Input> {
+    private let filterBody: (LogRecord<Input>) throws -> Bool
 
-    init(_ filter: @escaping (LogRecord<Input>) -> Bool) {
-        self.filter = filter
+    init(filter: @escaping (LogRecord<Input>) throws -> Bool) {
+        self.filterBody = filter
     }
 
-    override func filter(_ record: LogRecord<Input>) -> Bool {
-        filter(record)
+    override func filter(_ record: LogRecord<Input>) throws -> Bool {
+        try filterBody(record)
     }
 }
 
@@ -49,8 +49,8 @@ private final class FilterBox<Filter>: AbstractFilter<Filter.Input> where Filter
         self.filter = filter
     }
 
-    override func filter(_ record: LogRecord<Filter.Input>) -> Bool {
-        filter.filter(record)
+    override func filter(_ record: LogRecord<Filter.Input>) throws -> Bool {
+        try filter.filter(record)
     }
 
     func beforeSink(_ entry: LogEntry) {

@@ -1,7 +1,3 @@
-import Foundation
-
-// TODO: Sweet builder
-
 public extension Logger {
     static func sugar(_ label: String) -> Logger {
         Logger(label: label) {

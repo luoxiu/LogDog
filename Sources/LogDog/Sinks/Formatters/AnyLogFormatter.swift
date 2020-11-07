@@ -11,8 +11,8 @@ public struct AnyLogFormatter<Input, Output>: LogFormatter {
         self.formatter = FormatterBox(formatter)
     }
 
-    public init(_ closure: @escaping (LogRecord<Input>) throws -> Output?) {
-        formatter = ClosureBox(closure)
+    public init(format: @escaping (LogRecord<Input>) throws -> Output?) {
+        formatter = FormatBodyBox(format: format)
     }
 
     public func format(_ record: LogRecord<Input>) throws -> Output? {
@@ -26,10 +26,10 @@ private class AbstractFormatter<Input, Output>: LogFormatter {
     }
 }
 
-private final class ClosureBox<Input, Output>: AbstractFormatter<Input, Output> {
+private final class FormatBodyBox<Input, Output>: AbstractFormatter<Input, Output> {
     private let format: (LogRecord<Input>) throws -> Output?
 
-    init(_ format: @escaping (LogRecord<Input>) throws -> Output?) {
+    init(format: @escaping (LogRecord<Input>) throws -> Output?) {
         self.format = format
     }
 

@@ -60,6 +60,7 @@ public struct LogStringify {
     }
 }
 
+// MARK: builtins
 public extension LogStringify {
     static var `default`: LogStringify = {
         var stringify = LogStringify()

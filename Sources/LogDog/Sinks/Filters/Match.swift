@@ -8,12 +8,12 @@ public extension LogSink {
     }
 }
 
-public extension LogFilters.Match {
-    var allow: LogSinks.Concat<Sink, LogFilters.Directive<Sink, T>> {
+public extension LogFilters.When.Match {
+    var allow: LogSinks.Concat<Sink, LogFilters.When<Sink, T>.Match.Directive> {
         when.sink + .init(self, action: .allow)
     }
 
-    var deny: LogSinks.Concat<Sink, LogFilters.Directive<Sink, T>> {
+    var deny: LogSinks.Concat<Sink, LogFilters.When<Sink, T>.Match.Directive> {
         when.sink + .init(self, action: .deny)
     }
 }
@@ -35,46 +35,46 @@ public extension LogFilters {
             self.sink = sink
             self.transform = transform
         }
-    }
 
-    struct Match<Sink: LogSink, T> {
-        public let when: When<Sink, T>
+        public struct Match {
+            public let when: When
 
-        public let isIncluded: (T) -> Bool
+            public let isIncluded: (T) -> Bool
 
-        public init(_ when: When<Sink, T>, _ isIncluded: @escaping (T) -> Bool) {
-            self.when = when
-            self.isIncluded = isIncluded
-        }
-    }
+            public init(_ when: When, _ isIncluded: @escaping (T) -> Bool) {
+                self.when = when
+                self.isIncluded = isIncluded
+            }
 
-    struct Directive<Sink: LogSink, T>: LogFilter {
-        public typealias Input = Sink.Output
-        public typealias Output = Sink.Output
+            public struct Directive: LogFilter {
+                public typealias Input = Sink.Output
+                public typealias Output = Sink.Output
 
-        public let match: Match<Sink, T>
+                public let match: Match
 
-        public enum Action {
-            case deny
-            case allow
-        }
+                public enum Action {
+                    case deny
+                    case allow
+                }
 
-        public let action: Action
+                public let action: Action
 
-        public init(_ match: Match<Sink, T>, action: Action) {
-            self.match = match
-            self.action = action
-        }
+                public init(_ match: Match, action: Action) {
+                    self.match = match
+                    self.action = action
+                }
 
-        public func filter(_ record: LogRecord<Output>) -> Bool {
-            let t = match.when.transform.transform(record)
-            let isIncluded = match.isIncluded(t)
+                public func filter(_ record: LogRecord<Sink.Output>) throws -> Bool {                    
+                    let t = match.when.transform.transform(record)
+                    let isIncluded = match.isIncluded(t)
 
-            switch action {
-            case .allow:
-                return isIncluded
-            case .deny:
-                return !isIncluded
+                    switch action {
+                    case .allow:
+                        return isIncluded
+                    case .deny:
+                        return !isIncluded
+                    }
+                }
             }
         }
     }
@@ -113,25 +113,25 @@ public extension LogFilters.When.Transform {
 }
 
 public extension LogFilters.When where T: StringProtocol {
-    func includes<S: StringProtocol>(_ other: S) -> LogFilters.Match<Sink, T> {
+    func includes<S: StringProtocol>(_ other: S) -> LogFilters.When<Sink, T>.Match {
         .init(self) {
             $0.contains(other)
         }
     }
 
-    func excludes<S: StringProtocol>(_ other: S) -> LogFilters.Match<Sink, T> {
+    func excludes<S: StringProtocol>(_ other: S) -> LogFilters.When<Sink, T>.Match {
         .init(self) {
             !$0.contains(other)
         }
     }
 
-    func hasPrefix<Prefix>(_ prefix: Prefix) -> LogFilters.Match<Sink, T> where Prefix: StringProtocol {
+    func hasPrefix<Prefix>(_ prefix: Prefix) -> LogFilters.When<Sink, T>.Match where Prefix: StringProtocol {
         .init(self) {
             $0.hasPrefix(prefix)
         }
     }
 
-    func hasSuffix<Suffix>(_ suffix: Suffix) -> LogFilters.Match<Sink, T> where Suffix: StringProtocol {
+    func hasSuffix<Suffix>(_ suffix: Suffix) -> LogFilters.When<Sink, T>.Match where Suffix: StringProtocol {
         .init(self) {
             $0.hasSuffix(suffix)
         }
@@ -139,7 +139,7 @@ public extension LogFilters.When where T: StringProtocol {
 }
 
 public extension LogFilters.When where T == String {
-    func match(_ regexp: String) -> LogFilters.Match<Sink, T> {
+    func match(_ regexp: String) -> LogFilters.When<Sink, T>.Match {
         .init(self) {
             $0.range(of: regexp, options: .regularExpression, range: nil, locale: nil) != nil
         }
@@ -147,7 +147,7 @@ public extension LogFilters.When where T == String {
 }
 
 public extension LogFilters.When where T: Equatable {
-    func equals(_ other: T) -> LogFilters.Match<Sink, T> {
+    func equals(_ other: T) -> LogFilters.When<Sink, T>.Match {
         .init(self) {
             $0 == other
         }

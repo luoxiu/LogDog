@@ -1,14 +1,14 @@
 import Foundation
 
 public struct LogHook {
-    private let thunk: (LogEntry) -> Void
+    private let body: (LogEntry) -> Void
 
     public init(_ hook: @escaping (LogEntry) -> Void) {
-        thunk = hook
+        body = hook
     }
 
     public init(_ hooks: [LogHook]) {
-        thunk = { entry in
+        body = { entry in
             hooks.forEach {
                 $0.hook(entry)
             }
@@ -16,7 +16,7 @@ public struct LogHook {
     }
 
     public func hook(_ entry: LogEntry) {
-        thunk(entry)
+        body(entry)
     }
 }
 
