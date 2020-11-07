@@ -17,18 +17,18 @@ jobs:
       - name: Build and Test
         run: swift test
   
-  linux:
-    runs-on: ubuntu-latest
+  # linux:
+  #   runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        swift: ["5.3"]
+  #   strategy:
+  #     matrix:
+  #       swift: ["5.3"]
 
-    container:
-      image: swift:${{ matrix.swift }}
+  #   container:
+  #     image: swift:${{ matrix.swift }}
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build and Test
-        run: swift test --enable-test-discovery
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #     - name: Build and Test
+  #       run: swift test --enable-test-discovery
