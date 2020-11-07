@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 
 import PackageDescription
 
@@ -14,7 +14,7 @@ let package = Package(
     targets: [
         .target(name: "LogDogApp", dependencies: ["LogDog"]),
         .target(name: "LogDog", dependencies: [
-            "Logging",
+            .product(name: "Logging", package: "swift-log")
         ]),
         .testTarget(name: "LogDogTests", dependencies: ["LogDog"]),
     ]
