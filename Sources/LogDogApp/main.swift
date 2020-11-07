@@ -21,7 +21,8 @@ let logger2 = Logger(label: "com.v2ambition.DB") { label in
         }
         .hook(.appBuild)
         .concat(text)
-        .path.hasPrefix("12")
+        .when(.filename).hasPrefix("xq").allow
+//        .eraseToAnyLogSink()
 
     return SugarLogHandler(label: label, sink: sink, appender: TextLogAppender.stdout)
 }
