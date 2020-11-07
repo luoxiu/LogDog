@@ -7,14 +7,14 @@ public extension LogSink {
 public struct AnyLogSink<Input, Output>: LogSink {
     private let sink: AbstractSink<Input, Output>
 
-    public init<Sink>(_ sink: Sink) where Sink: LogSink, Input == Sink.Input, Output == Sink.Output {
+    public init<Sink>(_ sink: Sink) where Sink: LogSink, Sink.Input == Input, Sink.Output == Output {
         self.sink = SinkBox(sink)
     }
 
-    init(beforeSink: @escaping (LogEntry) -> Void,
-         sink: @escaping (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void)
+    public init(beforeSink: @escaping (LogEntry) -> Void,
+                sink: @escaping (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void)
     {
-        self.sink = ClosureBox(beforeSink: beforeSink, sink: sink)
+        self.sink = SinkBodyBox(beforeSink: beforeSink, sink: sink)
     }
 
     public func beforeSink(_ entry: LogEntry) {
@@ -36,23 +36,23 @@ private class AbstractSink<Input, Output>: LogSink {
     }
 }
 
-private final class ClosureBox<Input, Output>: AbstractSink<Input, Output> {
-    private let beforeSink: (LogEntry) -> Void
-    private let sink: (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void
+private final class SinkBodyBox<Input, Output>: AbstractSink<Input, Output> {
+    private let beforeSinkBody: (LogEntry) -> Void
+    private let sinkBody: (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void
 
     init(beforeSink: @escaping (LogEntry) -> Void,
          sink: @escaping (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void)
     {
-        self.beforeSink = beforeSink
-        self.sink = sink
+        beforeSinkBody = beforeSink
+        sinkBody = sink
     }
 
     override func beforeSink(_ entry: LogEntry) {
-        beforeSink(entry)
+        beforeSinkBody(entry)
     }
 
     override func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {
-        sink(record, next)
+        sinkBody(record, next)
     }
 }
 

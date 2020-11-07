@@ -1,24 +1,27 @@
 import Foundation
 
 public extension LogScheduler {
-    func schedule<Sink: LogSink>(_ sink: Sink) -> LogSinks.Schedule<Sink.Input, Sink.Output> {
+    func schedule<Sink: LogSink>(_ sink: Sink) -> LogSinks.Schedule<Sink, Self> {
         .init(sink, self)
     }
 }
 
 public extension LogSink {
-    func sink(on scheduler: LogScheduler) -> LogSinks.SinkOn<Input, Output> {
+    func sink<Scheduler: LogScheduler>(on scheduler: Scheduler) -> LogSinks.SinkOn<Self, Scheduler> {
         .init(self, scheduler)
     }
 }
 
 public extension LogSinks {
-    struct Schedule<Input, Output>: LogSink {
-        private let sink: AnyLogSink<Input, Output>
-        private let scheduler: LogScheduler
+    struct Schedule<Sink, Scheduler>: LogSink where Sink: LogSink, Scheduler: LogScheduler {
+        public typealias Input = Sink.Input
+        public typealias Output = Sink.Output
 
-        public init<Sink>(_ sink: Sink, _ scheduler: LogScheduler) where Sink: LogSink, Sink.Input == Input, Sink.Output == Output {
-            self.sink = AnyLogSink(sink)
+        public let sink: Sink
+        public let scheduler: Scheduler
+
+        public init(_ sink: Sink, _ scheduler: Scheduler) {
+            self.sink = sink
             self.scheduler = scheduler
         }
 
@@ -33,12 +36,15 @@ public extension LogSinks {
         }
     }
 
-    struct SinkOn<Input, Output>: LogSink {
-        private let sink: AnyLogSink<Input, Output>
-        private let scheduler: LogScheduler
+    struct SinkOn<Sink, Scheduler>: LogSink where Sink: LogSink, Scheduler: LogScheduler {
+        public typealias Input = Sink.Input
+        public typealias Output = Sink.Output
 
-        public init<Sink>(_ sink: Sink, _ scheduler: LogScheduler) where Sink: LogSink, Sink.Input == Input, Sink.Output == Output {
-            self.sink = AnyLogSink(sink)
+        public let sink: Sink
+        public let scheduler: Scheduler
+
+        public init(_ sink: Sink, _ scheduler: Scheduler) {
+            self.sink = sink
             self.scheduler = scheduler
         }
 

@@ -35,7 +35,7 @@ public extension LogHelper {
         enum Static {
             static var lazy = AtomicLazy<ByteCountFormatter>()
         }
-        
+
         let formatter = Static.lazy.get(style, whenNotFound: { () -> ByteCountFormatter in
             let formatter = ByteCountFormatter()
             formatter.countStyle = style

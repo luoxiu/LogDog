@@ -8,7 +8,7 @@ final class AtomicLazy<T> {
         if let t = queue.sync(execute: { cache[cacheKey] }) {
             return t
         }
-        
+
         return queue.sync(flags: .barrier) {
             let t = make()
             cache[cacheKey] = t

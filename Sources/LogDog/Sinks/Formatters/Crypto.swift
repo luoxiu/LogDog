@@ -15,7 +15,7 @@ import Foundation
         struct Crypto: LogFormatter {
             public typealias Input = Data
             public typealias Output = Data
-            
+
             public enum Cipher {
                 case AES
                 case ChaChaPoly

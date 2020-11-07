@@ -14,7 +14,7 @@ let package = Package(
     targets: [
         .target(name: "LogDogApp", dependencies: ["LogDog"]),
         .target(name: "LogDog", dependencies: [
-            .product(name: "Logging", package: "swift-log")
+            .product(name: "Logging", package: "swift-log"),
         ]),
         .testTarget(name: "LogDogTests", dependencies: ["LogDog"]),
     ]
