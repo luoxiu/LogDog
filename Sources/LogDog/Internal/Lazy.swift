@@ -1,30 +1,18 @@
 import Foundation
 
 final class AtomicLazy<T> {
-    private lazy var lock = NSLock()
-    private lazy var lazy = Lazy<T>()
-
-    func get(_ cacheKey: AnyHashable, whenNotFound make: () -> T) -> T {
-        lock.lock()
-        defer {
-            lock.unlock()
-        }
-
-        return lazy.get(cacheKey, whenNotFound: make)
-    }
-}
-
-final class Lazy<T> {
     private lazy var cache: [AnyHashable: T] = [:]
+    private lazy var queue = DispatchQueue(label: "com.v2ambition.LogDog.AtomicLazy", attributes: .concurrent)
 
-    func get(_ cacheKey: AnyHashable, whenNotFound make: () -> T) -> T {
-        var value: T! = cache[cacheKey]
-
-        if value == nil {
-            value = make()
-            cache[cacheKey] = value
+    func get(_ cacheKey: AnyHashable, whenNotFound make: @autoclosure () -> T) -> T {
+        if let t = queue.sync(execute: { cache[cacheKey] }) {
+            return t
         }
-
-        return value
+        
+        return queue.sync(flags: .barrier) {
+            let t = make()
+            cache[cacheKey] = t
+            return t
+        }
     }
 }
