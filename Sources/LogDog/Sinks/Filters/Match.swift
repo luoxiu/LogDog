@@ -64,7 +64,7 @@ public extension LogFilters {
                     self.action = action
                 }
 
-                public func filter(_ record: LogRecord<Sink.Output>) throws -> Bool {                    
+                public func filter(_ record: LogRecord<Sink.Output>) throws -> Bool {
                     let t = match.when.transform.transform(record)
                     let isIncluded = match.isIncluded(t)
 

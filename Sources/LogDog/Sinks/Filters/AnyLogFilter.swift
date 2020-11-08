@@ -34,7 +34,7 @@ private final class FilterBodyBox<Input>: AbstractFilter<Input> {
     private let filterBody: (LogRecord<Input>) throws -> Bool
 
     init(filter: @escaping (LogRecord<Input>) throws -> Bool) {
-        self.filterBody = filter
+        filterBody = filter
     }
 
     override func filter(_ record: LogRecord<Input>) throws -> Bool {

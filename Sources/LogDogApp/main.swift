@@ -10,9 +10,9 @@ let logger2 = Logger(label: "com.v2ambition.DB") { label in
     encoder.outputFormatting = [.prettyPrinted]
     let json = LogFormatters.Encode(encoder)
 
-    let text = AnyLogFormatter<Data, String>({ (record) -> String? in
+    let text = AnyLogFormatter<Data, String> { (record) -> String? in
         String(bytes: record.output, encoding: .utf8)
-    })
+    }
 
     let sink = DispatchQueue(label: "123")
         .schedule(json)
@@ -27,14 +27,15 @@ let logger2 = Logger(label: "com.v2ambition.DB") { label in
     return SugarLogHandler(label: label, sink: sink, appender: TextLogAppender.stdout)
 }
 
-func run(logger: Logger) {
+func run(_ logger: Logger) {
     logger.t("POST /users", metadata: ["body": ["name": "秋"]])
 
     logger.d("got response", metadata: ["message": "ok"])
 
     logger.i("request success")
 
-    logger.n("latency too long", metadata: ["latency": .any(100), "some": ["a": .any(1)]])
+    let date: Date? = Date()
+    logger.n("latency too long", metadata: ["latency": .any(100), "some": ["date": .any(date as Any)]])
 
     logger.w("networking no cononection")
 
@@ -43,10 +44,6 @@ func run(logger: Logger) {
     logger.c("can not connect to db")
 }
 
-run(logger: logger1)
-
-let stringify = LogStringify.default
-
-print(LogHelper.currentTimestamp)
+run(logger1)
 
 dispatchMain()

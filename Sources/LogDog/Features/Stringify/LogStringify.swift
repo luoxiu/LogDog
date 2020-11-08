@@ -4,14 +4,14 @@ public struct LogStringify {
     public typealias Stringify<T> = (T) -> String
 
     private var exact: [AnyHashable: (Any) -> String?]
-    private var fuzzy: [AnyHashable: (Any) -> String?]
+    private var fuzzy: [(ObjectIdentifier, (Any) -> String?)]
 
     public init() {
         exact = [:]
-        fuzzy = [:]
+        fuzzy = []
     }
 
-    public mutating func use<T>(_ stringify: @escaping Stringify<T>) {
+    public mutating func set<T>(_ stringify: @escaping Stringify<T>) {
         exact[ObjectIdentifier(T.self)] = { any -> String? in
             if let t = any as? T {
                 return stringify(t)
@@ -20,33 +20,41 @@ public struct LogStringify {
         }
     }
 
-    public mutating func set<T>(_ stringify: @escaping Stringify<T>) {
-        fuzzy[ObjectIdentifier(T.self)] = { any -> String? in
+    public mutating func use<T>(_ stringify: @escaping Stringify<T>) {
+        let body: (Any) -> String? = { any -> String? in
             if let t = any as? T {
                 return stringify(t)
             }
             return nil
         }
+
+        fuzzy.append((ObjectIdentifier(T.self), body))
     }
 
-    public mutating func reset<T>(_ type: T.Type) {
-        exact[ObjectIdentifier(type)] = nil
-        fuzzy[ObjectIdentifier(type)] = nil
+    public mutating func useFirst<T>(_ stringify: @escaping Stringify<T>) {
+        let body: (Any) -> String? = { any -> String? in
+            if let t = any as? T {
+                return stringify(t)
+            }
+            return nil
+        }
+
+        fuzzy.insert((ObjectIdentifier(T.self), body), at: 0)
     }
 
-    public mutating func resetAll() {
+    public mutating func clear() {
         exact = [:]
-        fuzzy = [:]
+        fuzzy = []
     }
 
+    /// NSValue() / NSNumber() will crash.
     public func stringify(_ any: Any) -> String {
         let key = type(of: any)
-
         if let stringify = exact[ObjectIdentifier(key)], let string = stringify(any) {
             return string
         }
 
-        for stringify in fuzzy.values {
+        for (_, stringify) in fuzzy {
             if let string = stringify(any) {
                 return string
             }
@@ -54,17 +62,14 @@ public struct LogStringify {
 
         return String(describing: any)
     }
-
-    public static func stringify(_ any: Any) -> String {
-        `default`.stringify(any)
-    }
 }
 
 // MARK: builtins
+
 public extension LogStringify {
     static var `default`: LogStringify = {
         var stringify = LogStringify()
-        stringify.use(data)
+        stringify.set(data)
         return stringify
     }()
 
@@ -72,3 +77,5 @@ public extension LogStringify {
         LogHelper.stringify($0)
     }
 }
+
+

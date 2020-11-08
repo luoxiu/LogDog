@@ -9,12 +9,6 @@ public extension LogHandler {
     }
 }
 
-public extension Logger.MetadataValue {
-    static func any(_ any: Any, _ stringify: LogStringify = LogStringify.default) -> Logger.MetadataValue {
-        return .string(stringify.stringify(any))
-    }
-}
-
 extension Logger.Level {
     private static let uppercased = Logger.Level.allCases.map { $0.uppercased }
 

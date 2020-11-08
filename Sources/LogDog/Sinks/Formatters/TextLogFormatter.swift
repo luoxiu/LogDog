@@ -15,7 +15,7 @@ public struct TextLogFormatter: LogFormatter {
     }
 
     // TODO: A pattern layout? https://logging.apache.org/log4j/2.x/manual/layouts.html
-//    public init(/**/) {
+//    public init(pattern: String) {
 //        fatalError()
 //    }
 
@@ -56,7 +56,7 @@ public extension TextLogFormatter {
                 }
                 .joined(separator: ", ")
 
-            output += "\n    \(metadata)"
+            output += " \(metadata)"
         }
 
         return output

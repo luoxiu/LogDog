@@ -10,7 +10,7 @@ public extension LogFilter {
             }
             return record
         }
-        
+
         next(result)
     }
 }
