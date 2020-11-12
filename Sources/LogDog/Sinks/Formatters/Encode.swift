@@ -7,7 +7,7 @@ public extension LogSink where Output == Void {
 }
 
 public extension LogFormatters {
-    struct Encode<Output, Encoder>: LogFormatter where Encoder: LogEncoder, Encoder.Output == Output {
+    struct Encode<Output, Encoder>: LogSink where Encoder: LogEncoder, Encoder.Output == Output {
         public typealias Input = Void
 
         let encoder: Encoder
@@ -16,8 +16,10 @@ public extension LogFormatters {
             self.encoder = encoder
         }
 
-        public func format(_ record: LogRecord<Void>) throws -> Output? {
-            try encoder.encode(LogEntryWrapper(record.entry))
+        public func sink(_ record: LogRecord<Void>, next: @escaping LogSinkNext<Output>) {
+            record.sink(before: next) { record in
+                try encoder.encode(LogEntryWrapper(record.entry))
+            }
         }
     }
 }

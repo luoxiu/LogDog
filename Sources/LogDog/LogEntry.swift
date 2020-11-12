@@ -1,7 +1,5 @@
 public struct LogEntry {
-    
     public final class Storage {
-        
         public let label: String
 
         public let level: Logger.Level
@@ -17,7 +15,7 @@ public struct LogEntry {
         public let function: String
 
         public let line: UInt
-        
+
         public init(label: String,
                     level: Logger.Level,
                     message: Logger.Message,
@@ -37,9 +35,9 @@ public struct LogEntry {
             self.line = line
         }
     }
-    
+
     private let storage: Storage
-    
+
     public var label: String { storage.label }
 
     public var level: Logger.Level { storage.level }
@@ -69,16 +67,15 @@ public struct LogEntry {
                 line: UInt,
                 parameters: LogParameters = LogParameters())
     {
-        self.storage = .init(label: label,
-                             level: level,
-                             message: message,
-                             metadata: metadata,
-                             source: source,
-                             file: file,
-                             function: function,
-                             line: line)
-        
-        
+        storage = .init(label: label,
+                        level: level,
+                        message: message,
+                        metadata: metadata,
+                        source: source,
+                        file: file,
+                        function: function,
+                        line: line)
+
         self.parameters = parameters
     }
 }

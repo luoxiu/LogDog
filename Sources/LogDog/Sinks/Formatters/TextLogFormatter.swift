@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TextLogFormatter: LogFormatter {
+public struct TextLogFormatter: LogSink {
     public typealias Input = Void
     public typealias Output = String
 
@@ -23,8 +23,10 @@ public struct TextLogFormatter: LogFormatter {
         beforeSink?(&entry)
     }
 
-    public func format(_ record: LogRecord<Void>) throws -> String? {
-        try format(record)
+    public func sink(_ record: LogRecord<Void>, next: @escaping LogSinkNext<String>) {
+        record.sink(before: next) { record in
+            try format(record)
+        }
     }
 }
 

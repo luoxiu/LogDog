@@ -12,7 +12,7 @@ import Foundation
 
     public extension LogFormatters {
         @available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *)
-        struct Compress: LogFormatter {
+        struct Compress: LogSink {
             public typealias Input = Data
             public typealias Output = Data
 
@@ -22,12 +22,13 @@ import Foundation
                 self.algorithm = algorithm
             }
 
-            public func format(_ record: LogRecord<Data>) throws -> Data? {
-                if record.output.isEmpty {
-                    return record.output
+            public func sink(_ record: LogRecord<Data>, next: @escaping LogSinkNext<Data>) {
+                record.sink(before: next) { record in
+                    if record.output.isEmpty {
+                        return record.output
+                    }
+                    return LogDog.compress(input: record.output, algorithm: algorithm)
                 }
-
-                return LogDog.compress(input: record.output, algorithm: algorithm)
             }
         }
     }

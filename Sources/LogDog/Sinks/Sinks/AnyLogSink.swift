@@ -12,7 +12,7 @@ public struct AnyLogSink<Input, Output>: LogSink {
     }
 
     public init(beforeSink: @escaping (inout LogEntry) -> Void,
-                sink: @escaping (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void)
+                sink: @escaping (LogRecord<Input>, LogSinkNext<Output>) -> Void)
     {
         self.sink = SinkBodyBox(beforeSink: beforeSink, sink: sink)
     }
@@ -21,7 +21,7 @@ public struct AnyLogSink<Input, Output>: LogSink {
         sink.beforeSink(&entry)
     }
 
-    public func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {
+    public func sink(_ record: LogRecord<Input>, next: @escaping LogSinkNext<Output>) {
         sink.sink(record, next: next)
     }
 }
@@ -31,17 +31,17 @@ private class AbstractSink<Input, Output>: LogSink {
         fatalError()
     }
 
-    func sink(_: LogRecord<Input>, next _: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {
+    func sink(_: LogRecord<Input>, next _: @escaping LogSinkNext<Output>) {
         fatalError()
     }
 }
 
 private final class SinkBodyBox<Input, Output>: AbstractSink<Input, Output> {
     private let beforeSinkBody: (inout LogEntry) -> Void
-    private let sinkBody: (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void
+    private let sinkBody: (LogRecord<Input>, LogSinkNext<Output>) -> Void
 
     init(beforeSink: @escaping (inout LogEntry) -> Void,
-         sink: @escaping (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void)
+         sink: @escaping (LogRecord<Input>, LogSinkNext<Output>) -> Void)
     {
         beforeSinkBody = beforeSink
         sinkBody = sink
@@ -51,7 +51,7 @@ private final class SinkBodyBox<Input, Output>: AbstractSink<Input, Output> {
         beforeSinkBody(&entry)
     }
 
-    override func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {
+    override func sink(_ record: LogRecord<Input>, next: @escaping LogSinkNext<Output>) {
         sinkBody(record, next)
     }
 }
@@ -67,7 +67,7 @@ private final class SinkBox<Sink>: AbstractSink<Sink.Input, Sink.Output> where S
         sink.beforeSink(&entry)
     }
 
-    override func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {
+    override func sink(_ record: LogRecord<Input>, next: @escaping LogSinkNext<Output>) {
         sink.sink(record, next: next)
     }
 }

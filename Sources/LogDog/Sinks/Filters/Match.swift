@@ -1,6 +1,5 @@
 // An expressive dsl for creating matching filters.
 
-
 public extension LogSink {
     func when<T>(_ transform: @escaping (LogRecord<Output>) -> T) -> LogFilters.When<Self, T> {
         .init(self, .init(transform))
@@ -84,14 +83,14 @@ public extension LogFilters {
         public struct Match {
             public let when: When
 
-            public let isIncluded: (T) -> Bool
+            public let match: (T) -> Bool
 
-            public init(_ when: When, _ isIncluded: @escaping (T) -> Bool) {
+            public init(_ when: When, _ match: @escaping (T) -> Bool) {
                 self.when = when
-                self.isIncluded = isIncluded
+                self.match = match
             }
 
-            public struct Do: LogFilter {
+            public struct Do: LogSink {
                 public typealias Input = Sink.Output
                 public typealias Output = Sink.Output
 
@@ -109,15 +108,18 @@ public extension LogFilters {
                     self.action = action
                 }
 
-                public func filter(_ record: LogRecord<Sink.Output>) throws -> Bool {
-                    let t = match.when.transform.transform(record)
-                    let isIncluded = match.isIncluded(t)
+                public func sink(_ record: LogRecord<Sink.Output>, next: @escaping LogSinkNext<Sink.Output>) {
+                    record.sink(before: next) { record in
+                        let t = match.when.transform.transform(record)
 
-                    switch action {
-                    case .allow:
-                        return isIncluded
-                    case .deny:
-                        return !isIncluded
+                        let matches = match.match(t)
+
+                        switch action {
+                        case .allow:
+                            return matches ? record.output : nil
+                        case .deny:
+                            return matches ? nil : record.output
+                        }
                     }
                 }
             }

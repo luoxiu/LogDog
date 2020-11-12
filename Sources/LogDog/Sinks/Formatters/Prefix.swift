@@ -5,7 +5,7 @@ public extension LogSink where Self.Output: RangeReplaceableCollection {
 }
 
 public extension LogFormatters {
-    struct Prefix<T>: LogFormatter where T: RangeReplaceableCollection {
+    struct Prefix<T>: LogSink where T: RangeReplaceableCollection {
         public typealias Input = T
         public typealias Output = T
 
@@ -15,8 +15,10 @@ public extension LogFormatters {
             self.prefix = prefix
         }
 
-        public func format(_ record: LogRecord<T>) throws -> T? {
-            prefix + record.output
+        public func sink(_ record: LogRecord<T>, next: @escaping LogSinkNext<T>) {
+            record.sink(before: next) { record in
+                prefix + record.output
+            }
         }
     }
 }

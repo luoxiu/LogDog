@@ -12,7 +12,7 @@ import Foundation
 
     public extension LogFormatters {
         @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-        struct Crypto: LogFormatter {
+        struct Crypto: LogSink {
             public typealias Input = Data
             public typealias Output = Data
 
@@ -29,12 +29,14 @@ import Foundation
                 self.cipher = cipher
             }
 
-            public func format(_ record: LogRecord<Data>) throws -> Data? {
-                switch cipher {
-                case .AES:
-                    return try AES.GCM.seal(record.output, using: key).combined
-                case .ChaChaPoly:
-                    return try ChaChaPoly.seal(record.output, using: key).combined
+            public func sink(_ record: LogRecord<Data>, next: @escaping LogSinkNext<Data>) {
+                record.sink(before: next) { record in
+                    switch cipher {
+                    case .AES:
+                        return try AES.GCM.seal(record.output, using: key).combined
+                    case .ChaChaPoly:
+                        return try ChaChaPoly.seal(record.output, using: key).combined
+                    }
                 }
             }
         }

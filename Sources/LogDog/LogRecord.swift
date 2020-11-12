@@ -10,14 +10,3 @@ public struct LogRecord<Output> {
         self.output = output
     }
 }
-
-public extension LogRecord {
-    func formatted<Formatter>(by formatter: Formatter) throws -> LogRecord<Formatter.Output>?
-        where Formatter: LogFormatter, Formatter.Input == Output
-    {
-        guard let newOutput = try formatter.format(self) else {
-            return nil
-        }
-        return LogRecord<Formatter.Output>(entry, newOutput)
-    }
-}
