@@ -25,8 +25,8 @@ public extension LogSinks {
             self.scheduler = scheduler
         }
 
-        public func beforeSink(_ entry: LogEntry) {
-            sink.beforeSink(entry)
+        public func beforeSink(_ entry: inout LogEntry) {
+            sink.beforeSink(&entry)
         }
 
         public func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {
@@ -48,8 +48,8 @@ public extension LogSinks {
             self.scheduler = scheduler
         }
 
-        public func beforeSink(_ entry: LogEntry) {
-            sink.beforeSink(entry)
+        public func beforeSink(_ entry: inout LogEntry) {
+            sink.beforeSink(&entry)
         }
 
         public func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {

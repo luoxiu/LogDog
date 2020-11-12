@@ -1,8 +1,9 @@
+/// A type-erased appender.
 public struct AnyLogAppender<Output>: LogAppender {
     private let appender: AbstractAppender<Output>
 
-    public init(_ closure: @escaping (LogRecord<Output>) throws -> Void) {
-        appender = ClosureBox(closure)
+    public init(_ append: @escaping (LogRecord<Output>) throws -> Void) {
+        appender = AppenderBodyBox(append)
     }
 
     public init<Appender>(_ appender: Appender) where Appender: LogAppender, Appender.Output == Output {
@@ -20,15 +21,15 @@ private class AbstractAppender<Output>: LogAppender {
     }
 }
 
-private final class ClosureBox<Output>: AbstractAppender<Output> {
-    private let closure: (LogRecord<Output>) throws -> Void
+private final class AppenderBodyBox<Output>: AbstractAppender<Output> {
+    private let appendBody: (LogRecord<Output>) throws -> Void
 
-    init(_ closure: @escaping (LogRecord<Output>) throws -> Void) {
-        self.closure = closure
+    init(_ append: @escaping (LogRecord<Output>) throws -> Void) {
+        appendBody = append
     }
 
     override func append(_ record: LogRecord<Output>) throws {
-        try closure(record)
+        try appendBody(record)
     }
 }
 

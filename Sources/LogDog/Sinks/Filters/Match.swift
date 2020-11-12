@@ -1,3 +1,6 @@
+// An expressive dsl for creating matching filters.
+
+
 public extension LogSink {
     func when<T>(_ transform: @escaping (LogRecord<Output>) -> T) -> LogFilters.When<Self, T> {
         .init(self, .init(transform))
@@ -8,12 +11,54 @@ public extension LogSink {
     }
 }
 
+public extension LogFilters.When where T: StringProtocol {
+    func includes<S: StringProtocol>(_ other: S) -> LogFilters.When<Sink, T>.Match {
+        .init(self) {
+            $0.contains(other)
+        }
+    }
+
+    func excludes<S: StringProtocol>(_ other: S) -> LogFilters.When<Sink, T>.Match {
+        .init(self) {
+            !$0.contains(other)
+        }
+    }
+
+    func hasPrefix<Prefix>(_ prefix: Prefix) -> LogFilters.When<Sink, T>.Match where Prefix: StringProtocol {
+        .init(self) {
+            $0.hasPrefix(prefix)
+        }
+    }
+
+    func hasSuffix<Suffix>(_ suffix: Suffix) -> LogFilters.When<Sink, T>.Match where Suffix: StringProtocol {
+        .init(self) {
+            $0.hasSuffix(suffix)
+        }
+    }
+}
+
+public extension LogFilters.When where T == String {
+    func match(_ regexp: String) -> LogFilters.When<Sink, T>.Match {
+        .init(self) {
+            $0.range(of: regexp, options: .regularExpression, range: nil, locale: nil) != nil
+        }
+    }
+}
+
+public extension LogFilters.When where T: Equatable {
+    func equals(_ other: T) -> LogFilters.When<Sink, T>.Match {
+        .init(self) {
+            $0 == other
+        }
+    }
+}
+
 public extension LogFilters.When.Match {
-    var allow: LogSinks.Concat<Sink, LogFilters.When<Sink, T>.Match.Directive> {
+    var allow: LogSinks.Concat<Sink, LogFilters.When<Sink, T>.Match.Do> {
         when.sink + .init(self, action: .allow)
     }
 
-    var deny: LogSinks.Concat<Sink, LogFilters.When<Sink, T>.Match.Directive> {
+    var deny: LogSinks.Concat<Sink, LogFilters.When<Sink, T>.Match.Do> {
         when.sink + .init(self, action: .deny)
     }
 }
@@ -46,7 +91,7 @@ public extension LogFilters {
                 self.isIncluded = isIncluded
             }
 
-            public struct Directive: LogFilter {
+            public struct Do: LogFilter {
                 public typealias Input = Sink.Output
                 public typealias Output = Sink.Output
 
@@ -108,48 +153,6 @@ public extension LogFilters.When.Transform {
     static var filename: LogFilters.When<Sink, String>.Transform {
         .init {
             LogHelper.basename(of: $0.entry.file)
-        }
-    }
-}
-
-public extension LogFilters.When where T: StringProtocol {
-    func includes<S: StringProtocol>(_ other: S) -> LogFilters.When<Sink, T>.Match {
-        .init(self) {
-            $0.contains(other)
-        }
-    }
-
-    func excludes<S: StringProtocol>(_ other: S) -> LogFilters.When<Sink, T>.Match {
-        .init(self) {
-            !$0.contains(other)
-        }
-    }
-
-    func hasPrefix<Prefix>(_ prefix: Prefix) -> LogFilters.When<Sink, T>.Match where Prefix: StringProtocol {
-        .init(self) {
-            $0.hasPrefix(prefix)
-        }
-    }
-
-    func hasSuffix<Suffix>(_ suffix: Suffix) -> LogFilters.When<Sink, T>.Match where Suffix: StringProtocol {
-        .init(self) {
-            $0.hasSuffix(suffix)
-        }
-    }
-}
-
-public extension LogFilters.When where T == String {
-    func match(_ regexp: String) -> LogFilters.When<Sink, T>.Match {
-        .init(self) {
-            $0.range(of: regexp, options: .regularExpression, range: nil, locale: nil) != nil
-        }
-    }
-}
-
-public extension LogFilters.When where T: Equatable {
-    func equals(_ other: T) -> LogFilters.When<Sink, T>.Match {
-        .init(self) {
-            $0 == other
         }
     }
 }

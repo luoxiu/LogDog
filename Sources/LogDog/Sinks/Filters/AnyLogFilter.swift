@@ -53,8 +53,8 @@ private final class FilterBox<Filter>: AbstractFilter<Filter.Input> where Filter
         try filter.filter(record)
     }
 
-    func beforeSink(_ entry: LogEntry) {
-        filter.beforeSink(entry)
+    func beforeSink(_ entry: inout LogEntry) {
+        filter.beforeSink(&entry)
     }
 
     func sink(_ record: LogRecord<Filter.Input>, next: @escaping (Result<LogRecord<Filter.Output>?, Error>) -> Void) {

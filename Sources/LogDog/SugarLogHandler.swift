@@ -56,7 +56,7 @@ public extension SugarLogHandler {
             finalMetadata.merge(metadata, uniquingKeysWith: { _, b in b })
         }
 
-        let entry = LogEntry(label: label,
+        var entry = LogEntry(label: label,
                              level: level,
                              message: message,
                              metadata: finalMetadata,
@@ -65,7 +65,7 @@ public extension SugarLogHandler {
                              function: function,
                              line: line)
 
-        sink.beforeSink(entry)
+        sink.beforeSink(&entry)
 
         let record = LogRecord(entry, ())
 

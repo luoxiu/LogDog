@@ -49,8 +49,8 @@ private final class FormatterBox<Formatter>: AbstractFormatter<Formatter.Input, 
         try formatter.format(record)
     }
 
-    func beforeSink(_ entry: LogEntry) {
-        formatter.beforeSink(entry)
+    func beforeSink(_ entry: inout LogEntry) {
+        formatter.beforeSink(&entry)
     }
 
     func sink(_ record: LogRecord<Formatter.Input>, next: @escaping (Result<LogRecord<Formatter.Output>?, Error>) -> Void) {

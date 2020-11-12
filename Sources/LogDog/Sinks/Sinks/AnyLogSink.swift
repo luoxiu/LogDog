@@ -11,14 +11,14 @@ public struct AnyLogSink<Input, Output>: LogSink {
         self.sink = SinkBox(sink)
     }
 
-    public init(beforeSink: @escaping (LogEntry) -> Void,
+    public init(beforeSink: @escaping (inout LogEntry) -> Void,
                 sink: @escaping (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void)
     {
         self.sink = SinkBodyBox(beforeSink: beforeSink, sink: sink)
     }
 
-    public func beforeSink(_ entry: LogEntry) {
-        sink.beforeSink(entry)
+    public func beforeSink(_ entry: inout LogEntry) {
+        sink.beforeSink(&entry)
     }
 
     public func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {
@@ -27,7 +27,7 @@ public struct AnyLogSink<Input, Output>: LogSink {
 }
 
 private class AbstractSink<Input, Output>: LogSink {
-    func beforeSink(_: LogEntry) {
+    func beforeSink(_: inout LogEntry) {
         fatalError()
     }
 
@@ -37,18 +37,18 @@ private class AbstractSink<Input, Output>: LogSink {
 }
 
 private final class SinkBodyBox<Input, Output>: AbstractSink<Input, Output> {
-    private let beforeSinkBody: (LogEntry) -> Void
+    private let beforeSinkBody: (inout LogEntry) -> Void
     private let sinkBody: (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void
 
-    init(beforeSink: @escaping (LogEntry) -> Void,
+    init(beforeSink: @escaping (inout LogEntry) -> Void,
          sink: @escaping (LogRecord<Input>, (Result<LogRecord<Output>?, Error>) -> Void) -> Void)
     {
         beforeSinkBody = beforeSink
         sinkBody = sink
     }
 
-    override func beforeSink(_ entry: LogEntry) {
-        beforeSinkBody(entry)
+    override func beforeSink(_ entry: inout LogEntry) {
+        beforeSinkBody(&entry)
     }
 
     override func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {
@@ -63,8 +63,8 @@ private final class SinkBox<Sink>: AbstractSink<Sink.Input, Sink.Output> where S
         self.sink = sink
     }
 
-    override func beforeSink(_ entry: LogEntry) {
-        sink.beforeSink(entry)
+    override func beforeSink(_ entry: inout LogEntry) {
+        sink.beforeSink(&entry)
     }
 
     override func sink(_ record: LogRecord<Input>, next: @escaping (Result<LogRecord<Output>?, Error>) -> Void) {

@@ -77,5 +77,3 @@ public extension LogStringify {
         LogHelper.stringify($0)
     }
 }
-
-

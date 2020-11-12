@@ -7,6 +7,10 @@
 #endif
 import Foundation
 
+/// Appends string-records to the underlying TextOutputStream.
+///
+/// - `TextLogAppender.stdout`, output to `stdout`.
+/// - `TextLogAppender.stderr`, output to `stderr`.
 public struct TextLogAppender: LogAppender {
     public let stream: TextOutputStream
 

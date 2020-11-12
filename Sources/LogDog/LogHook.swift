@@ -1,30 +1,30 @@
 import Foundation
 
 public struct LogHook {
-    private let body: (LogEntry) -> Void
+    private let body: (inout LogEntry) -> Void
 
-    public init(_ hook: @escaping (LogEntry) -> Void) {
+    public init(_ hook: @escaping (inout LogEntry) -> Void) {
         body = hook
     }
 
     public init(_ hooks: [LogHook]) {
         body = { entry in
             hooks.forEach {
-                $0.hook(entry)
+                $0.hook(&entry)
             }
         }
     }
 
-    public func hook(_ entry: LogEntry) {
-        body(entry)
+    public func hook(_ entry: inout LogEntry) {
+        body(&entry)
     }
 }
 
 extension LogHook {
     func concat(_ other: LogHook) -> LogHook {
         .init {
-            hook($0)
-            other.hook($0)
+            hook(&$0)
+            other.hook(&$0)
         }
     }
 }

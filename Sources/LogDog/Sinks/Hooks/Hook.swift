@@ -1,5 +1,5 @@
 public extension LogSink {
-    func hook(_ hook: @escaping (LogEntry) -> Void) -> LogHooks.Hook<Self> {
+    func hook(_ hook: @escaping (inout LogEntry) -> Void) -> LogHooks.Hook<Self> {
         .init(self, LogHook(hook))
     }
 
@@ -29,8 +29,8 @@ public extension LogHooks {
             self.hook = hook
         }
 
-        public func beforeSink(_ entry: LogEntry) {
-            hook.hook(entry)
+        public func beforeSink(_ entry: inout LogEntry) {
+            hook.hook(&entry)
         }
 
         public func sink(_ record: LogRecord<Sink.Input>, next: @escaping (Result<LogRecord<Sink.Output>?, Error>) -> Void) {

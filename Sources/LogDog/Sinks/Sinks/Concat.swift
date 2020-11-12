@@ -16,9 +16,9 @@ public extension LogSinks {
         private let a: A
         private let b: B
 
-        public func beforeSink(_ entry: LogEntry) {
-            a.beforeSink(entry)
-            b.beforeSink(entry)
+        public func beforeSink(_ entry: inout LogEntry) {
+            a.beforeSink(&entry)
+            b.beforeSink(&entry)
         }
 
         public func sink(_ record: LogRecord<A.Input>, next: @escaping (Result<LogRecord<B.Output>?, Error>) -> Void) {

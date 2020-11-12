@@ -4,10 +4,10 @@ public struct TextLogFormatter: LogFormatter {
     public typealias Input = Void
     public typealias Output = String
 
-    private let beforeSink: ((LogEntry) -> Void)?
+    private let beforeSink: ((inout LogEntry) -> Void)?
     private let format: (LogRecord<Void>) throws -> String?
 
-    public init(beforeSink: ((LogEntry) -> Void)? = nil,
+    public init(beforeSink: ((inout LogEntry) -> Void)? = nil,
                 format: @escaping (LogRecord<Void>) throws -> String?)
     {
         self.beforeSink = beforeSink
@@ -19,8 +19,8 @@ public struct TextLogFormatter: LogFormatter {
 //        fatalError()
 //    }
 
-    public func beforeSink(_ entry: LogEntry) {
-        beforeSink?(entry)
+    public func beforeSink(_ entry: inout LogEntry) {
+        beforeSink?(&entry)
     }
 
     public func format(_ record: LogRecord<Void>) throws -> String? {

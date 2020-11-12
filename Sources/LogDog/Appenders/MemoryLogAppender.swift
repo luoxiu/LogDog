@@ -1,27 +1,20 @@
 import Foundation
 
+/// Appends records to an in-memory array.
 public final class MemoryLogAppender<Output>: LogAppender {
-    
     private let lock = NSLock()
-    
-    private var storage: [LogRecord<Output>] = []
-    
-    public var records: [LogRecord<Output>] {
-        lock.lock()
-        defer {
-            lock.unlock()
-        }
-        return storage
+
+    private var records: [LogRecord<Output>] = []
+
+    public var snapshot: [LogRecord<Output>] {
+        lock.lock(); defer { lock.unlock() }
+        return records
     }
-    
-    public init() {
-    }
-    
+
+    public init() {}
+
     public func append(_ record: LogRecord<Output>) throws {
-        lock.lock()
-        defer {
-            lock.unlock()
-        }
-        storage.append(record)
+        lock.lock(); defer { lock.unlock() }
+        records.append(record)
     }
 }
