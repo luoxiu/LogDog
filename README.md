@@ -4,3 +4,4 @@
   <img src="https://github.com/luoxiu/LogDog/workflows/Swift/badge.svg">
 </a>
 
+sugar
