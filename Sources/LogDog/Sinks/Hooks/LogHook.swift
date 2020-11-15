@@ -7,6 +7,12 @@ public struct LogHook {
         body = hook
     }
 
+    public func hook(_ entry: inout LogEntry) {
+        body(&entry)
+    }
+}
+
+extension LogHook {
     public init(_ hooks: [LogHook]) {
         body = { entry in
             hooks.forEach {
@@ -15,12 +21,6 @@ public struct LogHook {
         }
     }
 
-    public func hook(_ entry: inout LogEntry) {
-        body(&entry)
-    }
-}
-
-extension LogHook {
     func concat(_ other: LogHook) -> LogHook {
         .init {
             hook(&$0)
@@ -29,8 +29,11 @@ extension LogHook {
     }
 }
 
+// MARK: - common hooks
+
 public extension LogHook {
-    // MAKR: App
+    // MARK: App
+
     static let appBuild = LogHook {
         $0.parameters["appBuild"] = LogHelper.appBuild
     }
@@ -52,7 +55,6 @@ public extension LogHook {
     // MARK: Thread
 
     static let thread = LogHook {
-        var thread = Thread.current.name ?? LogHelper.currentThreadID ?? LogHelper.currentDispatchQueueLabel
-        $0.parameters["thread"] = thread
+        $0.parameters["thread"] = LogHelper.thread
     }
 }

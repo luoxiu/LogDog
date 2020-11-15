@@ -10,25 +10,6 @@ public extension LogParameterKey {
     }
 }
 
-public protocol LogParameterCodingKey: LogParameterKey {
-    associatedtype CodingKey: Hashable & Encodable
-
-    static var codingKey: CodingKey {
-        get
-    }
-}
-
-public extension LogParameterCodingKey {
-    static var key: AnyHashable {
-        codingKey
-    }
-
-    static var codingKey: String {
-        let name = String(describing: self)
-        return name.prefix(1).lowercased() + name.dropFirst()
-    }
-}
-
 public struct LogParameters {
     private var dict: [AnyHashable: Any]
 
@@ -56,7 +37,7 @@ public struct LogParameters {
         }
     }
 
-    func snapshot() -> [AnyHashable: Any] {
+    public func snapshot() -> [AnyHashable: Any] {
         dict
     }
 }

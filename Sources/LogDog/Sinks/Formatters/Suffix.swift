@@ -16,7 +16,7 @@ public extension LogFormatters {
         }
 
         public func sink(_ record: LogRecord<T>, next: @escaping LogSinkNext<T>) {
-            record.sink(before: next) { record in
+            record.sink(next: next) { record in
                 record.output + suffix
             }
         }

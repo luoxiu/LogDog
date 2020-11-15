@@ -54,7 +54,6 @@ public struct LogEntry {
 
     public var line: UInt { storage.line }
 
-    /// When using json formatting, all key-value pairs in the dictionary whose key is string and value is codable will be selected and encoded.
     public var parameters: LogParameters
 
     public init(label: String,

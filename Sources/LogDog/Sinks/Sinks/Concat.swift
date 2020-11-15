@@ -13,8 +13,13 @@ public extension LogSinks {
         public typealias Input = A.Input
         public typealias Output = B.Output
 
-        private let a: A
-        private let b: B
+        public let a: A
+        public let b: B
+
+        public init(_ a: A, _ b: B) {
+            self.a = a
+            self.b = b
+        }
 
         public func beforeSink(_ entry: inout LogEntry) {
             a.beforeSink(&entry)
@@ -24,22 +29,17 @@ public extension LogSinks {
         public func sink(_ record: LogRecord<A.Input>, next: @escaping (Result<LogRecord<B.Output>?, Error>) -> Void) {
             a.sink(record) { result in
                 switch result {
-                case let .success(mRecord):
-                    guard let mRecord = mRecord else {
+                case let .success(record):
+                    guard let record = record else {
                         next(.success(nil))
                         return
                     }
 
-                    b.sink(mRecord, next: next)
+                    b.sink(record, next: next)
                 case let .failure(error):
                     next(.failure(error))
                 }
             }
-        }
-
-        public init(_ a: A, _ b: B) {
-            self.a = a
-            self.b = b
         }
     }
 }

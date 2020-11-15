@@ -49,28 +49,6 @@ public extension LogHelper {
 // MARK: Date
 
 public extension LogHelper {
-    private static func strftime(_ fmt: String) -> (String, Int32) {
-        var buffer = [Int8](repeating: 0, count: 255)
-
-        var time = timeval()
-        gettimeofday(&time, nil)
-
-        let localTime = localtime(&time.tv_sec)
-        Foundation.strftime(&buffer, buffer.count, fmt, localTime)
-
-        return (String(cString: &buffer), time.tv_usec)
-    }
-
-    static var currentTimestamp: String {
-        strftime("%Y-%m-%dT%H:%M:%S%z").0
-    }
-
-    /// 00:00:00.123
-    static var currentTime: String {
-        let (time, ms) = strftime("%H:%M:%S")
-        return String(format: "%@.%d", time, ms / 1000)
-    }
-
     static func stringify(_ date: Date, _ format: String) -> String {
         enum Static {
             static var lazy = AtomicLazy<DateFormatter>()
@@ -78,6 +56,7 @@ public extension LogHelper {
 
         let formatter = Static.lazy.get(format, whenNotFound: {
             let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.dateFormat = format
             return formatter
         }())
@@ -144,13 +123,22 @@ public extension LogHelper {
 // MARK: String
 
 public extension LogHelper {
-    static func basename(of path: String) -> String {
+    static func basename(of path: String, withExtensions: Bool = true) -> String {
         guard let index = path.lastIndex(of: "/") else {
             return path
         }
 
         let from = path.index(after: index)
-        return String(path[from...])
+        let filename = String(path[from...])
+
+        if withExtensions {
+            return filename
+        }
+
+        if let dot = filename.lastIndex(of: ".") {
+            return String(filename[..<dot])
+        }
+        return filename
     }
 }
 
@@ -170,5 +158,15 @@ public extension LogHelper {
             }
         #endif
         return nil
+    }
+
+    static var thread: String {
+        if let name = Thread.current.name, name.count > 0 {
+            return name
+        }
+        if Thread.isMainThread {
+            return "main"
+        }
+        return currentDispatchQueueLabel
     }
 }

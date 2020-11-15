@@ -30,7 +30,7 @@ import Foundation
             }
 
             public func sink(_ record: LogRecord<Data>, next: @escaping LogSinkNext<Data>) {
-                record.sink(before: next) { record in
+                record.sink(next: next) { record in
                     switch cipher {
                     case .AES:
                         return try AES.GCM.seal(record.output, using: key).combined

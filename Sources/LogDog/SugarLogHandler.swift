@@ -2,7 +2,7 @@ public extension Logger {
     static func sugar(_ label: String) -> Logger {
         Logger(label: label) {
             SugarLogHandler(label: $0,
-                            sink: TextLogFormatter.default.suffix("\n"),
+                            sink: LogFormatters.BuiltIn(style: .long).suffix("\n"),
                             appender: TextLogAppender.stdout)
         }
     }
@@ -73,12 +73,12 @@ public extension SugarLogHandler {
 
             switch result {
             case let .success(newRecord):
-                if let newRecord = newRecord {
-                    do {
-                        try appender.append(newRecord)
-                    } catch {
-                        errorHandler?(error)
+                do {
+                    try newRecord.map {
+                        try appender.append($0)
                     }
+                } catch {
+                    errorHandler?(error)
                 }
             case let .failure(error):
                 errorHandler?(error)

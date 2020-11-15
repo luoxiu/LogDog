@@ -1,40 +1,43 @@
 public extension LogSink {
-    func hook(_ hook: @escaping (inout LogEntry) -> Void) -> LogHooks.Hook<Self> {
-        .init(self, LogHook(hook))
+    func hook(_ hook: @escaping (inout LogEntry) -> Void)
+        -> LogSinks.Concat<Self, LogHooks.Hook<Output>>
+    {
+        self + .init(hook: LogHook(hook))
     }
 
-    func hook(_ hook: LogHook) -> LogHooks.Hook<Self> {
-        .init(self, hook)
+    func hook(_ hook: LogHook)
+        -> LogSinks.Concat<Self, LogHooks.Hook<Output>>
+    {
+        self + .init(hook: hook)
+    }
+}
+
+public extension LogSink {
+    func hook(_ hooks: LogHook...)
+        -> LogSinks.Concat<Self, LogHooks.Hook<Output>>
+    {
+        self + .init(hook: LogHook(hooks))
     }
 
-    func hook(_ hooks: LogHook...) -> LogHooks.Hook<Self> {
-        .init(self, LogHook(hooks))
-    }
-
-    func hook(_ hooks: [LogHook]) -> LogHooks.Hook<Self> {
-        .init(self, LogHook(hooks))
+    func hook(_ hooks: [LogHook])
+        -> LogSinks.Concat<Self, LogHooks.Hook<Output>>
+    {
+        self + .init(hook: LogHook(hooks))
     }
 }
 
 public extension LogHooks {
-    struct Hook<Sink: LogSink>: LogSink {
-        public typealias Input = Sink.Input
-        public typealias Output = Sink.Output
+    struct Hook<Input>: LogSink {
+        public typealias Output = Input
 
-        private let sink: Sink
-        private let hook: LogHook
+        public let hook: LogHook
 
-        public init(_ sink: Sink, _ hook: LogHook) {
-            self.sink = sink
+        public init(hook: LogHook) {
             self.hook = hook
         }
 
         public func beforeSink(_ entry: inout LogEntry) {
             hook.hook(&entry)
-        }
-
-        public func sink(_ record: LogRecord<Sink.Input>, next: @escaping (Result<LogRecord<Sink.Output>?, Error>) -> Void) {
-            sink.sink(record, next: next)
         }
     }
 }

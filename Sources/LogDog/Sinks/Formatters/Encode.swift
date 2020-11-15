@@ -1,23 +1,25 @@
 import Foundation
 
 public extension LogSink where Output == Void {
-    func encode<Encoder: LogEncoder>(with encoder: Encoder) -> LogSinks.Concat<Self, LogFormatters.Encode<Output, Encoder>> where Encoder.Output == Output {
-        self + LogFormatters.Encode<Output, Encoder>(encoder)
+    func encode<Encoder: LogEncoder>(encoder: Encoder) -> LogSinks.Concat<Self, LogFormatters.Encode<Encoder>> {
+        self + LogFormatters.Encode(encoder: encoder)
     }
 }
 
 public extension LogFormatters {
-    struct Encode<Output, Encoder>: LogSink where Encoder: LogEncoder, Encoder.Output == Output {
+    /// All key-value pairs in the entry's parameters whose key is string and value is codable will be encoded.
+    struct Encode<Encoder>: LogSink where Encoder: LogEncoder {
         public typealias Input = Void
+        public typealias Output = Encoder.Output
 
-        let encoder: Encoder
+        public let encoder: Encoder
 
-        public init(_ encoder: Encoder) {
+        public init(encoder: Encoder) {
             self.encoder = encoder
         }
 
-        public func sink(_ record: LogRecord<Void>, next: @escaping LogSinkNext<Output>) {
-            record.sink(before: next) { record in
+        public func sink(_ record: LogRecord<Input>, next: @escaping LogSinkNext<Output>) {
+            record.sink(next: next) { record in
                 try encoder.encode(LogEntryWrapper(record.entry))
             }
         }
@@ -58,7 +60,7 @@ private struct LogEntryWrapper: Encodable {
         try container.encode(entry.line, forKey: Key(stringValue: "line"))
 
         for (k, v) in entry.parameters.snapshot() {
-            guard let key = k as? String, let encodable = transform(any: v) else {
+            guard let key = k.base as? String, let encodable = transform(any: v) else {
                 continue
             }
             try container.encode(encodable, forKey: Key(stringValue: key))
@@ -67,7 +69,7 @@ private struct LogEntryWrapper: Encodable {
 }
 
 private func transform(any: Any?) -> AnyEncodable? {
-    guard let any = any else {
+    guard let any = unwrap(any: any) else {
         return AnyEncodable(AnyEncodable?.none)
     }
 
@@ -79,6 +81,7 @@ private func transform(any: Any?) -> AnyEncodable? {
 
         for element in array {
             guard let encodable = transform(any: element) else {
+                // not an encodable
                 return nil
             }
             elements.append(encodable)
@@ -90,6 +93,7 @@ private func transform(any: Any?) -> AnyEncodable? {
 
         for (k, v) in dictionary {
             guard let encodable = transform(any: v) else {
+                // not an encodable
                 continue
             }
             dict[k] = encodable

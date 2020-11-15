@@ -20,14 +20,57 @@ public extension LogSink {
     }
 }
 
+public extension LogSink where Input == Output {
+    func sink(_ record: LogRecord<Input>, next: @escaping LogSinkNext<Output>) {
+        next(.success(record))
+    }
+}
+
 public extension LogRecord {
-    func sink<NewOutput>(before next: @escaping LogSinkNext<NewOutput>, _ transform: @escaping LogRecordTransform<Output, NewOutput>) {
-        let result = Result<LogRecord<NewOutput>?, Error> { () -> LogRecord<NewOutput>? in
-            try transform(self)
-                .map {
-                    .init(entry, $0)
-                }
+    func sink<NewOutput>(
+        next: @escaping LogSinkNext<NewOutput>,
+        transform: @escaping LogRecordTransform<Output, NewOutput>
+    ) {
+        do {
+            guard let newOutput = try transform(self) else {
+                next(.success(nil))
+                return
+            }
+
+            next(.success(.init(entry, newOutput)))
+        } catch {
+            next(.failure(error))
         }
-        next(result)
+    }
+
+    func sink<Sink, NewOutput>(
+        firstly: Sink,
+        next: @escaping LogSinkNext<NewOutput>,
+        transform: @escaping LogRecordTransform<Sink.Output, NewOutput>
+    )
+        where Sink: LogSink, Sink.Input == Output
+    {
+        firstly.sink(self) { result in
+            switch result {
+            case let .failure(error):
+                next(.failure(error))
+            case let .success(record):
+                guard let record = record else {
+                    next(.success(nil))
+                    return
+                }
+
+                do {
+                    guard let newOutput = try transform(record) else {
+                        next(.success(nil))
+                        return
+                    }
+
+                    next(.success(.init(entry, newOutput)))
+                } catch {
+                    next(.failure(error))
+                }
+            }
+        }
     }
 }

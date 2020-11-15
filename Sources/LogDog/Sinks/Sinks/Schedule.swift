@@ -1,62 +1,24 @@
 import Foundation
 
-public extension LogScheduler {
-    func schedule<Sink: LogSink>(_ sink: Sink) -> LogSinks.Schedule<Sink, Self> {
-        .init(sink, self)
-    }
-}
-
 public extension LogSink {
-    func sink<Scheduler: LogScheduler>(on scheduler: Scheduler) -> LogSinks.SinkOn<Self, Scheduler> {
-        .init(self, scheduler)
+    func sink(on scheduler: LogScheduler) -> LogSinks.Concat<Self, LogSinks.SinkOn<Output>> {
+        self + .init(scheduler)
     }
 }
 
 public extension LogSinks {
-    struct Schedule<Sink, Scheduler>: LogSink where Sink: LogSink, Scheduler: LogScheduler {
-        public typealias Input = Sink.Input
-        public typealias Output = Sink.Output
+    struct SinkOn<Input>: LogSink {
+        public typealias Output = Input
 
-        public let sink: Sink
-        public let scheduler: Scheduler
+        public let scheduler: LogScheduler
 
-        public init(_ sink: Sink, _ scheduler: Scheduler) {
-            self.sink = sink
+        public init(_ scheduler: LogScheduler) {
             self.scheduler = scheduler
-        }
-
-        public func beforeSink(_ entry: inout LogEntry) {
-            sink.beforeSink(&entry)
         }
 
         public func sink(_ record: LogRecord<Input>, next: @escaping LogSinkNext<Output>) {
             scheduler.schedule {
-                sink.sink(record, next: next)
-            }
-        }
-    }
-
-    struct SinkOn<Sink, Scheduler>: LogSink where Sink: LogSink, Scheduler: LogScheduler {
-        public typealias Input = Sink.Input
-        public typealias Output = Sink.Output
-
-        public let sink: Sink
-        public let scheduler: Scheduler
-
-        public init(_ sink: Sink, _ scheduler: Scheduler) {
-            self.sink = sink
-            self.scheduler = scheduler
-        }
-
-        public func beforeSink(_ entry: inout LogEntry) {
-            sink.beforeSink(&entry)
-        }
-
-        public func sink(_ record: LogRecord<Input>, next: @escaping LogSinkNext<Output>) {
-            sink.sink(record) { record in
-                scheduler.schedule {
-                    next(record)
-                }
+                next(.success(record))
             }
         }
     }

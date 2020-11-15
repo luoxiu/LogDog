@@ -2,26 +2,24 @@ import Combine
 import Foundation
 import LogDog
 
-let logger1 = Logger.sugar("com.v2ambition.App")
+let logger1 = Logger.sugar("App")
 
-let logger2 = Logger(label: "com.v2ambition.DB") { label in
+let logger2 = Logger(label: "DB") { label in
 
     let encoder = JSONEncoder()
-    encoder.outputFormatting = [.prettyPrinted]
-    let json = LogFormatters.Encode(encoder)
-
-    let text = AnyLogFormatter<Data, String> { (record) -> String? in
-        String(bytes: record.output, encoding: .utf8)
+    if #available(OSX 10.15, *) {
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+    } else {
+        // Fallback on earlier versions
     }
 
-    let sink = DispatchQueue(label: "123")
-        .schedule(json)
-        .hook {
-            $0.parameters[1] = 1
+    let sink = LogSinks.firstly
+        .hook(.date, .appName, .thread)
+        .encode(encoder: encoder)
+        .format {
+            String(bytes: $0.output, encoding: .utf8)
         }
-        .hook(.appBuild)
-        .concat(text)
-        .when(.filename).hasPrefix("xq").allow
 
     return SugarLogHandler(label: label, sink: sink, appender: TextLogAppender.stdout)
 }
@@ -36,13 +34,19 @@ func run(_ logger: Logger) {
     let date: Date? = Date()
     logger.n("latency too long", metadata: ["latency": .any(100), "some": ["date": .any(date as Any)]])
 
-    logger.w("networking no cononection")
+    logger.w("no connection")
 
-    logger.e("bad response", metadata: ["body": .any(10)])
+    logger.e("bad response", metadata: ["url": .any("/me"), "status_code": .any(404)])
 
     logger.c("can not connect to db")
 }
 
-run(logger1)
+if #available(OSX 10.12, *) {
+    Thread.detachNewThread {
+        run(logger1)
+    }
+} else {
+    // Fallback on earlier versions
+}
 
 dispatchMain()

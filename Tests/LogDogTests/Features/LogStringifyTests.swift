@@ -26,74 +26,66 @@ final class LogStringifyTests: XCTestCase {
         XCTAssertEqual(stringify.stringify(A()), "a")
 
         stringify.set { (_: A) -> String in
-            "stringify_a"
+            "set_a"
         }
-        XCTAssertEqual(stringify.stringify(A()), "stringify_a")
+        XCTAssertEqual(stringify.stringify(A()), "set_a")
         XCTAssertEqual(stringify.stringify(B()), "b")
 
         stringify.set { (_: B) -> String in
-            "stringify_b"
+            "set_b"
         }
-        XCTAssertEqual(stringify.stringify(A()), "stringify_a")
-        XCTAssertEqual(stringify.stringify(B()), "stringify_b")
+        XCTAssertEqual(stringify.stringify(A()), "set_a")
+        XCTAssertEqual(stringify.stringify(B()), "set_b")
 
         stringify.set { (_: B) -> String in
-            "stringify_b_new"
+            "set_b_new"
         }
-        XCTAssertEqual(stringify.stringify(A()), "stringify_a")
-        XCTAssertEqual(stringify.stringify(B()), "stringify_b_new")
+        XCTAssertEqual(stringify.stringify(A()), "set_a")
+        XCTAssertEqual(stringify.stringify(B()), "set_b_new")
     }
 
     func testUse() {
         var stringify = LogStringify()
 
         stringify.use { (_: A) -> String in
-            "stringify_a"
+            "use_a"
         }
 
-        XCTAssertEqual(stringify.stringify(A()), "stringify_a")
-        XCTAssertEqual(stringify.stringify(B()), "stringify_a")
-        XCTAssertEqual(stringify.stringify(C()), "stringify_a")
+        XCTAssertEqual(stringify.stringify(A()), "use_a")
+        XCTAssertEqual(stringify.stringify(B()), "use_a")
+        XCTAssertEqual(stringify.stringify(C()), "use_a")
 
         stringify.use { (_: B) -> String in
-            "stringify_b"
+            "use_b"
         }
 
-        XCTAssertEqual(stringify.stringify(A()), "stringify_a")
-        XCTAssertEqual(stringify.stringify(B()), "stringify_a")
-        XCTAssertEqual(stringify.stringify(C()), "stringify_a")
-
-        stringify.useFirst { (_: B) -> String in
-            "stringify_b"
-        }
-
-        XCTAssertEqual(stringify.stringify(A()), "stringify_a")
-        XCTAssertEqual(stringify.stringify(B()), "stringify_b")
-        XCTAssertEqual(stringify.stringify(C()), "stringify_b")
+        XCTAssertEqual(stringify.stringify(A()), "use_a")
+        XCTAssertEqual(stringify.stringify(B()), "use_a")
+        XCTAssertEqual(stringify.stringify(C()), "use_a")
     }
 
     func testSetAndUse() {
         var stringify = LogStringify()
 
         stringify.set { (_: A) -> String in
-            "set_stringify_a"
+            "set_a"
         }
 
         stringify.use { (_: A) -> String in
-            "use_stringify_a"
+            "use_a"
         }
 
-        XCTAssertEqual(stringify.stringify(A()), "set_stringify_a")
+        XCTAssertEqual(stringify.stringify(A()), "set_a")
     }
 
     func testClear() {
         var stringify = LogStringify()
 
-        stringify.use { (_: A) -> String in
-            "stringify_a"
+        stringify.set { (_: A) -> String in
+            "set_a"
         }
-        stringify.use { (_: B) -> String in
-            "stringify_b"
+        stringify.set { (_: B) -> String in
+            "set_b"
         }
 
         stringify.clear()
@@ -105,7 +97,7 @@ final class LogStringifyTests: XCTestCase {
 
     func testMetadataValueAny() {
         LogStringify.default.use { (_: C) in
-            "stringify_c"
+            "use_c"
         }
         XCTAssertEqual(Logger.MetadataValue.any(C()), .string("LogStringifyCompatible_c"))
     }

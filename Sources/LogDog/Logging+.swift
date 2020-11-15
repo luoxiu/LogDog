@@ -10,7 +10,7 @@ public extension LogHandler {
 }
 
 extension Logger.Level {
-    private static let uppercased = Logger.Level.allCases.map { $0.uppercased }
+    private static let uppercased = Logger.Level.allCases.map { $0.rawValue.uppercased() }
 
     private static let initial = [
         "T", "D", "I", "N", "W", "E", "C",

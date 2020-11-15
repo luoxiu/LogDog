@@ -1,16 +1,42 @@
 import Foundation
 
+/// Use LogStringify to customize the value of `.any(x)`.
+///
+///     stringify.set { c: UIColor in
+///         "UIColor: \(c.hex)"
+///     }
+///
+///     .any(color)         // UIColor: 0xffffff
 public struct LogStringify {
     public typealias Stringify<T> = (T) -> String
 
     private var exact: [AnyHashable: (Any) -> String?]
-    private var fuzzy: [(ObjectIdentifier, (Any) -> String?)]
+    private var fuzzy: [(Any) -> String?]
 
     public init() {
         exact = [:]
         fuzzy = []
     }
 
+    /// `set` exactly matches the type.
+    ///
+    ///     class A {
+    ///         var num = 0
+    ///         var description: String {
+    ///             "\(num)"
+    ///         }
+    ///     }
+    ///     class B: A { }
+    ///
+    ///     .any(a)         // "0"
+    ///     .any(b)         // "0"
+    ///
+    ///     stringify.set { a: A in
+    ///         "type(of:a): \(a.num)"
+    ///     }
+    ///
+    ///     .any(a)         // "A: 0"
+    ///     .any(b)         // "0"
     public mutating func set<T>(_ stringify: @escaping Stringify<T>) {
         exact[ObjectIdentifier(T.self)] = { any -> String? in
             if let t = any as? T {
@@ -20,6 +46,25 @@ public struct LogStringify {
         }
     }
 
+    /// `use` fuzzyly matches the type.
+    ///
+    ///     class A {
+    ///         var num = 0
+    ///         var description: String {
+    ///             "\(num)"
+    ///         }
+    ///     }
+    ///     class B: A { }
+    ///
+    ///     .any(a)         // "0"
+    ///     .any(b)         // "0"
+    ///
+    ///     stringify.use { a: A in
+    ///         "type(of:a): \(a.num)"
+    ///     }
+    ///
+    ///     .any(a)         // "A: 0"
+    ///     .any(b)         // "B: 0"
     public mutating func use<T>(_ stringify: @escaping Stringify<T>) {
         let body: (Any) -> String? = { any -> String? in
             if let t = any as? T {
@@ -28,20 +73,10 @@ public struct LogStringify {
             return nil
         }
 
-        fuzzy.append((ObjectIdentifier(T.self), body))
+        fuzzy.append(body)
     }
 
-    public mutating func useFirst<T>(_ stringify: @escaping Stringify<T>) {
-        let body: (Any) -> String? = { any -> String? in
-            if let t = any as? T {
-                return stringify(t)
-            }
-            return nil
-        }
-
-        fuzzy.insert((ObjectIdentifier(T.self), body), at: 0)
-    }
-
+    /// reset the stringify.
     public mutating func clear() {
         exact = [:]
         fuzzy = []
@@ -54,7 +89,7 @@ public struct LogStringify {
             return string
         }
 
-        for (_, stringify) in fuzzy {
+        for stringify in fuzzy {
             if let string = stringify(any) {
                 return string
             }

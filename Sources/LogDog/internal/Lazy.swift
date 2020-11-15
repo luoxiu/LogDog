@@ -15,4 +15,11 @@ final class AtomicLazy<T> {
             return t
         }
     }
+
+    /// for test
+    func snapshot() -> [AnyHashable: T] {
+        queue.sync {
+            cache
+        }
+    }
 }

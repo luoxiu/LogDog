@@ -9,7 +9,7 @@
 ///
 /// You can create your own custom appenders freely, e.g.
 ///
-/// - `FileLogAppender` - I'm also working on this, : )
+/// - `FileLogAppender`
 /// - `SQLiteLogAppender`
 /// - `SlackLogAppeder`
 ///

@@ -1,6 +1,4 @@
-/// Lets `x` conform to `LogStringifyCompatible` to customize the value of `.any(x)`.
+/// Let `x` conform to `LogStringifyCompatible` to customize the value of `.any(x)`.
 public protocol LogStringifyCompatible {
-    var stringified: String {
-        get
-    }
+    var stringified: String { get }
 }

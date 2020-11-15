@@ -1,4 +1,4 @@
-public extension LogSink where Self.Output: RangeReplaceableCollection {
+public extension LogSink where Output: RangeReplaceableCollection {
     func prefix(_ prefix: Output) -> LogSinks.Concat<Self, LogFormatters.Prefix<Output>> {
         self + LogFormatters.Prefix<Output>(prefix: prefix)
     }
@@ -16,7 +16,7 @@ public extension LogFormatters {
         }
 
         public func sink(_ record: LogRecord<T>, next: @escaping LogSinkNext<T>) {
-            record.sink(before: next) { record in
+            record.sink(next: next) { record in
                 prefix + record.output
             }
         }
