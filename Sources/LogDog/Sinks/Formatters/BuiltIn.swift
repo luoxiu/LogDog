@@ -18,7 +18,14 @@ public extension LogFormatters {
             case medium
             /// Long
             ///
-            ///
+            ///     ╔════════════════════════════════════════════════════════════════════════════════
+            ///     ║ 2020-11-16 18:46:31.157  App  ERROR     (main.swift:39  run(_:))
+            ///     ╟────────────────────────────────────────────────────────────────────────────────
+            ///     ║ bad response
+            ///     ╟────────────────────────────────────────────────────────────────────────────────
+            ///     ║ url=/me
+            ///     ║ status_code=404
+            ///     ╚════════════════════════════════════════════════════════════════════════════════
             case long
         }
 
@@ -26,16 +33,16 @@ public extension LogFormatters {
 
         private let sink: AnyLogSink<Void, String>
 
-        public init(style: Style) {
+        private init(style: Style) {
             self.style = style
 
             switch style {
             case .short:
-                sink = LogFormatters.BuiltIn.short
+                sink = LogFormatters.BuiltIn.underlyingShort
             case .medium:
-                sink = LogFormatters.BuiltIn.medium
+                sink = LogFormatters.BuiltIn.underlyingMedium
             case .long:
-                sink = LogFormatters.BuiltIn.long
+                sink = LogFormatters.BuiltIn.underlyingLong
             }
         }
 
@@ -49,10 +56,18 @@ public extension LogFormatters {
     }
 }
 
+public extension LogFormatters.BuiltIn {
+    static let short = LogFormatters.BuiltIn(style: .short)
+
+    static let medium = LogFormatters.BuiltIn(style: .medium)
+
+    static let long = LogFormatters.BuiltIn(style: .long)
+}
+
 // MARK: Short
 
-private extension LogFormatters.BuiltIn {
-    static let short: AnyLogSink<Void, String> = .init { record, next in
+extension LogFormatters.BuiltIn {
+    private static let underlyingShort: AnyLogSink<Void, String> = .init { record, next in
         record.sink(next: next) { (record) -> String? in
             let level = record.entry.level.initial
             return "\(level): \(record.entry.message)"
@@ -62,14 +77,14 @@ private extension LogFormatters.BuiltIn {
 
 // MARK: Medium
 
-private extension LogFormatters.BuiltIn {
+extension LogFormatters.BuiltIn {
     private struct Medium: LogParameterKey {
         typealias Value = Medium
 
         let date = Date()
     }
 
-    static let medium: AnyLogSink<Void, String> = .init {
+    private static let underlyingMedium: AnyLogSink<Void, String> = .init {
         $0.parameters[Medium.self] = .init()
     } sink: { record, next in
         record.sink(next: next) { (record) -> String? in
@@ -100,13 +115,14 @@ private extension LogFormatters.BuiltIn {
 
 // MARK: Long
 
-private extension LogFormatters.BuiltIn {
+extension LogFormatters.BuiltIn {
     private struct Long: LogParameterKey {
         typealias Value = Long
 
         let date = Date()
     }
 
+    
     private static let width = 80
     private static let borderTop = "╔" + repeatElement("═", count: width)
     private static let borderBottom = "╚" + repeatElement("═", count: width)
@@ -128,7 +144,7 @@ private extension LogFormatters.BuiltIn {
         string += "║ \(line)\n"
     }
 
-    static let long: AnyLogSink<Void, String> = .init {
+    static let underlyingLong: AnyLogSink<Void, String> = .init {
         $0.parameters[Long.self] = .init()
     } sink: { record, next in
         record.sink(next: next) { (record) -> String? in
@@ -143,7 +159,7 @@ private extension LogFormatters.BuiltIn {
             var sections: [[String]] = []
 
             sections.append([
-                "\(time)  \(record.entry.label)  \(level)  \(filename):\(record.entry.line)  \(record.entry.function)",
+                "\(time)  \(record.entry.label)  \(level)  (\(filename):\(record.entry.line)  \(record.entry.function))"
             ])
 
             sections.append(["\(record.entry.message)"])

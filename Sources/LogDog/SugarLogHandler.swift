@@ -1,8 +1,11 @@
+/// Global shared logger.
+public let sugar = Logger.sugar("app")
+
 public extension Logger {
     static func sugar(_ label: String) -> Logger {
         Logger(label: label) {
             SugarLogHandler(label: $0,
-                            sink: LogFormatters.BuiltIn(style: .long).suffix("\n"),
+                            sink: LogFormatters.BuiltIn.long.suffix("\n"),
                             appender: TextLogAppender.stdout)
         }
     }

@@ -95,6 +95,11 @@ final class LogStringifyTests: XCTestCase {
         XCTAssertEqual(stringify.stringify(C()), "c")
     }
 
+    func testDefault() {
+        let data = Data(repeating: 0, count: 1024)
+        XCTAssertEqual(Logger.MetadataValue.any(data), .string("1 KB"))
+    }
+
     func testMetadataValueAny() {
         LogStringify.default.use { (_: C) in
             "use_c"

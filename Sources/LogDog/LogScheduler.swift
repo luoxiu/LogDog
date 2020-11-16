@@ -10,12 +10,6 @@ extension DispatchQueue: LogScheduler {
     }
 }
 
-extension OperationQueue: LogScheduler {
-    public func schedule(_ action: @escaping () -> Void) {
-        addOperation(action)
-    }
-}
-
 extension DispatchQueue {
     private struct Sync: LogScheduler {
         private let queue: DispatchQueue
