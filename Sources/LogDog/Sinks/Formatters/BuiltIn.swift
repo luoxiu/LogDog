@@ -122,7 +122,6 @@ extension LogFormatters.BuiltIn {
         let date = Date()
     }
 
-    
     private static let width = 80
     private static let borderTop = "╔" + repeatElement("═", count: width)
     private static let borderBottom = "╚" + repeatElement("═", count: width)
@@ -159,7 +158,7 @@ extension LogFormatters.BuiltIn {
             var sections: [[String]] = []
 
             sections.append([
-                "\(time)  \(record.entry.label)  \(level)  (\(filename):\(record.entry.line)  \(record.entry.function))"
+                "\(time)  \(record.entry.label)  \(level)  (\(filename):\(record.entry.line)  \(record.entry.function))",
             ])
 
             sections.append(["\(record.entry.message)"])
