@@ -11,6 +11,12 @@ public extension LogSink {
 }
 
 public extension LogSinks.When where T: StringProtocol {
+    func contains<S: StringProtocol>(_ other: S) -> LogSinks.When<Sink, T>.Match {
+        .init(when: self) {
+            $0.contains(other)
+        }
+    }
+
     func includes<S: StringProtocol>(_ other: S) -> LogSinks.When<Sink, T>.Match {
         .init(when: self) {
             $0.contains(other)
@@ -32,6 +38,18 @@ public extension LogSinks.When where T: StringProtocol {
     func hasSuffix<Suffix>(_ suffix: Suffix) -> LogSinks.When<Sink, T>.Match where Suffix: StringProtocol {
         .init(when: self) {
             $0.hasSuffix(suffix)
+        }
+    }
+
+    func start<Prefix>(with prefix: Prefix) -> LogSinks.When<Sink, T>.Match where Prefix: StringProtocol {
+        .init(when: self) {
+            $0.hasPrefix(prefix)
+        }
+    }
+
+    func end<Prefix>(with prefix: Prefix) -> LogSinks.When<Sink, T>.Match where Prefix: StringProtocol {
+        .init(when: self) {
+            $0.hasSuffix(prefix)
         }
     }
 }
