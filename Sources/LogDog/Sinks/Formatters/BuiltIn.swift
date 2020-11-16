@@ -1,6 +1,6 @@
 import Foundation
 
-public extension LogFormatters {
+public extension LogSinks {
     struct BuiltIn: LogSink {
         public typealias Input = Void
         public typealias Output = String
@@ -38,11 +38,11 @@ public extension LogFormatters {
 
             switch style {
             case .short:
-                sink = LogFormatters.BuiltIn.underlyingShort
+                sink = LogSinks.BuiltIn.underlyingShort
             case .medium:
-                sink = LogFormatters.BuiltIn.underlyingMedium
+                sink = LogSinks.BuiltIn.underlyingMedium
             case .long:
-                sink = LogFormatters.BuiltIn.underlyingLong
+                sink = LogSinks.BuiltIn.underlyingLong
             }
         }
 
@@ -56,17 +56,17 @@ public extension LogFormatters {
     }
 }
 
-public extension LogFormatters.BuiltIn {
-    static let short = LogFormatters.BuiltIn(style: .short)
+public extension LogSinks.BuiltIn {
+    static let short = LogSinks.BuiltIn(style: .short)
 
-    static let medium = LogFormatters.BuiltIn(style: .medium)
+    static let medium = LogSinks.BuiltIn(style: .medium)
 
-    static let long = LogFormatters.BuiltIn(style: .long)
+    static let long = LogSinks.BuiltIn(style: .long)
 }
 
 // MARK: Short
 
-extension LogFormatters.BuiltIn {
+extension LogSinks.BuiltIn {
     private static let underlyingShort: AnyLogSink<Void, String> = .init { record, next in
         record.sink(next: next) { (record) -> String? in
             let level = record.entry.level.initial
@@ -77,7 +77,7 @@ extension LogFormatters.BuiltIn {
 
 // MARK: Medium
 
-extension LogFormatters.BuiltIn {
+extension LogSinks.BuiltIn {
     private struct Medium: LogParameterKey {
         typealias Value = Medium
 
@@ -92,7 +92,7 @@ extension LogFormatters.BuiltIn {
                 return nil
             }
 
-            let time = LogHelper.stringify(medium.date, "HH:mm:ss.SSS")
+            let time = LogHelper.format(medium.date, using: "HH:mm:ss.SSS")
             let level = record.entry.level.initial
             let filename = LogHelper.basename(of: record.entry.file)
 
@@ -115,7 +115,7 @@ extension LogFormatters.BuiltIn {
 
 // MARK: Long
 
-extension LogFormatters.BuiltIn {
+extension LogSinks.BuiltIn {
     private struct Long: LogParameterKey {
         typealias Value = Long
 
@@ -151,7 +151,7 @@ extension LogFormatters.BuiltIn {
                 return nil
             }
 
-            let time = LogHelper.stringify(long.date, "yyyy-MM-dd HH:mm:ss.SSS")
+            let time = LogHelper.format(long.date, using: "yyyy-MM-dd HH:mm:ss.SSS")
             let level = record.entry.level.uppercased.padding(toLength: 8, withPad: " ", startingAt: 0)
             let filename = LogHelper.basename(of: record.entry.file)
 

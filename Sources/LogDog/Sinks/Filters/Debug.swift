@@ -1,12 +1,12 @@
 import Foundation
 
 public extension LogSink {
-    func debug() -> LogSinks.Concat<Self, LogFilters.Debug<Output>> {
+    func debug() -> LogSinks.Concat<Self, LogSinks.Debug<Output>> {
         self + .init()
     }
 }
 
-public extension LogFilters {
+public extension LogSinks {
     struct Debug<Output>: LogSink {
         public typealias Input = Output
 

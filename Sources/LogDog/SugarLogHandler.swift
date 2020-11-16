@@ -5,7 +5,7 @@ public extension Logger {
     static func sugar(_ label: String) -> Logger {
         Logger(label: label) {
             SugarLogHandler(label: $0,
-                            sink: LogFormatters.BuiltIn.long.suffix("\n"),
+                            sink: LogSinks.BuiltIn.long.suffix("\n"),
                             appender: TextLogAppender.stdout)
         }
     }

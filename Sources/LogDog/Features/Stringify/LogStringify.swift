@@ -109,6 +109,6 @@ public extension LogStringify {
     }()
 
     static var data: Stringify<Data> = {
-        LogHelper.stringify($0)
+        LogHelper.format($0)
     }
 }

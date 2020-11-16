@@ -1,12 +1,12 @@
 import Foundation
 
 public extension LogSink where Output == Void {
-    func encode<Encoder: LogEncoder>(encoder: Encoder) -> LogSinks.Concat<Self, LogFormatters.Encode<Encoder>> {
-        self + LogFormatters.Encode(encoder: encoder)
+    func encode<Encoder: LogEncoder>(encoder: Encoder) -> LogSinks.Concat<Self, LogSinks.Encode<Encoder>> {
+        self + LogSinks.Encode(encoder: encoder)
     }
 }
 
-public extension LogFormatters {
+public extension LogSinks {
     /// All key-value pairs in the entry's parameters whose key is string and value is codable will be encoded.
     struct Encode<Encoder>: LogSink where Encoder: LogEncoder {
         public typealias Input = Void

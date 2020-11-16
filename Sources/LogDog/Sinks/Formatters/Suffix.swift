@@ -1,10 +1,10 @@
 public extension LogSink where Self.Output: RangeReplaceableCollection {
-    func suffix(_ suffix: Output) -> LogSinks.Concat<Self, LogFormatters.Suffix<Output>> {
-        self + LogFormatters.Suffix<Output>(suffix: suffix)
+    func suffix(_ suffix: Output) -> LogSinks.Concat<Self, LogSinks.Suffix<Output>> {
+        self + LogSinks.Suffix<Output>(suffix: suffix)
     }
 }
 
-public extension LogFormatters {
+public extension LogSinks {
     struct Suffix<T>: LogSink where T: RangeReplaceableCollection {
         public typealias Input = T
         public typealias Output = T

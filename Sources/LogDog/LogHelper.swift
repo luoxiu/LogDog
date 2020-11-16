@@ -31,9 +31,9 @@ public extension LogHelper {
 // MARK: Data
 
 public extension LogHelper {
-    static func stringify(_ data: Data, _ style: ByteCountFormatter.CountStyle = .file) -> String {
+    static func format(_ data: Data, using style: ByteCountFormatter.CountStyle = .memory) -> String {
         enum Static {
-            static var lazy = AtomicLazy<ByteCountFormatter>()
+            static let lazy = AtomicLazy<ByteCountFormatter>()
         }
 
         let formatter = Static.lazy.get(style, whenNotFound: { () -> ByteCountFormatter in
@@ -49,7 +49,7 @@ public extension LogHelper {
 // MARK: Date
 
 public extension LogHelper {
-    static func stringify(_ date: Date, _ format: String) -> String {
+    static func format(_ date: Date, using format: String) -> String {
         enum Static {
             static var lazy = AtomicLazy<DateFormatter>()
         }

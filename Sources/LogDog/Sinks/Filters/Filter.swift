@@ -1,17 +1,14 @@
-/// A namespace for filter-style sinks.
-public enum LogFilters {}
-
 public extension LogSink {
     func filter(
         isIncluded: @escaping (LogRecord<Output>) throws -> Bool
     )
-        -> LogSinks.Concat<Self, LogFilters.Filter<Output>>
+        -> LogSinks.Concat<Self, LogSinks.Filter<Output>>
     {
         self + .init(isIncluded: isIncluded)
     }
 }
 
-public extension LogFilters {
+public extension LogSinks {
     struct Filter<Output>: LogSink {
         public typealias Input = Output
 

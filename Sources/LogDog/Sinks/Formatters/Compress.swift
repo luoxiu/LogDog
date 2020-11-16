@@ -5,12 +5,12 @@ import Foundation
 
     public extension LogSink where Self.Output == Data {
         @available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *)
-        func compress(_ algorithm: compression_algorithm) -> LogSinks.Concat<Self, LogFormatters.Compress> {
-            self + LogFormatters.Compress(algorithm)
+        func compress(_ algorithm: compression_algorithm) -> LogSinks.Concat<Self, LogSinks.Compress> {
+            self + LogSinks.Compress(algorithm)
         }
     }
 
-    public extension LogFormatters {
+    public extension LogSinks {
         @available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *)
         struct Compress: LogSink {
             public typealias Input = Data

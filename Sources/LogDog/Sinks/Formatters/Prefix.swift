@@ -1,10 +1,10 @@
 public extension LogSink where Output: RangeReplaceableCollection {
-    func prefix(_ prefix: Output) -> LogSinks.Concat<Self, LogFormatters.Prefix<Output>> {
-        self + LogFormatters.Prefix<Output>(prefix: prefix)
+    func prefix(_ prefix: Output) -> LogSinks.Concat<Self, LogSinks.Prefix<Output>> {
+        self + LogSinks.Prefix<Output>(prefix: prefix)
     }
 }
 
-public extension LogFormatters {
+public extension LogSinks {
     struct Prefix<T>: LogSink where T: RangeReplaceableCollection {
         public typealias Input = T
         public typealias Output = T

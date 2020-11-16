@@ -5,12 +5,12 @@ import Foundation
 
     @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     public extension LogSink where Self.Output == Data {
-        func encrypt(using key: SymmetricKey, cipher: LogFormatters.Crypto.Cipher = .ChaChaPoly) -> LogSinks.Concat<Self, LogFormatters.Crypto> {
-            self + LogFormatters.Crypto(key: key, cipher: cipher)
+        func encrypt(using key: SymmetricKey, cipher: LogSinks.Crypto.Cipher = .ChaChaPoly) -> LogSinks.Concat<Self, LogSinks.Crypto> {
+            self + LogSinks.Crypto(key: key, cipher: cipher)
         }
     }
 
-    public extension LogFormatters {
+    public extension LogSinks {
         @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
         struct Crypto: LogSink {
             public typealias Input = Data

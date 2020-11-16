@@ -1,29 +1,30 @@
 public struct LogEntry {
-    public final class Storage {
-        public let label: String
+    // Avoid copy.
+    private final class Storage {
+        let label: String
 
-        public let level: Logger.Level
+        let level: Logger.Level
 
-        public let message: Logger.Message
+        let message: Logger.Message
 
-        public let metadata: Logger.Metadata
+        let metadata: Logger.Metadata
 
-        public let source: String
+        let source: String
 
-        public let file: String
+        let file: String
 
-        public let function: String
+        let function: String
 
-        public let line: UInt
+        let line: UInt
 
-        public init(label: String,
-                    level: Logger.Level,
-                    message: Logger.Message,
-                    metadata: Logger.Metadata,
-                    source: String,
-                    file: String,
-                    function: String,
-                    line: UInt)
+        init(label: String,
+             level: Logger.Level,
+             message: Logger.Message,
+             metadata: Logger.Metadata,
+             source: String,
+             file: String,
+             function: String,
+             line: UInt)
         {
             self.label = label
             self.level = level

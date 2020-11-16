@@ -1,17 +1,14 @@
-/// A namespace for formatter-style sinks.
-public enum LogFormatters {}
-
 public extension LogSink {
     func format<NewOutput>(
         format: @escaping (LogRecord<Output>) throws -> NewOutput?
     )
-        -> LogSinks.Concat<Self, LogFormatters.Format<Output, NewOutput>>
+        -> LogSinks.Concat<Self, LogSinks.Format<Output, NewOutput>>
     {
         self + .init(format: format)
     }
 }
 
-public extension LogFormatters {
+public extension LogSinks {
     struct Format<Input, Output>: LogSink {
         public let format: (LogRecord<Input>) throws -> Output?
 

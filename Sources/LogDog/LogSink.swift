@@ -44,13 +44,13 @@ public extension LogRecord {
     }
 
     func sink<Sink, NewOutput>(
-        firstly: Sink,
+        from: Sink,
         next: @escaping LogSinkNext<NewOutput>,
         transform: @escaping LogRecordTransform<Sink.Output, NewOutput>
     )
         where Sink: LogSink, Sink.Input == Output
     {
-        firstly.sink(self) { result in
+        from.sink(self) { result in
             switch result {
             case let .failure(error):
                 next(.failure(error))
@@ -60,16 +60,7 @@ public extension LogRecord {
                     return
                 }
 
-                do {
-                    guard let newOutput = try transform(record) else {
-                        next(.success(nil))
-                        return
-                    }
-
-                    next(.success(.init(entry, newOutput)))
-                } catch {
-                    next(.failure(error))
-                }
+                record.sink(next: next, transform: transform)
             }
         }
     }

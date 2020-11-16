@@ -7,9 +7,10 @@
 /// - `MemoryLogAppender`
 /// - `MultiplexLogAppender`
 ///
-/// You can create your own custom appenders freely, e.g.
+/// Feel free to create your own custom appenders! e.g.
 ///
 /// - `FileLogAppender`
+/// - `HTTPLogAppender`
 /// - `SQLiteLogAppender`
 /// - `SlackLogAppeder`
 ///
@@ -17,6 +18,8 @@
 ///
 /// - `CocoaLumberjackLogAppender`
 /// - `NSLoggerLogAppender`
+///
+/// You can find many interesting logDog extensions at [LogDogCommunity](https://github.com/LogDogCommunity).
 public protocol LogAppender {
     associatedtype Output
 
