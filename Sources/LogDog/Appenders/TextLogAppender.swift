@@ -14,6 +14,7 @@ import Foundation
 public struct TextLogAppender: LogAppender {
     public let stream: TextOutputStream
 
+    /// The stream should be thread safe.
     public init(_ stream: TextOutputStream) {
         self.stream = stream
     }

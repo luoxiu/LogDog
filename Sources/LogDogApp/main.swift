@@ -41,12 +41,6 @@ func run(_ logger: Logger) {
     logger.c("can not connect to db")
 }
 
-if #available(OSX 10.12, *) {
-    Thread.detachNewThread {
-        run(logger1)
-    }
-} else {
-    // Fallback on earlier versions
-}
+run(logger1)
 
 dispatchMain()
