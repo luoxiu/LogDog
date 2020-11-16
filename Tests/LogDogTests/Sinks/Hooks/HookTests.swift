@@ -1,7 +1,7 @@
 @testable import LogDog
 import XCTest
 
-class LogHooksTests: XCTestCase {
+class HooksTests: XCTestCase {
     func testHook() {
         var entry = LogEntry.fake()
 

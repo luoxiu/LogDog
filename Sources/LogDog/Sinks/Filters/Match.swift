@@ -70,6 +70,20 @@ public extension LogSinks.When where T: Equatable {
     }
 }
 
+public extension LogSinks.When where T == Logger.Level {
+    func greater(than level: T) -> LogSinks.When<Sink, T>.Match {
+        .init(when: self) {
+            $0 > level
+        }
+    }
+
+    func greaterThanOrEqualTo(_ level: T) -> LogSinks.When<Sink, T>.Match {
+        .init(when: self) {
+            $0 >= level
+        }
+    }
+}
+
 public extension LogSinks.When.Match {
     var allow: LogSinks.When<Sink, T>.Match.Do {
         .init(match: self, action: .allow)
