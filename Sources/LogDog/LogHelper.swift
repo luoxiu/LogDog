@@ -69,7 +69,7 @@ public extension LogHelper {
 
 public extension LogHelper {
     static var deviceName: String? {
-        #if canImport(UIKit)
+        #if os(iOS)
             return UIDevice.current.name
         #else
             return Host.current().localizedName
