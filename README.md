@@ -216,6 +216,8 @@ Append outputs to the underlying appenders.
 let appender = MultiplexLogAppender(concurrent: true, a, b, c, d/*, ...*/)
 ```
 
+**FileLogAppender(WIP)**
+
 ### SugarLogHandler
 
 Create a `SugarLogHandler`.
@@ -224,8 +226,12 @@ Create a `SugarLogHandler`.
 let sink = LogSinks.Builtin.short
 let appender = TextLogAppender.stdout
 
-let handler = SugarLogHandler(label: label, sink: sink, appender: appender) { error in
+var handler = SugarLogHandler(label: label, sink: sink, appender: appender) { error in
     print("error: \(error)")
+}
+
+handler.dynamicMetadata["userId"] = {
+    AuthService.shared.userId
 }
 ```
 
