@@ -13,13 +13,13 @@ public extension LogSinks {
             case short
             /// Medium
             ///
-            ///     17:40:56.850 E/App main.swift.39: bad response url=/me, status_code=404
-            ///     17:40:56.850 C/App main.swift.41: can not connect to db
+            ///     20:40:56.850 E/App main.swift.39: bad response url=/me, status_code=404
+            ///     20:40:56.850 C/App main.swift.41: can not connect to db
             case medium
             /// Long
             ///
             ///     ╔════════════════════════════════════════════════════════════════════════════════
-            ///     ║ 2020-11-16 18:46:31.157  App  ERROR     (main.swift:39  run(_:))
+            ///     ║ 2020-11-15 20:46:31.157  App  ERROR     (main.swift:39  run(_:))
             ///     ╟────────────────────────────────────────────────────────────────────────────────
             ///     ║ bad response
             ///     ╟────────────────────────────────────────────────────────────────────────────────
@@ -33,7 +33,7 @@ public extension LogSinks {
 
         private let sink: AnyLogSink<Void, String>
 
-        private init(style: Style) {
+        public init(style: Style) {
             self.style = style
 
             switch style {
