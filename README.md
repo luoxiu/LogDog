@@ -14,6 +14,35 @@
 
 ## Usage
 
+### SugarLogHandler
+
+Create a `SugarLogHandler`.
+
+```swift
+let sink = LogSinks.Builtin.short
+let appender = TextLogAppender.stdout
+
+var handler = SugarLogHandler(label: label, sink: sink, appender: appender) { error in
+    print("error: \(error)")
+}
+
+handler.dynamicMetadata["userId"] = {
+    AuthService.shared.userId
+}
+```
+
+Create a logger with predefined log handler.
+
+```swift
+let logger = Logger.sugar("worker:a")
+```
+
+Use the predefined logger.
+
+```swift
+sugar.debug("hi")
+```
+
 ### Sink
 
 #### Format
@@ -217,35 +246,6 @@ let appender = MultiplexLogAppender(concurrent: true, a, b, c, d/*, ...*/)
 ```
 
 **FileLogAppender(WIP)**
-
-### SugarLogHandler
-
-Create a `SugarLogHandler`.
-
-```swift
-let sink = LogSinks.Builtin.short
-let appender = TextLogAppender.stdout
-
-var handler = SugarLogHandler(label: label, sink: sink, appender: appender) { error in
-    print("error: \(error)")
-}
-
-handler.dynamicMetadata["userId"] = {
-    AuthService.shared.userId
-}
-```
-
-Create a logger with predefined log handler.
-
-```swift
-let logger = Logger.sugar("worker:a")
-```
-
-Use the predefined logger.
-
-```swift
-sugar.debug("hi")
-```
 
 ## Community
 
