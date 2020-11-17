@@ -71,8 +71,10 @@ public extension LogHelper {
     static var deviceName: String? {
         #if os(iOS)
             return UIDevice.current.name
-        #else
+        #elseif os(macOS)
             return Host.current().localizedName
+        #else
+            return nil
         #endif
     }
 
