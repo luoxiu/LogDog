@@ -96,15 +96,9 @@ final class LogStringifyTests: XCTestCase {
     }
 
     func testDefault() {
-        // the test passes on my mac, but fails on ci, because of...
-        //
-        // 1 KB // ["1", " ", "K", "B"]
-        // 1 KB // ["1", "\u{2006}", "K", "B"]
         let data = Data(repeating: 0, count: 1024)
-        XCTAssert(
-            Logger.MetadataValue.any(data) == .string("1 KB")
-            ||
-            Logger.MetadataValue.any(data) == .string("1 KB")
+        XCTAssertEqual(
+            ByteCountFormatter.normalize(Logger.MetadataValue.any(data).description), "1 KB"
         )
     }
 

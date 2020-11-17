@@ -3,10 +3,10 @@ import XCTest
 
 class MultiplexLogAppenderTests: XCTestCase {
     func testAppend() {
-        let streamA = TestStream()
+        let streamA = TextStream()
         let appenderA = TextLogAppender(streamA)
 
-        let streamB = TestStream()
+        let streamB = TextStream()
         let appenderB = TextLogAppender(streamB)
 
         let appender = MultiplexLogAppender(appenderA, appenderB)

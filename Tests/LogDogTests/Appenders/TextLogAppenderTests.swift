@@ -3,7 +3,7 @@ import XCTest
 
 class TestLogAppenderTests: XCTestCase {
     func testAppend() {
-        let stream = TestStream()
+        let stream = TextStream()
         let appender = TextLogAppender(stream)
 
         do {

@@ -4,8 +4,12 @@ import XCTest
 class LogHelperTests: XCTestCase {
     func testDataFormat() {
         let data = Data(repeating: 0, count: 1000 * 1000)
-        XCTAssertEqual(LogHelper.format(data, using: .file), "1 MB")
-        XCTAssertEqual(LogHelper.format(data, using: .memory), "977 KB")
+        XCTAssertEqual(
+            ByteCountFormatter.normalize(LogHelper.format(data, using: .file)), "1 MB"
+        )
+        XCTAssertEqual(
+            ByteCountFormatter.normalize(LogHelper.format(data, using: .memory)), "977 KB"
+        )
     }
 
     func testDateFormat() {

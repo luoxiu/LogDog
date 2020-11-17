@@ -1,6 +1,6 @@
 import Foundation
 
-class TestStream: TextOutputStream {
+class TextStream: TextOutputStream {
     let lock = NSLock()
     var buffer = ""
 
