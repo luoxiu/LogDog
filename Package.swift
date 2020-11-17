@@ -6,7 +6,6 @@ let package = Package(
     name: "LogDog",
     products: [
         .library(name: "LogDog", targets: ["LogDog"]),
-        .executable(name: "LogDogApp", targets: ["LogDogApp"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
