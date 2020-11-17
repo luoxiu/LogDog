@@ -23,7 +23,7 @@ class FilterTests: XCTestCase {
             logger.d("\(c)")
         }
 
-        XCTAssertEqual(appender.snapshot.map { $0.output }.joined(),
+        XCTAssertEqual(appender.snapshot.map(\.output).joined(),
                        "abcyz")
     }
 
@@ -47,7 +47,7 @@ class FilterTests: XCTestCase {
         logger.e("e")
         logger.c("c")
 
-        XCTAssertEqual(appender.snapshot.map { $0.output }.joined(),
+        XCTAssertEqual(appender.snapshot.map(\.output).joined(),
                        "ec")
     }
 }

@@ -15,7 +15,7 @@ private class C: B {
 
 extension C: LogStringifyCompatible {
     var stringified: String {
-        return "LogStringifyCompatible_c"
+        "LogStringifyCompatible_c"
     }
 }
 

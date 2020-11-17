@@ -29,7 +29,7 @@ class AnyLogAppenderTests: XCTestCase {
             try appender.append(LogRecord<Int>(.fake(), 2))
             try appender.append(LogRecord<Int>(.fake(), 3))
 
-            XCTAssertEqual(underlying.snapshot.map { $0.output },
+            XCTAssertEqual(underlying.snapshot.map(\.output),
                            [1, 2, 3])
         } catch {
             XCTFail()

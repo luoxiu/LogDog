@@ -1,10 +1,9 @@
-import Combine
 import Foundation
 import LogDog
 
-let logger1 = Logger.sugar("App")
+let loggerA = Logger.sugar("worker:a")
 
-let logger2 = Logger(label: "DB") { label in
+let loggerB = Logger(label: "worker:b") { label in
 
     let encoder = JSONEncoder()
     if #available(OSX 10.15, *) {
@@ -24,7 +23,7 @@ let logger2 = Logger(label: "DB") { label in
     return SugarLogHandler(label: label, sink: sink, appender: TextLogAppender.stdout)
 }
 
-func run(_ logger: Logger) {
+func demo(_ logger: Logger) {
     logger.t("POST /users", metadata: ["body": ["name": "秋"]])
 
     logger.d("got response", metadata: ["message": "ok"])
@@ -41,6 +40,6 @@ func run(_ logger: Logger) {
     logger.c("can not connect to db")
 }
 
-run(logger1)
+demo(loggerA)
 
 dispatchMain()

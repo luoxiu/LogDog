@@ -1,9 +1,8 @@
-
 @testable import LogDog
 import XCTest
 
-class LogSinksScheduleTests: XCTestCase {
-    func testSchedule() {
+class LogSinksSinkOnTests: XCTestCase {
+    func testSinkOn() {
         let sinkA = AnyLogSink<Int, Int> { record, next in
             record.sink(next: next) { record in
                 XCTAssertTrue(Thread.isMainThread)

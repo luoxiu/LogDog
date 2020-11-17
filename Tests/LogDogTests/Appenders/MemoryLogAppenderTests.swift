@@ -10,7 +10,7 @@ class MemoryLogAppenderTests: XCTestCase {
             try appender.append(LogRecord<Int>(.fake(), 2))
             try appender.append(LogRecord<Int>(.fake(), 3))
 
-            XCTAssertEqual(appender.snapshot.map { $0.output },
+            XCTAssertEqual(appender.snapshot.map(\.output),
                            [1, 2, 3])
         } catch {
             XCTFail()
