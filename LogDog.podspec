@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
     s.name                = 'LogDog'
-    s.version             = '0.1.0'
-    s.summary             = 'Logger with processor'
+    s.version             = '0.2.0'
+    s.summary             = 'Friendly logging.'
     s.homepage            = 'https://github.com/luoxiu/LogDog'
   
     s.license             = { type: 'MIT', file: 'LICENSE' }
@@ -19,8 +19,5 @@ Pod::Spec.new do |s|
     s.source_files        = 'Sources/LogDog/**/*.swift'
 
     s.dependency 'Logging', '~> 1.0'
-    s.dependency 'Chalk', '~> 0.1.0'
-    s.dependency 'ProcessStartTime', '~> 0.0.1'
-    s.dependency 'CryptoSwift', '~> 1.0'
 end
   
