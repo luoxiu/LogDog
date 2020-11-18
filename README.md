@@ -32,18 +32,25 @@ logger.debug("hi")
 Create a `SugarLogHandler` with a `sink`, an `appender` and an optional `errorHandler`.
 
 ```swift
-let sink = LogSinks.Builtin.short
-let appender = TextLogAppender.stdout
-let errorHandler = { error: Error in
-    print("LogError: \(error)")
+LoggingSystem.bootstrap { label in
+    let sink = LogSinks.Builtin.short
+    let appender = TextLogAppender.stdout
+    let errorHandler = { error: Error in
+        print("LogError: \(error)")
+    }
+
+    var handler = SugarLogHandler(label: label, sink: sink, appender: appender, errorHandler: errorHandler)
+
+    // use dynamicMetadata to register values that are evaluted on logging.
+    handler.dynamicMetadata["currentUserId"] = {
+        AuthService.shared.userId
+    }   
+    
+    return handler
 }
 
-var handler = SugarLogHandler(label: label, sink: sink, appender: appender, errorHandler: errorHandler)
-
-// use dynamicMetadata to register values that are evaluted on logging.
-handler.dynamicMetadata["currentUserId"] = {
-    AuthService.shared.userId
-}
+let logger = Logger(label: "app")
+logger.error("Something went wrong")
 ```
 
 ### Sink
