@@ -7,7 +7,7 @@
 <div align="center">
     <br>
     <br>
-    <strong>Friendly logging.</strong>
+    <strong>user-friendly logging</strong>
     <br>
     <br>
 </div>
@@ -16,34 +16,42 @@
 
 ### SugarLogHandler
 
-Create a `SugarLogHandler`.
-
-```swift
-let sink = LogSinks.Builtin.short
-let appender = TextLogAppender.stdout
-
-var handler = SugarLogHandler(label: label, sink: sink, appender: appender) { error in
-    print("error: \(error)")
-}
-
-handler.dynamicMetadata["userId"] = {
-    AuthService.shared.userId
-}
-```
-
-Create a logger with predefined log handler.
-
-```swift
-let logger = Logger.sugar("worker:a")
-```
-
 Use the predefined logger.
 
 ```swift
 sugar.debug("hi")
 ```
 
+Create a logger with the predefined log handler.
+
+```swift
+let logger = Logger.sugar("worker:a")
+logger.debug("hi")
+```
+
+Create a `SugarLogHandler` with a `sink`, an `appender` and an optional `errorHandler`.
+
+```swift
+let sink = LogSinks.Builtin.short
+let appender = TextLogAppender.stdout
+let errorHandler = { error: Error in
+    print("LogError: \(error)")
+}
+
+var handler = SugarLogHandler(label: label, sink: sink, appender: appender, errorHandler: errorHandler)
+
+// use dynamicMetadata to register values that are evaluted on logging.
+handler.dynamicMetadata["currentUserId"] = {
+    AuthService.shared.userId
+}
+```
+
 ### Sink
+
+Sinks process log records.
+
+A sink can be a formatter, or a filter, or a plain hook.
+
 
 #### Format
 
@@ -141,10 +149,12 @@ let sink = LogSinks.firstly
         $0.entry.source != "LogDog"
     }
     
-// logs from `LogDog` won't be outputted.
+// logs from `LogDog` will not be output.
 ```
 
 **DSL**
+
+You can use the built-in expressive dsl to create a filter.
 
 ```swift
 let sink = LogSinks.BuiltIn.short
@@ -160,7 +170,12 @@ let sink = LogSinks.BuiltIn.short
 
 #### Concat
 
+A `sink` can concatenate anthoer `sink`.
+
 ```swift
+let sink = sinkA + sinkB + sinkC // + sinkD + ...
+
+// use chain s
 let sink = LogSinks.Builtin.short
     .prefix("🎈 ")
     .suffix(" 🎈")
@@ -175,9 +190,12 @@ let sink = LogSinks.firstly
 
 #### Schedule
 
+When the next processing is heavey, using `Scheduler` can make the logging asynchronous.
+
+
 ```swift
 let sink = LogSinks.firstly
-    .sink(on: dispatchQueue)
+    .sink(on: dispatchQueue) // or an operationQueue, or another scheduler, for example, an eventLoop.
     .encode(JSONEncoder())
     .encrypt(using: key, cipher: .ChaChaPoly)
     .compress(.COMPRESSION_LZFSE)
@@ -185,10 +203,11 @@ let sink = LogSinks.firstly
 
 #### Hook
 
-Because of the existence of the schedule, the sinking may be asynchronous.
-So you should not get the context when sinking.
+Because of the existence of the schedule, the logging may be asynchronous. 
 
-You should use `hook` with `entry.parameters` to capture and store the context.
+You should not get the context when sinking. 
+
+You can use `hook` with `entry.parameters` to capture and store the context.
 
 ```swift
 private struct CustomSinkContext: LogParameterKey {
@@ -199,8 +218,12 @@ private struct CustomSinkContext: LogParameterKey {
 }
 
 let customSink: AnyLogSink<Void, String> = .init {
+    // beforeSink: in the same context as the log generation.
+    
     $0.parameters[CustomSinkContext.self] = .init()
 } sink: { record, next in
+    // sink: may not be in the same context as the log generation.
+
     record.sink(next: next) { (record) -> String? in
         guard let context = record.entry.parameters[CustomSinkContext.self] else {
             return nil
@@ -214,9 +237,22 @@ let customSink: AnyLogSink<Void, String> = .init {
 }
 ```
 
+When using `encode`, parameters with string as key will also be encoded.
+
+```swift
+LogSinks.firstly
+  .hook { 
+     $0.parameters["currentUserId"] = AuthService.shared.userId
+  }
+  .hook(.appName, .appVersion, .date /* , ..., a lot of built-in hooks */)
+```
+
+
 ### Appender
 
-#### Built-in Formatters
+Appenders are destinations of log records.
+
+#### Built-in Appenders
 
 **OSLogAppender**
 
@@ -242,10 +278,16 @@ let stderr = TextLogAppender.stderr
 Append outputs to the underlying appenders.
 
 ```swift
+// when `concurrent` is `true`, a dispatch group is used to make the appending of all appenders parallel. 
 let appender = MultiplexLogAppender(concurrent: true, a, b, c, d/*, ...*/)
 ```
 
 **FileLogAppender(WIP)**
+
+- [ ] async
+- [ ] auto rotate
+- [ ] ...
+
 
 ## Community
 
