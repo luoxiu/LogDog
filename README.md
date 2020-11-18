@@ -314,7 +314,7 @@ Append the output of LogDog to CocoaLumberjack.
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/apple/swift-log.git", from: "0.2.0"),
+.package(url: "https://github.com/luoxiu/LogDog.git", from: "0.2.0"),
 ```
 
 ### CocoaPods
