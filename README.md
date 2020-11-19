@@ -12,27 +12,47 @@
     <br>
 </div>
 
+*[apple/swift-log](https://github.com/apple/swift-log) API compatible*
+
 ## Usage
 
-### SugarLogHandler
-
-Use the predefined logger.
+LogDog is designed to work out of the box, you can use the pre-configured logger anytime, anywhere:
 
 ```swift
 sugar.debug("hi")
+
+sugar.error("somethings went wrong")
 ```
 
-Create a logger with the predefined log handler.
+Or, make a local copy and do some changes:
+
 
 ```swift
-let logger = Logger.sugar("worker:a")
+var logger = suggar
+logger["path"] = "/me"
+
 logger.debug("hi")
 ```
 
-Create a `SugarLogHandler` with a `sink`, an `appender` and an optional `errorHandler`.
+You can quickly create a logger with just a label, it will use the predefined log handler:
+
+```swift
+var logger = Logger.sugar("worker:a")
+logger.level = .info
+
+logger.info("hi")
+```
+
+### SugarLogHandler
+
+The core component that makes this all work is `SugarLogHandler`.
+
+The following code snippet shows how to create a `SugarLogHandler` and use it to bootstrap the logging system.
 
 ```swift
 LoggingSystem.bootstrap { label in
+
+    // ! to create your own `SugarLogHandler`, you need a `sink`, an `appender` and an optional `errorHandler`. 
     let sink = LogSinks.Builtin.short
     let appender = TextLogAppender.stdout
     let errorHandler = { error: Error in
@@ -41,7 +61,7 @@ LoggingSystem.bootstrap { label in
 
     var handler = SugarLogHandler(label: label, sink: sink, appender: appender, errorHandler: errorHandler)
 
-    // use dynamicMetadata to register values that are evaluted on logging.
+    // ! use dynamicMetadata to register values that are evaluted on logging.
     handler.dynamicMetadata["currentUserId"] = {
         AuthService.shared.userId
     }   
@@ -57,10 +77,11 @@ logger.error("Something went wrong")
 
 Sinks process log records.
 
-A sink can be a formatter, or a filter, or a plain hook.
+A sink can be a formatter, or a filter, a hook, or a chain of other sinks.
 
+#### Formatter
 
-#### Format
+You can create a formatter sink with just a closure.
 
 ```swift
 let sink = LogSinks.firstly
@@ -73,7 +94,7 @@ let sink = LogSinks.firstly
 //     DEBUG hello
 ```
 
-##### Built-in Formatters
+Or use the built-in neat formatters directly.
 
 ```swift
 let short = LogSinks.BuiltIn.short
@@ -84,7 +105,7 @@ let short = LogSinks.BuiltIn.short
 //     C: can not connect to db
 
 
-let medium = LogSinks.BuiltIn.medium
+let medium = LogSinks.BuiltIn.medium  // default sink for sugar loggers
 
 // Output:
 //
@@ -105,6 +126,51 @@ let long = LogSinks.BuiltIn.long
 //     ║ status_code=404
 //     ╚════════════════════════════════════════════════════════════════════════════════
 ```
+
+#### Filter
+
+You can create a filter sink with just a closure.
+
+```swift
+let sink = LogSinks.firstly
+    .filter {
+        $0.entry.source != "LogDog"
+    }
+    
+// logs from `LogDog` will not be output.
+```
+
+**DSL**
+
+Or use the built-in expressive dsl to create one.
+
+```swift
+let sink = LogSinks.BuiltIn.short
+    .when(.path)
+    .contains("private")
+    .deny
+    
+let sink = LogSinks.BuiltIn.short
+    .when(.level)
+    .greaterThanOrEqualTo(.error)
+    .allow
+```
+
+#### Concat
+
+Sinks are chainable, a `sink` can concatenate another `sink`.
+
+```swift
+let sink = sinkA + sinkB + sinkC // + sinkD + ...
+
+// or
+let sink = sinkA
+    .concat(sinkB)
+    .concat(sinkC)
+    // .concat(sinkD) ...
+```
+
+LogDog ships with many commonly used operators.
 
 **Prefix & Suffix**
 
@@ -132,89 +198,43 @@ let sink = LogSinks.firstly
     .encode(JSONEncoder())
 ```
 
-**Compress**
-
-```swift
-let sink = LogSinks.firstly
-    .encode(JSONEncoder())
-    .encrypt(using: key, cipher: .ChaChaPoly)
-```
-
 **Crypto**
 
 ```swift
 let sink = LogSinks.firstly
     .encode(JSONEncoder())
-    .compress(.COMPRESSION_LZFSE)
+    .encrypt(using: key, cipher: .ChaChaPoly)
 ```
 
-#### Filter
+**Compress**
+
 
 ```swift
-let sink = LogSinks.firstly
-    .filter {
-        $0.entry.source != "LogDog"
-    }
-    
-// logs from `LogDog` will not be output.
-```
-
-**DSL**
-
-You can use the built-in expressive dsl to create a filter.
-
-```swift
-let sink = LogSinks.BuiltIn.short
-    .when(.path)
-    .contains("private")
-    .deny
-    
-let sink = LogSinks.BuiltIn.short
-    .when(.level)
-    .greaterThanOrEqualTo(.error)
-    .allow
-```
-
-#### Concat
-
-A `sink` can concatenate anthoer `sink`.
-
-```swift
-let sink = sinkA + sinkB + sinkC // + sinkD + ...
-
-// use chain s
-let sink = LogSinks.Builtin.short
-    .prefix("🎈 ")
-    .suffix(" 🎈")
-    .when(.path).contains("private").deny
-    // ...
-    
 let sink = LogSinks.firstly
     .encode(JSONEncoder())
-    .encrypt(using: key, cipher: .ChaChaPoly)
     .compress(.COMPRESSION_LZFSE)
 ```
 
 #### Schedule
 
-When the next processing is heavey, using `Scheduler` can make the logging asynchronous.
+Sinks's processing can be time-consuming, if you don't want it to slow down your work, you can using `Scheduler` to make logging asynchronous.
 
 
 ```swift
 let sink = LogSinks.firstly
-    .sink(on: dispatchQueue) // or an operationQueue, or another scheduler, for example, an eventLoop.
-    .encode(JSONEncoder())
+    .sink(on: dispatchQueue) // or an operationQueue, or some other custom schedulers, for example, an eventLoop.
+    .encode(JSONEncoder()) // time-consuming processing begins.
     .encrypt(using: key, cipher: .ChaChaPoly)
     .compress(.COMPRESSION_LZFSE)
 ```
 
 #### Hook
 
-Because of the existence of the schedule, the logging may be asynchronous. 
+Because of `Scheduler`, the logging may be asynchronous. 
 
-You should not get the context when sinking. 
+It means that the sinking may be in a different context, 
 
-You can use `hook` with `entry.parameters` to capture and store the context.
+You can use `hook` with `entry.parameters` to capture and pass the context.
 
 ```swift
 private struct CustomSinkContext: LogParameterKey {
@@ -224,12 +244,14 @@ private struct CustomSinkContext: LogParameterKey {
     let thread = LogHelper.thread
 }
 
-let customSink: AnyLogSink<Void, String> = .init {
-    // beforeSink: in the same context as the log generation.
+let customSink: AnyLogSink<Void, String> = AnyLogSink {
+
+    // ! beforeSink: in the same context as the log generation.
     
     $0.parameters[CustomSinkContext.self] = .init()
 } sink: { record, next in
-    // sink: may not be in the same context as the log generation.
+
+    // ! sink: may not be in the same context as the log generation.
 
     record.sink(next: next) { (record) -> String? in
         guard let context = record.entry.parameters[CustomSinkContext.self] else {
@@ -244,14 +266,30 @@ let customSink: AnyLogSink<Void, String> = .init {
 }
 ```
 
-When using `encode`, parameters with string as key will also be encoded.
+**Please note, when using `encode`, parameters with string as key will also be encoded.**
 
 ```swift
 LogSinks.firstly
   .hook { 
      $0.parameters["currentUserId"] = AuthService.shared.userId
   }
-  .hook(.appName, .appVersion, .date /* , ..., a lot of built-in hooks */)
+  .hook(.appName, .appVersion, .date) /* , ..., a lot of built-in hooks */
+  .encode(JSONEncoder())
+  
+/*
+{
+  "label": "app",
+  "level": "debug",
+  "metadata": {
+    // ...
+  }
+  // ...
+  "currentUserId": "1",
+  "appName": "LogDog",
+  "appVersion": "0.0.1",
+  "date": "2020-11-19T01:12:37.001Z"
+}
+ */
 ```
 
 
@@ -289,7 +327,9 @@ Append outputs to the underlying appenders.
 let appender = MultiplexLogAppender(concurrent: true, a, b, c, d/*, ...*/)
 ```
 
-**FileLogAppender(WIP)**
+**FileLogAppender**
+
+WIP
 
 - [ ] async
 - [ ] auto rotate
