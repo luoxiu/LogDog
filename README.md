@@ -10,9 +10,8 @@
     <strong>user-friendly logging</strong>
     <br>
     <br>
+    <em><a href=https://github.com/apple/swift-log>apple/swift-log</a> api compatible</em>
 </div>
-
-*[apple/swift-log](https://github.com/apple/swift-log) API compatible*
 
 ## Usage
 
