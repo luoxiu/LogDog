@@ -109,8 +109,11 @@ private func transform(_ v: Logger.MetadataValue) -> AnyEncodable {
     switch v {
     case let .string(string):
         return AnyEncodable(string)
-    case let .stringConvertible(string):
-        return AnyEncodable(string.description)
+    case let .stringConvertible(convertible):
+        if let encodable = convertible as? Encodable {
+            return AnyEncodable(encodable)
+        }
+        return AnyEncodable(convertible.description)
     case let .dictionary(dict):
         return AnyEncodable(dict.mapValues(transform))
     case let .array(list):
